@@ -52,8 +52,16 @@ public class ColorReceiver {
 
 
 //	@JmsListener(destination = "color", containerFactory = "mailContainer", subscription = "colorx")
+
+	/**
+	 * the distination ClientId have not necessary exists (it means that his name can be a fancy name), the unique requirement is that
+	 * the containers clientId need to be different between each other
+	 * @param color
+	 * @throws InterruptedException
+	 */
 	@JmsListener(
-		destination = "Consumer.colorContainer.VirtualTopic.color", containerFactory = "colorContainer"
+		destination = "Consumer.colorClient.VirtualTopic.color",
+		containerFactory = "colorContainer"
 //		selector = "color <> 'RED'"
 	)
 	public void genericReceiveMessage(Color color) throws InterruptedException {
@@ -66,7 +74,7 @@ public class ColorReceiver {
 //	@JmsListener(destination = "color", containerFactory = "redColorContainer", selector = "color='RED'", subscription = "client-1")
 	@JmsListener(
 //		destination = "Consumer.redColorContainer.VirtualTopic.color",
-		destination = "Consumer.colorContainer.VirtualTopic.color",
+		destination = "Consumer.colorClient.VirtualTopic.color",
 		containerFactory = "redColorContainer", selector = "color='RED'"
 	)
 	public void receiveMessage(ObjectMessage message) throws InterruptedException, JMSException {

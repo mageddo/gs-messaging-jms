@@ -55,7 +55,7 @@ public class Application {
 //				container.setIdleConsumerLimit(2);
 //				container.setPubSubDomain(true);
 //				container.setSubscriptionDurable(true);
-				container.setClientId("redColorContainer");
+//				container.setClientId("redColorClient");
 			}
 		};
 
@@ -80,7 +80,7 @@ public class Application {
 //				container.setIdleConsumerLimit(2);
 //				container.setPubSubDomain(true);
 //				container.setSubscriptionDurable(true);
-				container.setClientId("colorContainer");
+//				container.setClientId("colorClient");
 			}
 		};
 
