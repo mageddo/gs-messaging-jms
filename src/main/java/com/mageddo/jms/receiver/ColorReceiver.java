@@ -30,6 +30,8 @@ public class ColorReceiver {
 	@Autowired
 	private JmsTemplate jmsTemplate;
 
+	long id=0;
+
 	@Scheduled(fixedDelay = 500)
 	public void postMail() throws JMSException, IOException {
 
