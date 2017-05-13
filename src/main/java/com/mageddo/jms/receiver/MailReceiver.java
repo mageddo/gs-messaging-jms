@@ -36,7 +36,6 @@ public class MailReceiver {
 		LOGGER.info("status=mail-received, mail={}, status=begin", email);
 //		if (new Random().nextInt(30) == 3) {
 		boolean error = true;
-		System.out.println("type enter");
 		if (!error) {
 			Thread.sleep(250);
 			LOGGER.info("status=mail-received, mail={}, status=success", email);

@@ -57,6 +57,7 @@ public class Application {
 		final RedeliveryPolicy rp = new RedeliveryPolicy();
 		rp.setInitialRedeliveryDelay(queue.getTTL());
 		rp.setMaximumRedeliveryDelay(queue.getTTL());
+		rp.setRedeliveryDelay(queue.getTTL());
 		rp.setBackOffMultiplier(2.0);
 		rp.setMaximumRedeliveries(queue.getRetries());
 		rp.setDestination(queueEnum.getDlq());
@@ -85,8 +86,8 @@ public class Application {
 //		cf.setCloseTimeout(5000);
 
 		configurer.configure(factory, connectionFactory);
-		beanFactory.registerSingleton(queue.getName() + "Container", container);
-		beanFactory.registerSingleton(queue.getName() + "Factory", factory);
+		beanFactory.registerSingleton(queue.getFactory() + "Container", container);
+		beanFactory.registerSingleton(queue.getFactory() + "Factory", factory);
 		return factory;
 	}
 
