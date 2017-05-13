@@ -25,9 +25,10 @@ public class MailReceiver {
 
 	private int id = 0;
 
-	@Scheduled(fixedDelay = 500)
+	@Scheduled(fixedDelay = Integer.MAX_VALUE)
 	public void postMail() {
-		jmsTemplate.convertAndSend(QueueEnum.MAIL.getQueue(), String.format("Hello %04d", ++id));
+		for(;;)
+			jmsTemplate.convertAndSend(QueueEnum.MAIL.getQueue(), String.format("Hello %04d", ++id));
 	}
 
 	@JmsListener(destination = QueueConstants.MAIL, containerFactory = QueueConstants.MAIL + "Factory")
@@ -35,9 +36,9 @@ public class MailReceiver {
 
 //		if (new Random().nextInt(30) == 3) {
 		LOGGER.info("status=mail-received, status=begin, mail={}", email);
-		boolean error = true;
+		boolean error = false;
 		if (!error) {
-			Thread.sleep(250);
+			Thread.sleep(50);
 			LOGGER.info("status=mail-received, status=success, mail={}", email);
 		} else {
 			LOGGER.error("status=mail-received, status=error, mail={}", email);

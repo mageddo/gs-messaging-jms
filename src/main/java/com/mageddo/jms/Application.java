@@ -61,7 +61,6 @@ public class Application {
 		rp.setBackOffMultiplier(2.0);
 		rp.setMaximumRedeliveries(queue.getRetries());
 		rp.setDestination(queueEnum.getDlq());
-		rp.set
 
 		connectionFactory.getRedeliveryPolicyMap().put(queue, rp);
 		connectionFactory.setTrustedPackages(Arrays.asList(Color.class.getPackage().getName()));
