@@ -1,6 +1,8 @@
 package com.mageddo.jms.receiver;
 
 import com.mageddo.jms.Email;
+import com.mageddo.jms.queue.QueueConstants;
+import com.mageddo.jms.queue.QueueEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,17 +27,16 @@ public class MailReceiver {
 
 		final Email email = new Email("info@example.com", "Hello");
 		LOGGER.info("status=mail-post, to={}, msg={}", email.getTo(), email.getBody());
-		jmsTemplate.convertAndSend("mailbox", email);
+		jmsTemplate.convertAndSend(QueueEnum.MAIL.getQueue(), email);
 	}
 
-	@JmsListener(destination = "mailbox", containerFactory = "mailContainer")
+	@JmsListener(destination = QueueConstants.MAIL, containerFactory = QueueConstants.MAIL + "Factory")
 	public void consume(String email) throws InterruptedException {
 
 		LOGGER.info("status=mail-received, mail={}, status=begin", email);
 //		if (new Random().nextInt(30) == 3) {
 		boolean error = true;
 		System.out.println("type enter");
-//		new Scanner(System.in).nextLine();
 		if (!error) {
 			Thread.sleep(250);
 			LOGGER.info("status=mail-received, mail={}, status=success", email);

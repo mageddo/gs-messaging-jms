@@ -1,17 +1,14 @@
 package com.mageddo.jms.receiver;
 
-import com.mageddo.jms.Email;
+import com.mageddo.jms.queue.QueueConstants;
+import com.mageddo.jms.queue.TopicEnum;
 import com.mageddo.jms.vo.Color;
-import org.apache.activemq.Message;
-import org.apache.activemq.broker.region.virtual.VirtualTopic;
 import org.apache.activemq.command.ActiveMQObjectMessage;
-import org.apache.activemq.command.ActiveMQTopic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.jms.core.JmsTemplate;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import javax.jms.JMSException;
@@ -44,14 +41,9 @@ public class ColorReceiver {
 		message.compress();
 		message.setProperty("color", color.getName());
 
-//		final VirtualTopic virtualTopic = new VirtualTopic();
-//		virtualTopic.setPrefix("VirtualTopic");
-//		virtualTopic.setName("color");
-		jmsTemplate.convertAndSend(new ActiveMQTopic("VirtualTopic.color"), message);
+		jmsTemplate.convertAndSend(TopicEnum.COLOR.getTopic(), message);
 	}
 
-
-//	@JmsListener(destination = "color", containerFactory = "mailContainer", subscription = "colorx")
 
 	/**
 	 * the distination ClientId have not necessary exists (it means that his name can be a fancy name), the unique requirement is that
@@ -60,9 +52,9 @@ public class ColorReceiver {
 	 * @throws InterruptedException
 	 */
 	@JmsListener(
-		destination = "Consumer.colorClient.VirtualTopic.color",
-		containerFactory = "colorContainer"
-//		selector = "color <> 'RED'"
+		destination = QueueConstants.COLOR,
+		containerFactory = QueueConstants.COLOR + "Factory",
+		selector = "color <> 'RED'"
 	)
 	public void genericReceiveMessage(Color color) throws InterruptedException {
 
@@ -71,11 +63,9 @@ public class ColorReceiver {
 		LOGGER.info("status=GEN-color-receiver, color={}", color);
 	}
 
-//	@JmsListener(destination = "color", containerFactory = "redColorContainer", selector = "color='RED'", subscription = "client-1")
 	@JmsListener(
-//		destination = "Consumer.redColorContainer.VirtualTopic.color",
-		destination = "Consumer.colorClient.VirtualTopic.color",
-		containerFactory = "redColorContainer",
+		destination = QueueConstants.COLOR,
+		containerFactory = QueueConstants.FACTORY_RED_COLOR + "Factory",
 		selector = "color='RED'"
 	)
 	public void receiveMessage(ObjectMessage message) throws InterruptedException, JMSException {

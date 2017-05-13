@@ -1,10 +1,10 @@
 
 package com.mageddo.jms;
 
+import com.mageddo.jms.queue.CompleteQueue;
+import com.mageddo.jms.queue.QueueEnum;
 import com.mageddo.jms.vo.Color;
 import org.apache.activemq.*;
-import org.apache.activemq.broker.region.policy.IndividualDeadLetterStrategy;
-import org.apache.activemq.broker.region.policy.PolicyEntry;
 import org.apache.activemq.command.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
@@ -16,11 +16,11 @@ import org.springframework.jms.annotation.EnableJms;
 import org.springframework.jms.config.DefaultJmsListenerContainerFactory;
 import org.springframework.jms.config.JmsListenerContainerFactory;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
-import org.springframework.jms.listener.adapter.MessageListenerAdapter;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.ReflectionUtils;
 
+import javax.annotation.PostConstruct;
 import javax.jms.*;
 import javax.jms.Message;
 import java.lang.IllegalStateException;
@@ -36,251 +36,61 @@ public class Application {
 	@Autowired
 	private ConfigurableBeanFactory beanFactory;
 
+	@Autowired
+	private ActiveMQConnectionFactory connectionFactory;
 
-	@Bean
-	public Object mailContainer(ActiveMQConnectionFactory cf,
-																											DefaultJmsListenerContainerFactoryConfigurer configurer) throws Exception {
+	@Autowired
+	private DefaultJmsListenerContainerFactoryConfigurer configurer;
+
+
+	@PostConstruct
+	public void setupQueues(){
+		for (QueueEnum queueEnum : QueueEnum.values()) {
+			declareQueue(queueEnum);
+		}
+	}
+
+	private DefaultJmsListenerContainerFactory declareQueue(QueueEnum queueEnum) {
+
+		final CompleteQueue queue = queueEnum.getQueue();
+
 		final RedeliveryPolicy rp = new RedeliveryPolicy();
-		rp.setInitialRedeliveryDelay(1000);
-		rp.setMaximumRedeliveryDelay(10_000);
+		rp.setInitialRedeliveryDelay(queue.getTTL());
+		rp.setMaximumRedeliveryDelay(queue.getTTL());
 		rp.setBackOffMultiplier(2.0);
-		rp.setMaximumRedeliveries(1);
-		final ActiveMQQueue dlq = new ActiveMQQueue("dlq.mailbox");
-		dlq.setDLQ();
-		rp.setDestination(dlq);
-		cf.getRedeliveryPolicyMap().put(new ActiveMQQueue("mailbox"), rp);
+		rp.setMaximumRedeliveries(queue.getRetries());
+		rp.setDestination(queueEnum.getDlq());
 
-		cf.setTrustedPackages(Arrays.asList(Color.class.getPackage().getName()));
-//		final DefaultMessageListenerContainer containerInstance = getContainer();
-		final DefaultMessageListenerContainer containerInstance = new DefaultMessageListenerContainer();
+		connectionFactory.getRedeliveryPolicyMap().put(queue, rp);
+		connectionFactory.setTrustedPackages(Arrays.asList(Color.class.getPackage().getName()));
+
+
+		final DefaultMessageListenerContainer container = new DefaultMessageListenerContainer();
 		final DefaultJmsListenerContainerFactory factory = new DefaultJmsListenerContainerFactory(){
-
-
 			@Override
 			protected DefaultMessageListenerContainer createContainerInstance() {
-
-				return containerInstance;
+				return container;
 			}
-
-
-			@Override
-			protected void initializeContainer(DefaultMessageListenerContainer container) {
-
-			}
-
-
 		};
 
-		containerInstance.setConnectionFactory(cf);
-		containerInstance.setConcurrentConsumers(2);
-		containerInstance.setMaxConcurrentConsumers(5);
-		containerInstance.setIdleConsumerLimit(2);
-//				container.setDestinationResolver();
-//				container.setTaskExecutor();
-//				container.setErrorHandler();
-		containerInstance.setSessionTransacted(true);
-		containerInstance.setErrorHandler(t -> {
-////					System.out.println("err, msg=" + t.getMessage());
-		});
-//		final MessageListenerAdapter mailReceiver = new MessageListenerAdapter();
-//		mailReceiver.setDefaultListenerMethod("consume");
-//		containerInstance.setMessageListener(mailReceiver);
-
-//		BrokerFactory.createBroker(cf.)
-//		factory.createListenerContainer()
-//		Broker broker = new EmptyBroker();
-//		broker.con
-
-		final IndividualDeadLetterStrategy dlqStrategy = new IndividualDeadLetterStrategy();
-		dlqStrategy.setQueuePrefix("DLQ.");
-		final PolicyEntry dlqPolicy = new PolicyEntry();
-		dlqPolicy.setQueue("mailbox");
-		dlqPolicy.setDeadLetterStrategy(dlqStrategy);
-
-
+		container.setConnectionFactory(connectionFactory);
+		container.setConcurrentConsumers(queue.getConsumers());
+		container.setMaxConcurrentConsumers(queue.getMaxConsumers());
+		container.setSessionTransacted(true);
+		container.setErrorHandler(t -> {});
 
 //		cf.setConnectResponseTimeout(5000);
 //		cf.setSendTimeout(5000);
 //		cf.setOptimizeAcknowledgeTimeOut(5000);
 //		cf.setCloseTimeout(5000);
 
-//		BrokerService brokerService = new BrokerService();
-//		brokerService.setBrokerName("x");
-//		brokerService.addConnector(cf.getBrokerURL());
-//		brokerService.start();
-
-//		rp.setQueue("DLQ.mailbox");
-//		rp.setQueue("Consumer.colorClient.VirtualTopic.color");
-//		final ActiveMQDestination mailDLQ = new ActiveMQDestination("DLQ.Cyz") {
-//			@Override
-//			public byte getDataStructureType() {
-//				return 0;
-//			}
-//
-//			@Override
-//			protected String getQualifiedPrefix() {
-//				return "DLQ.";
-//			}
-//
-//			@Override
-//			public byte getDestinationType() {
-//				return 0;
-//			}
-//		};
-		final ActiveMQDestination mailDLQ = ActiveMQDestination.createDestination("DLQ.Cyz", ActiveMQDestination.QUEUE_TYPE);
-		mailDLQ.setDLQ();
-		rp.setDestination(mailDLQ);
-//		dlqPolicy.configure()
-
-//		SimpleJmsListenerEndpoint x;
-//		x.setupListenerContainer();
-//		JmsTemplate jmsTemplate
-//			jmsTemplate.
-
-
-
-//		cf.setRedeliveryPolicy(rp);
-
-		// This provides all boot's default to this factory, including the message converter
-//		configurer.configure(factory, cf);
-
-
-//		beanFactory.registerSingleton("mailDLQPolicy", dlqPolicy);
-//		beanFactory.registerSingleton("mailDLQStg", dlqStrategy);
-//		beanFactory.registerSingleton("mailDLQ", mailDLQ);
-//		beanFactory.registerSingleton("mailRedeliveryPolicy", rp);
-
-//		return factory;
-//		containerInstance.setConnectionFactory(cf);
-//		containerInstance.setDestination(new CustomDestinationImpl());
-//		containerInstance.consu
-//		containerInstance.start();
-		return factory;
-	}
-	@Bean
-	public JmsListenerContainerFactory<?> redColorContainer(ActiveMQConnectionFactory cf,
-																													DefaultJmsListenerContainerFactoryConfigurer configurer) {
-
-		cf.setTrustedPackages(Arrays.asList(Color.class.getPackage().getName()));
-		final DefaultJmsListenerContainerFactory factory = new DefaultJmsListenerContainerFactory(){
-			@Override
-			protected void initializeContainer(DefaultMessageListenerContainer container) {
-				container.setConnectionFactory(cf);
-				container.setConcurrency("1-5");
-//				container.setConcurrentConsumers(2);
-//				container.setMaxConcurrentConsumers(5);
-//				container.setIdleConsumerLimit(2);
-//				container.setPubSubDomain(true);
-//				container.setSubscriptionDurable(true);
-//				container.setClientId("redColorClient");
-			}
-		};
-
-		// This provides all boot's default to this factory, including the message converter
-		configurer.configure(factory, cf);
-
-
-//		cf.getRedeliveryPolicyMap().put();
-
-
-
-//		cf.dlq
-
-//		beanFactory.registerSingleton("colorRP", rp);
-//		beanFactory.registerSingleton("colorDLQPolicy", dlqPolicy);
-//		beanFactory.registerSingleton("dlqStrategy", dlqStrategy);
-
-
-
-		return factory;
-	}
-
-	@Bean
-	public JmsListenerContainerFactory<?> colorContainer(ActiveMQConnectionFactory connectionFactory,
-																													DefaultJmsListenerContainerFactoryConfigurer configurer) {
-
-		connectionFactory.setTrustedPackages(Arrays.asList(Color.class.getPackage().getName()));
-		final DefaultJmsListenerContainerFactory factory = new DefaultJmsListenerContainerFactory(){
-			@Override
-			protected void initializeContainer(DefaultMessageListenerContainer container) {
-				container.setConnectionFactory(connectionFactory);
-				container.setConcurrency("1-2");
-//				container.setConcurrentConsumers(1);
-//				container.setMaxConcurrentConsumers(2);
-//				container.setIdleConsumerLimit(2);
-//				container.setPubSubDomain(true);
-//				container.setSubscriptionDurable(true);
-//				container.setClientId("colorClient");
-			}
-		};
-
-		// This provides all boot's default to this factory, including the message converter
 		configurer.configure(factory, connectionFactory);
-
+		beanFactory.registerSingleton(queue.getName() + "Container", container);
+		beanFactory.registerSingleton(queue.getName() + "Factory", factory);
 		return factory;
 	}
-
-//	@Bean
-//	public ActiveMQConnectionFactory activeMQConnectionFactory(ConnectionFactory connectionFactory) {
-//		ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory();
-//		factory.setTrustedPackages(Arrays.asList(Color.class.getPackage().getName()));
-//		return factory;
-//	}
-
-
-//	@Bean // Serialize message content to json using TextMessage
-//	public MessageConverter jacksonJmsMessageConverter() {
-//		MappingJackson2MessageConverter converter = new MappingJackson2MessageConverter(){
-//			@Override
-//			protected Message toMessage(Object object, Session session, ObjectWriter objectWriter)
-//				throws JMSException, MessageConversionException {
-//
-//				return super.toMessage(object, session, objectWriter);
-//			}
-//
-//			@Override
-//			public Message toMessage(Object object, Session session, Class<?> jsonView) throws JMSException, MessageConversionException {
-//				return super.toMessage(object, session, jsonView);
-//			}
-//
-//			@Override
-//			public Message toMessage(Object object, Session session) throws JMSException, MessageConversionException {
-//				if (object instanceof ObjectMessage){
-//
-//					final ActiveMQObjectMessage objectMessage = (ActiveMQObjectMessage) object;
-//					final TextMessage convertedMessage = (TextMessage) super.toMessage(
-//						objectMessage.getObject(), session
-//					);
-//					final ActiveMQTextMessage textMessage = new ActiveMQTextMessage();
-//					textMessage.setText(convertedMessage.getText());
-//					try {
-//						textMessage.compress();
-//						textMessage.setProperties(objectMessage.getProperties());
-//					} catch (IOException e) {
-//						throw new RuntimeException(e);
-//					}
-//					textMessage.setty
-//					return textMessage;
-//
-//				}
-//				return super.toMessage(object, session);
-//			}
-//
-//			@Override
-//			public Message toMessage(Object object, Session session, Object conversionHint) throws JMSException, MessageConversionException {
-//				return super.toMessage(object, session, conversionHint);
-//			}
-//		};
-//
-//
-//		converter.setTargetType(MessageType.TEXT);
-//		converter.setTypeIdPropertyName("_type");
-//		return converter;
-//	}
 
 	public static void main(String[] args) {
-//		MessageDispatch x;
-//		x.setde
 		SpringApplication.run(Application.class, args);
 	}
 
