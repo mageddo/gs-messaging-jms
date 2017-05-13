@@ -32,7 +32,7 @@ public class ColorReceiver {
 
 	long id=0;
 
-	@Scheduled(fixedDelay = 500)
+//	@Scheduled(fixedDelay = 500)
 	public void postMail() throws JMSException, IOException {
 
 		final Color colorName = new Color[]{Color.BLUE, Color.RED, Color.WHITE}[new Random().nextInt(3)];
@@ -75,13 +75,18 @@ public class ColorReceiver {
 	@JmsListener(
 //		destination = "Consumer.redColorContainer.VirtualTopic.color",
 		destination = "Consumer.colorClient.VirtualTopic.color",
-		containerFactory = "redColorContainer", selector = "color='RED'"
+		containerFactory = "redColorContainer",
+		selector = "color='RED'"
 	)
 	public void receiveMessage(ObjectMessage message) throws InterruptedException, JMSException {
-
-		Thread.sleep(250);
-
-		LOGGER.info("status=RED-color-receiver, color={}", message.getObject());
+		LOGGER.info("status=RED-color-receiver, color={}, status=begin", message.getObject());
+		if (new Random().nextInt(4) == 3) {
+			Thread.sleep(250);
+			LOGGER.info("status=RED-color-receiver, color={}, status=sucess", message.getObject());
+		} else {
+			LOGGER.error("status=RED-color-receiver, color={}, status=error", message.getObject());
+			throw new RuntimeException("failed");
+		}
 	}
 
 }

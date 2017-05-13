@@ -9,6 +9,9 @@ import org.springframework.jms.core.JmsTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.util.Random;
+import java.util.Scanner;
+
 @Component
 public class MailReceiver {
 
@@ -26,11 +29,20 @@ public class MailReceiver {
 	}
 
 	@JmsListener(destination = "mailbox", containerFactory = "mailContainer")
-	public void receiveMessage(Email email) throws InterruptedException {
+	public void consume(String email) throws InterruptedException {
 
-		Thread.sleep(250);
-
-		LOGGER.info("status=mail-received, email={}", email);
+		LOGGER.info("status=mail-received, mail={}, status=begin", email);
+//		if (new Random().nextInt(30) == 3) {
+		boolean error = true;
+		System.out.println("type enter");
+//		new Scanner(System.in).nextLine();
+		if (!error) {
+			Thread.sleep(250);
+			LOGGER.info("status=mail-received, mail={}, status=success", email);
+		} else {
+			LOGGER.error("status=mail-received, mail={}, status=error", email);
+			throw new RuntimeException("failed");
+		}
 	}
 
 
