@@ -5,7 +5,7 @@ import org.apache.activemq.command.ActiveMQQueue;
 
 public enum QueueEnum {
 
-	MAIL(QueueConstants.MAIL, 10000, 2),
+	MAIL(QueueConstants.MAIL, 2000, 2, 1, 2),
 	COLOR(QueueConstants.COLOR, 10000, 2, 1, 2),
 	RED_COLOR(QueueConstants.COLOR, 10000, 2, 1, 2, QueueConstants.FACTORY_RED_COLOR),
 	DEFAULT_DLQ(QueueConstants.DEFAULT_DLQ, 10000, RedeliveryPolicy.NO_MAXIMUM_REDELIVERIES, 1, 2),

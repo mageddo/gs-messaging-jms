@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.jms.core.JmsTemplate;
+import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -22,25 +23,24 @@ public class MailReceiver {
 	@Autowired
 	private JmsTemplate jmsTemplate;
 
-//	@Scheduled(fixedDelay = 500)
-	public void postMail() {
+	private int id = 0;
 
-		final Email email = new Email("info@example.com", "Hello");
-		LOGGER.info("status=mail-post, to={}, msg={}", email.getTo(), email.getBody());
-		jmsTemplate.convertAndSend(QueueEnum.MAIL.getQueue(), email);
+	@Scheduled(fixedDelay = 500)
+	public void postMail() {
+		jmsTemplate.convertAndSend(QueueEnum.MAIL.getQueue(), String.format("Hello %04d", ++id));
 	}
 
 	@JmsListener(destination = QueueConstants.MAIL, containerFactory = QueueConstants.MAIL + "Factory")
 	public void consume(String email) throws InterruptedException {
 
-		LOGGER.info("status=mail-received, mail={}, status=begin", email);
 //		if (new Random().nextInt(30) == 3) {
+		LOGGER.info("status=mail-received, status=begin, mail={}", email);
 		boolean error = true;
 		if (!error) {
 			Thread.sleep(250);
-			LOGGER.info("status=mail-received, mail={}, status=success", email);
+			LOGGER.info("status=mail-received, status=success, mail={}", email);
 		} else {
-			LOGGER.error("status=mail-received, mail={}, status=error", email);
+			LOGGER.error("status=mail-received, status=error, mail={}", email);
 			throw new RuntimeException("failed");
 		}
 	}

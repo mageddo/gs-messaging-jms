@@ -61,6 +61,7 @@ public class Application {
 		rp.setBackOffMultiplier(2.0);
 		rp.setMaximumRedeliveries(queue.getRetries());
 		rp.setDestination(queueEnum.getDlq());
+		rp.set
 
 		connectionFactory.getRedeliveryPolicyMap().put(queue, rp);
 		connectionFactory.setTrustedPackages(Arrays.asList(Color.class.getPackage().getName()));
@@ -77,8 +78,10 @@ public class Application {
 		container.setConnectionFactory(connectionFactory);
 		container.setConcurrentConsumers(queue.getConsumers());
 		container.setMaxConcurrentConsumers(queue.getMaxConsumers());
+		container.setIdleConsumerLimit(queue.getConsumers());
 		container.setSessionTransacted(true);
 		container.setErrorHandler(t -> {});
+
 
 //		cf.setConnectResponseTimeout(5000);
 //		cf.setSendTimeout(5000);
