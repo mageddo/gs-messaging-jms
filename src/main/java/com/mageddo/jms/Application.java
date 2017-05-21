@@ -18,7 +18,9 @@ import org.springframework.boot.autoconfigure.jms.activemq.ActiveMQProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.context.annotation.Primary;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jms.annotation.EnableJms;
 import org.springframework.jms.config.DefaultJmsListenerContainerFactory;
 import org.springframework.jms.core.JmsTemplate;
@@ -35,11 +37,13 @@ import javax.jms.Session;
 import java.util.Arrays;
 import java.util.concurrent.Executors;
 
-@SpringBootApplication
-@EnableJms
-@EnableAsync
 @EnableScheduling
 @EnableTransactionManagement
+@EnableJms
+@EnableAsync
+@EnableAspectJAutoProxy
+
+@SpringBootApplication
 @Configuration
 @EnableAutoConfiguration
 public class Application implements SchedulingConfigurer {
@@ -48,13 +52,13 @@ public class Application implements SchedulingConfigurer {
 	ActiveMQConnectionFactory activeMQConnectionFactory;
 
 	@Autowired
-	PooledConnectionFactory pooledConnectionFactory;
-
-	@Autowired
 	ConfigurableBeanFactory beanFactory;
 
 	@Autowired
 	DefaultJmsListenerContainerFactoryConfigurer configurer;
+
+	@Autowired
+	JdbcTemplate jdbcTemplate;
 
 	@PostConstruct
 	public void setupQueues(){
@@ -62,6 +66,9 @@ public class Application implements SchedulingConfigurer {
 		for (QueueEnum queueEnum : QueueEnum.values()) {
 			declareQueue(queueEnum, activeMQConnectionFactory, activeMQConnectionFactory, beanFactory, configurer);
 		}
+
+		jdbcTemplate.execute("DROP TABLE mail IF EXISTS");
+		jdbcTemplate.execute("CREATE TABLE mail( id SERIAL, message VARCHAR(255) )");
 
 	}
 
@@ -95,8 +102,8 @@ public class Application implements SchedulingConfigurer {
 		container.setConcurrentConsumers(queue.getConsumers());
 		container.setMaxConcurrentConsumers(queue.getMaxConsumers());
 		container.setIdleConsumerLimit(queue.getConsumers());
-		container.setSessionTransacted(true);
 		container.setErrorHandler(t -> {});
+		container.setSessionTransacted(true);
 		container.setSessionAcknowledgeMode(Session.SESSION_TRANSACTED);
 
 		configurer.configure(factory, cf);
@@ -138,6 +145,7 @@ public class Application implements SchedulingConfigurer {
 	@Bean
 	public JmsTemplate jmsTemplate(PooledConnectionFactory connectionFactory){
 		final JmsTemplate jmsTemplate = new JmsTemplate(connectionFactory);
+		jmsTemplate.setSessionAcknowledgeMode(Session.SESSION_TRANSACTED);
 		jmsTemplate.setSessionTransacted(true);
 		return jmsTemplate;
 	}

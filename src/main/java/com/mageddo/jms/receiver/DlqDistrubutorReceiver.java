@@ -11,6 +11,9 @@ import org.springframework.jms.annotation.JmsListener;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -31,6 +34,7 @@ public class DlqDistrubutorReceiver {
 	private JmsTemplate jmsTemplate;
 
 	@JmsListener(destination = QueueConstants.DEFAULT_DLQ, containerFactory = QueueConstants.DEFAULT_DLQ + "Factory")
+	@Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
 	public void consume(Message message) throws JMSException {
 
 		try {
