@@ -30,6 +30,7 @@ import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.annotation.PostConstruct;
+import javax.jms.ConnectionFactory;
 import javax.jms.Session;
 import java.util.Arrays;
 import java.util.concurrent.Executors;
@@ -55,21 +56,17 @@ public class Application implements SchedulingConfigurer {
 	@Autowired
 	DefaultJmsListenerContainerFactoryConfigurer configurer;
 
-//	@Bean("placebo")
 	@PostConstruct
-//	public Object setupQueues(ActiveMQConnectionFactory activeMQConnectionFactory,
-//		PooledConnectionFactory pooledConnectionFactory, ConfigurableBeanFactory beanFactory,
-//		DefaultJmsListenerContainerFactoryConfigurer configurer){
 	public void setupQueues(){
 
 		for (QueueEnum queueEnum : QueueEnum.values()) {
-			declareQueue(queueEnum, activeMQConnectionFactory, pooledConnectionFactory, beanFactory, configurer);
+			declareQueue(queueEnum, activeMQConnectionFactory, activeMQConnectionFactory, beanFactory, configurer);
 		}
-//		return new Object();
+
 	}
 
 	private DefaultJmsListenerContainerFactory declareQueue(QueueEnum queueEnum,
-				ActiveMQConnectionFactory connectionFactory, PooledConnectionFactory pooledConnectionFactory,
+				ActiveMQConnectionFactory activeMQCf, ConnectionFactory cf,
 				ConfigurableBeanFactory beanFactory, DefaultJmsListenerContainerFactoryConfigurer configurer) {
 
 		final CompleteQueue queue = queueEnum.getQueue();
@@ -82,8 +79,8 @@ public class Application implements SchedulingConfigurer {
 		rp.setDestination(queueEnum.getDlq());
 
 		// setup redelivery policy
-		connectionFactory.getRedeliveryPolicyMap().put(queue, rp);
-		connectionFactory.setTrustedPackages(Arrays.asList(Color.class.getPackage().getName()));
+		activeMQCf.getRedeliveryPolicyMap().put(queue, rp);
+		activeMQCf.setTrustedPackages(Arrays.asList(Color.class.getPackage().getName()));
 
 
 		final DefaultMessageListenerContainer container = new DefaultMessageListenerContainer();
@@ -94,7 +91,7 @@ public class Application implements SchedulingConfigurer {
 			}
 		};
 
-		container.setConnectionFactory(pooledConnectionFactory);
+		container.setConnectionFactory(cf);
 		container.setConcurrentConsumers(queue.getConsumers());
 		container.setMaxConcurrentConsumers(queue.getMaxConsumers());
 		container.setIdleConsumerLimit(queue.getConsumers());
@@ -102,7 +99,7 @@ public class Application implements SchedulingConfigurer {
 		container.setErrorHandler(t -> {});
 		container.setSessionAcknowledgeMode(Session.SESSION_TRANSACTED);
 
-		configurer.configure(factory, pooledConnectionFactory);
+		configurer.configure(factory, cf);
 		beanFactory.registerSingleton(queue.getFactory() + "Container", container);
 		beanFactory.registerSingleton(queue.getFactory() + "Factory", factory);
 		return factory;
@@ -112,14 +109,13 @@ public class Application implements SchedulingConfigurer {
 	@Primary
 	@Bean
 	@ConfigurationProperties(prefix = "spring.activemq.pool")
-//	@ConfigurationProperties(prefix = "spring.activemq.pool.configuration")
 	public PooledConnectionFactory pooledConnectionFactory(ActiveMQConnectionFactory activeMQConnectionFactory){
 
 		final PooledConnectionFactory cf = new PooledConnectionFactory();
 		cf.setConnectionFactory(activeMQConnectionFactory);
 		return cf;
 	}
-//
+
 	@Bean
 	@ConfigurationProperties(prefix = "spring.activemq")
 	public ActiveMQConnectionFactory activeMQConnectionFactory(ActiveMQProperties properties){
@@ -138,12 +134,6 @@ public class Application implements SchedulingConfigurer {
 		return new ActiveMQProperties();
 	}
 
-//	@Bean
-////	@ConfigurationProperties(prefix = "spring.activemq.pool.configuration")
-//	public ActiveMQConnectionFactory activeMQConnectionFactory(PooledConnectionFactory pooledConnectionFactory){
-//		return (ActiveMQConnectionFactory) pooledConnectionFactory.getConnectionFactory();
-//	}
-//
 	@Primary
 	@Bean
 	public JmsTemplate jmsTemplate(PooledConnectionFactory connectionFactory){

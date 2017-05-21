@@ -22,15 +22,15 @@ public class MailReceiver {
 
 	private int id = 0;
 
-	@Scheduled(fixedRate = Integer.MAX_VALUE)
+	@Scheduled(fixedRate = 1)
 	public void postMail() {
-		for(;;) {
+//		for(;;) {
 			final StopWatch stopWatch = new StopWatch();
 			stopWatch.start();
 			final String msg = String.format("Hello %05d", ++id);
 			jmsTemplate.convertAndSend(QueueEnum.MAIL.getQueue(), msg);
-			LOGGER.info("status=success, msg={}, hash={}, time={}", msg, jmsTemplate.getConnectionFactory().hashCode(), stopWatch.getTime());
-		}
+			LOGGER.info("status=success, msg={}, time={}", msg, stopWatch.getTime());
+//		}
 	}
 
 //	@JmsListener(destination = QueueConstants.MAIL, containerFactory = QueueConstants.MAIL + "Factory")
