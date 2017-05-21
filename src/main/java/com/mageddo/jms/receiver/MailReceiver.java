@@ -2,10 +2,12 @@ package com.mageddo.jms.receiver;
 
 import com.mageddo.jms.queue.QueueConstants;
 import com.mageddo.jms.service.MailService;
+import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.annotation.JmsListener;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
@@ -20,9 +22,15 @@ public class MailReceiver {
 	@Autowired
 	private MailService mailService;
 
-//	@Scheduled(fixedRate = 1)
+	@Scheduled(fixedRate = Integer.MAX_VALUE)
 	public void postMail() {
-		mailService.sendMockMail();
+		for(;;) {
+			final StopWatch stopWatch = new StopWatch();
+			stopWatch.start();
+			int qtd = 10000;
+			mailService.sendMockMail(qtd);
+			LOGGER.info("status=success, qtd={}, time={}", qtd, stopWatch.getTime());
+		}
 	}
 
 	@JmsListener(destination = QueueConstants.MAIL, containerFactory = QueueConstants.MAIL + "Factory")

@@ -105,6 +105,7 @@ public class Application implements SchedulingConfigurer {
 		container.setErrorHandler(t -> {});
 		container.setSessionTransacted(true);
 		container.setSessionAcknowledgeMode(Session.SESSION_TRANSACTED);
+		container.get
 
 		configurer.configure(factory, cf);
 		beanFactory.registerSingleton(queue.getFactory() + "Container", container);
@@ -132,6 +133,7 @@ public class Application implements SchedulingConfigurer {
 		if(properties.getPackages().getTrustAll()){
 			cf.setTrustAllPackages(true);
 		}
+		cf.setUseAsyncSend(true);
 		return cf;
 	}
 
@@ -145,7 +147,7 @@ public class Application implements SchedulingConfigurer {
 	@Bean
 	public JmsTemplate jmsTemplate(PooledConnectionFactory connectionFactory){
 		final JmsTemplate jmsTemplate = new JmsTemplate(connectionFactory);
-		jmsTemplate.setSessionAcknowledgeMode(Session.SESSION_TRANSACTED);
+		jmsTemplate.setSessionAcknowledgeMode(Session.AUTO_ACKNOWLEDGE);
 		jmsTemplate.setSessionTransacted(true);
 		return jmsTemplate;
 	}

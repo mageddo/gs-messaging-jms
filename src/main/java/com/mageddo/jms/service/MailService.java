@@ -2,7 +2,6 @@ package com.mageddo.jms.service;
 
 import com.mageddo.jms.dao.CustomerDAO;
 import com.mageddo.jms.queue.QueueEnum;
-import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +21,7 @@ import java.util.concurrent.atomic.AtomicLong;
 @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
 public class MailService {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(MailService.class);
+	private final Logger logger = LoggerFactory.getLogger(getClass());
 
 	@Autowired
 	private JmsTemplate jmsTemplate;
@@ -33,14 +32,20 @@ public class MailService {
 	private AtomicLong id = new AtomicLong(0);
 
 	public void sendMail(String message){
-		final StopWatch stopWatch = new StopWatch();
-		stopWatch.start();
 		jmsTemplate.convertAndSend(QueueEnum.MAIL.getQueue(), message);
-		LOGGER.info("status=success, msg={}, time={}", message, stopWatch.getTime());
 	}
 
-	public void sendMockMail(){
-		sendMail(String.format("Hello %05d", id.incrementAndGet()));
+	public void sendMockMail(int qtd){
+		for(int i =0; i < qtd; i++){
+			final String message = String.format("%05d", id.incrementAndGet());
+			sendMail(message);
+		}
+	}
+
+	public String sendMockMail(){
+		final String message = String.format("%05d", id.incrementAndGet());
+		sendMail(message);
+		return message;
 	}
 
 	public void insert(String message){
