@@ -1,19 +1,16 @@
 package com.mageddo.jms.receiver;
 
-import com.mageddo.jms.Email;
 import com.mageddo.jms.queue.QueueConstants;
 import com.mageddo.jms.queue.QueueEnum;
+import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.jms.core.JmsTemplate;
-import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.util.Random;
-import java.util.Scanner;
 
 @Component
 public class MailReceiver {
@@ -25,17 +22,22 @@ public class MailReceiver {
 
 	private int id = 0;
 
-//	@Scheduled(fixedDelay = Integer.MAX_VALUE)
+	@Scheduled(fixedRate = Integer.MAX_VALUE)
 	public void postMail() {
-		for(;;)
-			jmsTemplate.convertAndSend(QueueEnum.MAIL.getQueue(), String.format("Hello %04d", ++id));
+		for(;;) {
+			final StopWatch stopWatch = new StopWatch();
+			stopWatch.start();
+			final String msg = String.format("Hello %05d", ++id);
+			jmsTemplate.convertAndSend(QueueEnum.MAIL.getQueue(), msg);
+			LOGGER.info("status=success, msg={}, hash={}, time={}", msg, jmsTemplate.getConnectionFactory().hashCode(), stopWatch.getTime());
+		}
 	}
 
-	@JmsListener(destination = QueueConstants.MAIL, containerFactory = QueueConstants.MAIL + "Factory")
+//	@JmsListener(destination = QueueConstants.MAIL, containerFactory = QueueConstants.MAIL + "Factory")
 	public void consume(String email) throws InterruptedException {
 
 //		if (new Random().nextInt(30) == 3) {
-		LOGGER.info("status=mail-received, status=begin, mail={}", email);
+//		LOGGER.info("status=mail-received, status=begin, mail={}", email);
 		boolean error = false;
 		if (!error) {
 			Thread.sleep(50);

@@ -24,10 +24,17 @@ sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 dependencies {
+
 	compile("org.springframework.boot:spring-boot-starter-activemq")
 	compile("org.springframework.boot:spring-boot-starter-web")
-	compile group: 'org.jolokia', name: 'jolokia-core', version: '1.3.6'
+
 	compile("org.apache.activemq:activemq-broker")
+//	compile("org.apache.activemq:activemq-jms-pool")
+	compile("org.apache.activemq:activemq-pool")
+
+	compile('org.jolokia:jolokia-core:1.3.6')
+	compile('org.apache.commons:commons-lang3:3.0')
 	compile("com.fasterxml.jackson.core:jackson-databind")
+
 }
 
