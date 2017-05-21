@@ -25,7 +25,7 @@ public class MailReceiver {
 
 	private int id = 0;
 
-	@Scheduled(fixedDelay = Integer.MAX_VALUE)
+//	@Scheduled(fixedDelay = Integer.MAX_VALUE)
 	public void postMail() {
 		for(;;)
 			jmsTemplate.convertAndSend(QueueEnum.MAIL.getQueue(), String.format("Hello %04d", ++id));
