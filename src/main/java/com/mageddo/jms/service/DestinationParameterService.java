@@ -2,11 +2,14 @@ package com.mageddo.jms.service;
 
 import com.mageddo.jms.dao.DestinationParameterDAO;
 import com.mageddo.jms.entity.DestinationParameterEntity;
+import com.mageddo.jms.enums.CacheNames;
 import com.mageddo.jms.queue.CompleteDestination;
 import com.mageddo.jms.queue.DestinationEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
@@ -16,8 +19,9 @@ import org.springframework.util.Assert;
 /**
  * Created by elvis on 21/05/17.
  */
-@Service
 @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED	)
+@CacheConfig(cacheNames = CacheNames.APP_CACHE)
+@Service
 public class DestinationParameterService {
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
@@ -25,10 +29,12 @@ public class DestinationParameterService {
 	@Autowired
 	private DestinationParameterDAO destinationParameterDAO;
 
+	@Cacheable(sync = true)
 	public DestinationParameterEntity findByName(String name){
 		return destinationParameterDAO.findByName(name);
 	}
 
+	@Cacheable(sync = true)
 	public DestinationParameterEntity findByName(DestinationEnum destinationEnum){
 		return findByName(destinationEnum.getCompleteDestination().getName());
 	}
