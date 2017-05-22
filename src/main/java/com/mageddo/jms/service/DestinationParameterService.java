@@ -2,6 +2,7 @@ package com.mageddo.jms.service;
 
 import com.mageddo.jms.dao.DestinationParameterDAO;
 import com.mageddo.jms.entity.DestinationParameterEntity;
+import com.mageddo.jms.queue.CompleteDestination;
 import com.mageddo.jms.queue.DestinationEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,5 +67,9 @@ public class DestinationParameterService {
 
 	private void validateDestination(String name, DestinationParameterEntity destination) {
 		Assert.notNull(destination, "Could not found: " + name);
+	}
+
+	public void createDestinationParameterIfNotExists(CompleteDestination completeDestination){
+		destinationParameterDAO.persist(completeDestination);
 	}
 }

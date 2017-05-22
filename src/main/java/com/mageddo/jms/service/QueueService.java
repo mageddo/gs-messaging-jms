@@ -20,6 +20,7 @@ import org.springframework.util.Assert;
  */
 
 @Service
+@Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
 public class QueueService {
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
@@ -30,7 +31,6 @@ public class QueueService {
 	@Autowired
 	private BeanFactory beanFactory;
 
-	@Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
 	public void changeConsumersAndSave(DestinationParameterEntity entity) {
 
 		logger.info("status=begin, name={}", entity.getName());
