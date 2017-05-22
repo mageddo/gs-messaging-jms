@@ -58,4 +58,13 @@ public enum DestinationEnum {
 	public boolean isAutoDeclare() {
 		return autoDeclare;
 	}
+
+	public static DestinationEnum fromQueueName(String name){
+		for (DestinationEnum destinationEnum : values()) {
+			if(destinationEnum.getCompleteDestination().getName().equals(name)){
+				return destinationEnum;
+			}
+		}
+		return null;
+	}
 }
