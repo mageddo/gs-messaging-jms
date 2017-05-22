@@ -27,6 +27,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jms.annotation.EnableJms;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.scheduling.annotation.EnableAsync;
@@ -70,9 +71,54 @@ public class Application implements SchedulingConfigurer {
 	public void setupQueues(){
 
 		activeMQConnectionFactory.setTrustedPackages(Arrays.asList(Color.class.getPackage().getName()));
+		{
+			final StringBuilder sql = new StringBuilder();
+			sql.append("DROP TABLE IF EXISTS DESTINATION_PARAMETER; \n");
+			sql.append("CREATE TABLE DESTINATION_PARAMETER ( \n");
+			sql.append("	IDT_DESTINATION_PARAMETER INT AUTO_INCREMENT, \n");
+			sql.append("	NAM_DESTINATION_PARAMETER VARCHAR(255) UNIQUE, \n");
+			sql.append("	NUM_CONSUMERS TINYINT NOT NULL, \n");
+			sql.append("	NUM_MAX_CONSUMERS TINYINT NOT NULL, \n");
+			sql.append("	NUM_TTL INT NOT NULL, \n");
+			sql.append("	NUM_RETRIES TINYINT NOT NULL, \n");
+			sql.append("	PRIMARY KEY(IDT_DESTINATION_PARAMETER) \n");
+			sql.append("); \n");
+
+			jdbcTemplate.execute(sql.toString());
+		}
 		for (final DestinationEnum destinationEnum : DestinationEnum.values()) {
-			if(destinationEnum.isAutoDeclare())
+
+			if(destinationEnum.isAutoDeclare()){
 				declareQueue(destinationEnum, activeMQConnectionFactory, activeMQConnectionFactory, beanFactory, configurer);
+			}
+
+			final StringBuilder sql = new StringBuilder();
+			sql.append("INSERT INTO DESTINATION_PARAMETER \n");
+			sql.append("( \n");
+			sql.append("   NAM_DESTINATION_PARAMETER,NUM_CONSUMERS,NUM_MAX_CONSUMERS,NUM_TTL,NUM_RETRIES \n");
+			sql.append(") \n");
+			sql.append("SELECT \n");
+			sql.append("* \n");
+			sql.append("FROM ( SELECT \n");
+			sql.append("'%s' NAM_DESTINATION_PARAMETER, \n");
+			sql.append("%d NUM_CONSUMERS, \n");
+			sql.append("%d NUM_MAX_CONSUMERS, \n");
+			sql.append("%d NUM_TTL, \n");
+			sql.append("%d NUM_RETRIES \n");
+			sql.append(") X \n");
+			sql.append("WHERE NOT EXISTS \n");
+			sql.append("( \n");
+			sql.append("   SELECT 1 \n");
+			sql.append("   FROM DESTINATION_PARAMETER \n");
+			sql.append("   WHERE NAM_DESTINATION_PARAMETER = ? \n");
+			sql.append(") \n");
+
+
+			final CompleteDestination dest = destinationEnum.getCompleteDestination();
+			jdbcTemplate.update(String.format(sql.toString(), dest.getName(), dest.getConsumers(), dest.getMaxConsumers(),
+				dest.getTTL(), dest.getRetries()), dest.getName()
+			);
+
 		}
 
 		jdbcTemplate.execute("DROP TABLE mail IF EXISTS");
