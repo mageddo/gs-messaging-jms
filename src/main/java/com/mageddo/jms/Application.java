@@ -1,26 +1,20 @@
 
 package com.mageddo.jms;
 
-import com.mageddo.jms.queue.CompleteDestination;
 import com.mageddo.jms.config.MageddoMessageListenerContainerFactory;
+import com.mageddo.jms.queue.CompleteDestination;
 import com.mageddo.jms.queue.DestinationEnum;
 import com.mageddo.jms.service.DestinationParameterService;
 import com.mageddo.jms.utils.QueueUtils;
 import com.mageddo.jms.vo.Color;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.pool.PooledConnectionFactory;
-import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
-import org.springframework.beans.factory.support.BeanDefinitionRegistry;
-import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jms.DefaultJmsListenerContainerFactoryConfigurer;
-
 import org.springframework.boot.autoconfigure.jms.activemq.ActiveMQProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -28,7 +22,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jms.annotation.EnableJms;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.scheduling.annotation.EnableAsync;
@@ -40,10 +33,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import javax.annotation.PostConstruct;
 import javax.jms.ConnectionFactory;
 import javax.jms.Session;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
 import java.util.concurrent.Executors;
 
 @EnableScheduling
@@ -76,23 +66,6 @@ public class Application implements SchedulingConfigurer {
 	public void setupQueues(){
 
 		activeMQConnectionFactory.setTrustedPackages(Arrays.asList(Color.class.getPackage().getName()));
-		{
-			final StringBuilder sql = new StringBuilder();
-			sql.append("DROP TABLE IF EXISTS DESTINATION_PARAMETER; \n");
-			sql.append("CREATE TABLE DESTINATION_PARAMETER ( \n");
-			sql.append("	IDT_DESTINATION_PARAMETER INT AUTO_INCREMENT, \n");
-			sql.append("	NAM_DESTINATION_PARAMETER VARCHAR(255) UNIQUE, \n");
-			sql.append("	NUM_CONSUMERS TINYINT NOT NULL, \n");
-			sql.append("	NUM_MAX_CONSUMERS TINYINT NOT NULL, \n");
-			sql.append("	NUM_TTL INT NOT NULL, \n");
-			sql.append("	NUM_RETRIES TINYINT NOT NULL, \n");
-			sql.append("	DAT_CREATION TIMESTAMP NOT NULL, \n");
-			sql.append("	DAT_UPDATE TIMESTAMP NOT NULL, \n");
-			sql.append("	PRIMARY KEY(IDT_DESTINATION_PARAMETER) \n");
-			sql.append("); \n");
-
-			jdbcTemplate.execute(sql.toString());
-		}
 		for (final DestinationEnum destinationEnum : DestinationEnum.values()) {
 
 			if(destinationEnum.isAutoDeclare()){
@@ -101,9 +74,6 @@ public class Application implements SchedulingConfigurer {
 			destinationParameterService.createDestinationParameterIfNotExists(destinationEnum.getCompleteDestination());
 
 		}
-
-		jdbcTemplate.execute("DROP TABLE mail IF EXISTS");
-		jdbcTemplate.execute("CREATE TABLE mail( id SERIAL, message VARCHAR(255) )");
 
 	}
 
