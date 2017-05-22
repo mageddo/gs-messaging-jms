@@ -8,10 +8,13 @@ import org.apache.activemq.RedeliveryPolicy;
 import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.command.ActiveMQQueue;
 import org.apache.activemq.command.ActiveMQTopic;
+import org.apache.catalina.util.CustomObjectInputStream;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
 
 import javax.jms.ConnectionFactory;
 import javax.jms.Session;
+import java.io.ObjectInputStream;
+import java.util.HashMap;
 import java.util.Properties;
 
 /**
@@ -90,9 +93,6 @@ public class QueueUtils {
 	}
 
 	public static ActiveMQDestination destination(ActiveMQDestination destination, Properties properties){
-		if (properties != null){
-			destination.buildFromProperties(properties);
-		}
 		return destination;
 	}
 }

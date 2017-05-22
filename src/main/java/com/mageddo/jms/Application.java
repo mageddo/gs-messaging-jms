@@ -8,9 +8,13 @@ import com.mageddo.jms.utils.QueueUtils;
 import com.mageddo.jms.vo.Color;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.pool.PooledConnectionFactory;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -115,6 +119,7 @@ public class Application implements SchedulingConfigurer {
 		}
 		cf.setUseAsyncSend(true);
 		cf.setDispatchAsync(true);
+		cf.setUseCompression(true);
 		return cf;
 	}
 
