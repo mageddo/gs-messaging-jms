@@ -41,6 +41,7 @@ import javax.jms.ConnectionFactory;
 import javax.jms.Session;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Executors;
 
@@ -81,6 +82,8 @@ public class Application implements SchedulingConfigurer {
 			sql.append("	NUM_MAX_CONSUMERS TINYINT NOT NULL, \n");
 			sql.append("	NUM_TTL INT NOT NULL, \n");
 			sql.append("	NUM_RETRIES TINYINT NOT NULL, \n");
+			sql.append("	DAT_CREATION TIMESTAMP NOT NULL, \n");
+			sql.append("	DAT_UPDATE TIMESTAMP NOT NULL, \n");
 			sql.append("	PRIMARY KEY(IDT_DESTINATION_PARAMETER) \n");
 			sql.append("); \n");
 
@@ -95,7 +98,7 @@ public class Application implements SchedulingConfigurer {
 			final StringBuilder sql = new StringBuilder();
 			sql.append("INSERT INTO DESTINATION_PARAMETER \n");
 			sql.append("( \n");
-			sql.append("   NAM_DESTINATION_PARAMETER,NUM_CONSUMERS,NUM_MAX_CONSUMERS,NUM_TTL,NUM_RETRIES \n");
+			sql.append("   NAM_DESTINATION_PARAMETER,NUM_CONSUMERS,NUM_MAX_CONSUMERS,NUM_TTL,NUM_RETRIES,DAT_CREATION,DAT_UPDATE \n");
 			sql.append(") \n");
 			sql.append("SELECT \n");
 			sql.append("* \n");
@@ -104,7 +107,9 @@ public class Application implements SchedulingConfigurer {
 			sql.append("%d NUM_CONSUMERS, \n");
 			sql.append("%d NUM_MAX_CONSUMERS, \n");
 			sql.append("%d NUM_TTL, \n");
-			sql.append("%d NUM_RETRIES \n");
+			sql.append("%d NUM_RETRIES, \n");
+			sql.append("'%6$tY-%6$tm-%6$td' DAT_CREATION, \n");
+			sql.append("'%7$tY-%7$tm-%7$td' DAT_UPDATE \n");
 			sql.append(") X \n");
 			sql.append("WHERE NOT EXISTS \n");
 			sql.append("( \n");
@@ -116,7 +121,7 @@ public class Application implements SchedulingConfigurer {
 
 			final CompleteDestination dest = destinationEnum.getCompleteDestination();
 			jdbcTemplate.update(String.format(sql.toString(), dest.getName(), dest.getConsumers(), dest.getMaxConsumers(),
-				dest.getTTL(), dest.getRetries()), dest.getName()
+				dest.getTTL(), dest.getRetries(), new Date(), new Date()), dest.getName()
 			);
 
 		}

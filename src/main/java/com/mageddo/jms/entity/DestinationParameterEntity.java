@@ -1,6 +1,7 @@
 package com.mageddo.jms.entity;
 
-import com.mageddo.jms.queue.DestinationEnum;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
+import org.springframework.jdbc.core.RowMapper;
 
 import java.util.Date;
 
@@ -81,5 +82,20 @@ public class DestinationParameterEntity {
 
 	public void setUpdateDate(Date updateDate) {
 		this.updateDate = updateDate;
+	}
+
+	public static RowMapper<DestinationParameterEntity> rowMapper() {
+		return (rs, index) -> {
+			final DestinationParameterEntity entity = new DestinationParameterEntity();
+			entity.setId(rs.getInt("IDT_DESTINATION_PARAMETER"));
+			entity.setName(rs.getString("NAM_DESTINATION_PARAMETER"));
+			entity.setConsumers(rs.getShort("NUM_CONSUMERS"));
+			entity.setMaxConsumers(rs.getShort("NUM_MAX_CONSUMERS"));
+			entity.setTtl(rs.getInt("NUM_TTL"));
+			entity.setRetries(rs.getShort("NUM_RETRIES"));
+			entity.setCreationDate(rs.getTimestamp("DAT_CREATION"));
+			entity.setUpdateDate(rs.getTimestamp("DAT_UPDATE"));
+			return entity;
+		};
 	}
 }
