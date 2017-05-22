@@ -1,7 +1,7 @@
 package com.mageddo.jms.receiver;
 
-import com.mageddo.jms.queue.QueueConstants;
-import com.mageddo.jms.queue.TopicEnum;
+import com.mageddo.jms.queue.DestinationConstants;
+import com.mageddo.jms.queue.DestinationEnum;
 import com.mageddo.jms.vo.Color;
 import org.apache.activemq.command.ActiveMQObjectMessage;
 import org.slf4j.Logger;
@@ -41,19 +41,19 @@ public class ColorReceiver {
 		message.compress();
 		message.setProperty("color", color.getName());
 
-		jmsTemplate.convertAndSend(TopicEnum.COLOR.getTopic(), message);
+		jmsTemplate.convertAndSend(DestinationEnum.COLOR_TOPIC.getDestination(), message);
 	}
 
 
 	/**
-	 * the distination ClientId have not necessary exists (it means that his name can be a fancy name), the unique requirement is that
+	 * the destination ClientId have not necessary exists (it means that his name can be a fancy name), the unique requirement is that
 	 * the containers clientId need to be different between each other
 	 * @param color
 	 * @throws InterruptedException
 	 */
 	@JmsListener(
-		destination = QueueConstants.COLOR,
-		containerFactory = QueueConstants.COLOR + "Factory",
+		destination = DestinationConstants.COLOR,
+		containerFactory = DestinationConstants.COLOR + "Factory",
 		selector = "color <> 'RED'"
 	)
 	public void genericReceiveMessage(Color color) throws InterruptedException {
@@ -64,8 +64,8 @@ public class ColorReceiver {
 	}
 
 	@JmsListener(
-		destination = QueueConstants.COLOR,
-		containerFactory = QueueConstants.FACTORY_RED_COLOR + "Factory",
+		destination = DestinationConstants.COLOR,
+		containerFactory = DestinationConstants.FACTORY_RED_COLOR + "Factory",
 		selector = "color='RED'"
 	)
 	public void receiveMessage(ObjectMessage message) throws InterruptedException, JMSException {

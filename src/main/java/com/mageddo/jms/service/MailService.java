@@ -1,7 +1,7 @@
 package com.mageddo.jms.service;
 
 import com.mageddo.jms.dao.CustomerDAO;
-import com.mageddo.jms.queue.QueueEnum;
+import com.mageddo.jms.queue.DestinationEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +32,7 @@ public class MailService {
 	private AtomicLong id = new AtomicLong(0);
 
 	public void sendMail(String message){
-		jmsTemplate.convertAndSend(QueueEnum.MAIL.getQueue(), message);
+		jmsTemplate.convertAndSend(DestinationEnum.MAIL.getDestination(), message);
 	}
 
 	public void sendMockMail(int qtd){

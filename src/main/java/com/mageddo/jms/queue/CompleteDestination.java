@@ -1,23 +1,24 @@
 package com.mageddo.jms.queue;
 
-import org.apache.activemq.command.ActiveMQQueue;
+import org.apache.activemq.command.ActiveMQDestination;
 
 /**
  * Created by elvis on 13/05/17.
  */
-public class CompleteQueue extends ActiveMQQueue implements Queue {
+public class CompleteDestination implements MGDestination {
 
+	private final ActiveMQDestination destination;
 	private String name, factory;
 	private int ttl, retries, consumers, maxConsumers;
 
-	public CompleteQueue(String name, String factory, int ttl, int retries, int consumers, int maxConsumers) {
-		super(name);
+	public CompleteDestination(ActiveMQDestination destination, String factory, int ttl, int retries, int consumers, int maxConsumers) {
+		this.destination = destination;
 		if (factory == null){
-			this.factory = name;
+			this.factory = destination.getPhysicalName();
 		}else{
 			this.factory = factory;
 		}
-		this.name = name;
+		this.name = destination.getPhysicalName();
 		this.ttl = ttl;
 		this.retries = retries;
 		this.consumers = consumers;
@@ -51,5 +52,9 @@ public class CompleteQueue extends ActiveMQQueue implements Queue {
 
 	public String getFactory() {
 		return factory;
+	}
+
+	public ActiveMQDestination getDestination() {
+		return destination;
 	}
 }

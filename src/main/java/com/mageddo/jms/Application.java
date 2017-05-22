@@ -1,12 +1,14 @@
 
 package com.mageddo.jms;
 
-import com.mageddo.jms.queue.CompleteQueue;
-import com.mageddo.jms.queue.QueueEnum;
+import com.mageddo.jms.queue.CompleteDestination;
+import com.mageddo.jms.config.MageddoMessageListenerContainerFactory;
+import com.mageddo.jms.queue.DestinationEnum;
+import com.mageddo.jms.utils.QueueUtils;
 import com.mageddo.jms.vo.Color;
 import org.apache.activemq.ActiveMQConnectionFactory;
-import org.apache.activemq.RedeliveryPolicy;
 import org.apache.activemq.pool.PooledConnectionFactory;
+import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.SpringApplication;
@@ -22,9 +24,7 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jms.annotation.EnableJms;
-import org.springframework.jms.config.DefaultJmsListenerContainerFactory;
 import org.springframework.jms.core.JmsTemplate;
-import org.springframework.jms.listener.DefaultMessageListenerContainer;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.SchedulingConfigurer;
@@ -34,7 +34,9 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import javax.annotation.PostConstruct;
 import javax.jms.ConnectionFactory;
 import javax.jms.Session;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.Executors;
 
 @EnableScheduling
@@ -63,8 +65,10 @@ public class Application implements SchedulingConfigurer {
 	@PostConstruct
 	public void setupQueues(){
 
-		for (QueueEnum queueEnum : QueueEnum.values()) {
-			declareQueue(queueEnum, activeMQConnectionFactory, activeMQConnectionFactory, beanFactory, configurer);
+		activeMQConnectionFactory.setTrustedPackages(Arrays.asList(Color.class.getPackage().getName()));
+		for (final DestinationEnum destinationEnum : DestinationEnum.values()) {
+			if(destinationEnum.isAutoDeclare())
+				declareQueue(destinationEnum, activeMQConnectionFactory, activeMQConnectionFactory, beanFactory, configurer);
 		}
 
 		jdbcTemplate.execute("DROP TABLE mail IF EXISTS");
@@ -72,44 +76,20 @@ public class Application implements SchedulingConfigurer {
 
 	}
 
-	private DefaultJmsListenerContainerFactory declareQueue(QueueEnum queueEnum,
-				ActiveMQConnectionFactory activeMQCf, ConnectionFactory cf,
-				ConfigurableBeanFactory beanFactory, DefaultJmsListenerContainerFactoryConfigurer configurer) {
+	private MageddoMessageListenerContainerFactory declareQueue(
+			DestinationEnum destinationEnum,
+			ActiveMQConnectionFactory activeMQConnectionFactory, ConnectionFactory cf,
+			ConfigurableBeanFactory beanFactory, DefaultJmsListenerContainerFactoryConfigurer configurer
+	) {
 
-		final CompleteQueue queue = queueEnum.getQueue();
-		final RedeliveryPolicy rp = new RedeliveryPolicy();
-		rp.setInitialRedeliveryDelay(queue.getTTL());
-		rp.setMaximumRedeliveryDelay(queue.getTTL());
-		rp.setRedeliveryDelay(queue.getTTL());
-		rp.setBackOffMultiplier(2.0);
-		rp.setMaximumRedeliveries(queue.getRetries());
-		rp.setDestination(queueEnum.getDlq());
+		final CompleteDestination destination = destinationEnum.getCompleteDestination();
 
-		// setup redelivery policy
-		activeMQCf.getRedeliveryPolicyMap().put(queue, rp);
-		activeMQCf.setTrustedPackages(Arrays.asList(Color.class.getPackage().getName()));
-
-
-		final DefaultMessageListenerContainer container = new DefaultMessageListenerContainer();
-		final DefaultJmsListenerContainerFactory factory = new DefaultJmsListenerContainerFactory(){
-			@Override
-			protected DefaultMessageListenerContainer createContainerInstance() {
-				return container;
-			}
-		};
-
-		container.setConnectionFactory(cf);
-		container.setConcurrentConsumers(queue.getConsumers());
-		container.setMaxConcurrentConsumers(queue.getMaxConsumers());
-		container.setIdleConsumerLimit(queue.getConsumers());
-		container.setErrorHandler(t -> {});
-		container.setSessionTransacted(true);
-		container.setSessionAcknowledgeMode(Session.SESSION_TRANSACTED);
-		container.get
-
+		final MageddoMessageListenerContainerFactory factory = QueueUtils.createDefaultFactory(
+			activeMQConnectionFactory, destination
+		);
+		QueueUtils.configureRedelivery(activeMQConnectionFactory, destinationEnum);
 		configurer.configure(factory, cf);
-		beanFactory.registerSingleton(queue.getFactory() + "Container", container);
-		beanFactory.registerSingleton(queue.getFactory() + "Factory", factory);
+		beanFactory.registerSingleton(factory.getBeanName(), factory);
 		return factory;
 	}
 
@@ -134,6 +114,7 @@ public class Application implements SchedulingConfigurer {
 			cf.setTrustAllPackages(true);
 		}
 		cf.setUseAsyncSend(true);
+		cf.setDispatchAsync(true);
 		return cf;
 	}
 

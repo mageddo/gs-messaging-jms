@@ -1,6 +1,6 @@
 package com.mageddo.jms.queue;
 
-public interface Queue {
+public interface MGDestination {
 
 	String getName();
 	int getTTL();
