@@ -48,10 +48,10 @@ public class PingReceiver {
 																																		 PingReceiver receiver){
 
 		final DestinationEnum queue = DestinationEnum.PING;
-
-		configureRedelivery(cf, queue);
 		final DefaultMessageListenerContainer container = createContainer(cf, queue.getCompleteDestination());
 		container.setDestination(queue.getDestination());
+
+		configureRedelivery(cf, queue);
 
 		final MessageListenerAdapter listenerAdapter = new MessageListenerAdapter(receiver);
 		listenerAdapter.setDefaultListenerMethod("consume");
