@@ -57,9 +57,6 @@ public class Application implements SchedulingConfigurer {
 	DefaultJmsListenerContainerFactoryConfigurer configurer;
 
 	@Autowired
-	JdbcTemplate jdbcTemplate;
-
-	@Autowired
 	DestinationParameterService destinationParameterService;
 
 	@PostConstruct

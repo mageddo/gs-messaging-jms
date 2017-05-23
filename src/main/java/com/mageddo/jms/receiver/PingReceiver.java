@@ -1,6 +1,5 @@
 package com.mageddo.jms.receiver;
 
-import com.mageddo.jms.config.MageddoMessageListenerContainerFactory;
 import com.mageddo.jms.queue.DestinationConstants;
 import com.mageddo.jms.queue.DestinationEnum;
 import org.apache.activemq.ActiveMQConnectionFactory;
@@ -13,15 +12,11 @@ import org.springframework.jms.listener.DefaultMessageListenerContainer;
 import org.springframework.jms.listener.adapter.MessageListenerAdapter;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.mageddo.jms.utils.QueueUtils.configureRedelivery;
 import static com.mageddo.jms.utils.QueueUtils.createContainer;
-import static com.mageddo.jms.utils.QueueUtils.createDefaultFactory;
 
 /**
  * Created by elvis on 21/05/17.
