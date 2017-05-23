@@ -1,4 +1,4 @@
-package com.mageddo.jms;
+package com.mageddo.jms.vo;
 
 public class Email {
 

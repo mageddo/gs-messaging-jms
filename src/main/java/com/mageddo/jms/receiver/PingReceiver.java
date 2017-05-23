@@ -31,7 +31,7 @@ public class PingReceiver {
 
 	private AtomicInteger ip = new AtomicInteger(1);
 
-	@Scheduled(fixedDelay = 1 * 1000 )
+//	@Scheduled(fixedDelay = 1 * 1000 )
 	public void pinger(){
 		jmsTemplate.convertAndSend(DestinationEnum.PING.getDestination(), String.valueOf(ip.getAndIncrement()));
 	}

@@ -12,6 +12,7 @@ public class DestinationConstants {
 
 	public static final String FACTORY_RED_COLOR = "RedColor";
 	public static final String FACTORY_PING = "Ping";
+	public static final String SALE = "Sale";
 
 	private DestinationConstants() {
 	}

@@ -9,14 +9,22 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import javax.jms.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by elvis on 22/05/17.
  */
 public class BatchMessageListenerContainer extends DefaultMessageListenerContainer {
 
-
 	private MessageListenerContainerResourceFactory transactionalResourceFactory = new MessageListenerContainerResourceFactory();
+	private int batchSize;
+	private BatchMessageListener messageListener;
+	private String subscriptionName;
+
+	public BatchMessageListenerContainer(int batchSize) {
+		this.batchSize = batchSize;
+	}
 
 	@Override
 	protected boolean doReceiveAndExecute(Object invoker, Session session, MessageConsumer consumer, TransactionStatus status) throws JMSException {
@@ -35,8 +43,7 @@ public class BatchMessageListenerContainer extends DefaultMessageListenerContain
 				Connection conToUse;
 				if (sharedConnectionEnabled()) {
 					conToUse = getSharedConnection();
-				}
-				else {
+				} else {
 					conToUse = createConnection();
 					conToClose = conToUse;
 					conToUse.start();
@@ -49,63 +56,115 @@ public class BatchMessageListenerContainer extends DefaultMessageListenerContain
 				consumerToUse = createListenerConsumer(sessionToUse);
 				consumerToClose = consumerToUse;
 			}
-			Message message = receiveMessage(consumerToUse);
-			if (message != null) {
-				if (logger.isDebugEnabled()) {
-					logger.debug("status=Received message, type=" + message.getClass() + ", consumer=" +
-						consumerToUse + ", transactional=" + (transactional ? "transactional " : "") + ", session=" + sessionToUse);
+
+			boolean exposeResource = (!transactional && isExposeListenerSession() &&
+				!TransactionSynchronizationManager.hasResource(getConnectionFactory()));
+
+			final List<Message> msgs = new ArrayList<>();
+			for (int i = 0; i < batchSize; i++) {
+
+				final Message message = receiveMessage(consumerToUse);
+				if (message != null) {
+					if (logger.isDebugEnabled()) {
+						logger.debug("status=Received message, type=" + message.getClass() + ", consumer=" +
+							consumerToUse + ", transactional=" + (transactional ? "transactional " : "") + ", session=" + sessionToUse);
+					}
+					messageReceived(invoker, sessionToUse);
+					msgs.add(message);
+				} else {
+					if (!msgs.isEmpty()) {
+						break;
+					}
+					if (logger.isTraceEnabled()) {
+						logger.trace("consumer=" + consumerToUse + ", transactional=" + (transactional ? "transactional " : "") +
+							"session=" + sessionToUse + ", status=did not receive a message");
+					}
+					noMessageReceived(invoker, sessionToUse);
+					// Nevertheless call commit, in order to reset the transaction timeout (if any).
+					if (shouldCommitAfterNoMessageReceived(sessionToUse)) {
+						commitIfNecessary(sessionToUse, message);
+					}
+					// Indicate that no message has been received.
+					return false;
 				}
-				messageReceived(invoker, sessionToUse);
-				boolean exposeResource = (!transactional && isExposeListenerSession() &&
-					!TransactionSynchronizationManager.hasResource(getConnectionFactory()));
-				if (exposeResource) {
-					TransactionSynchronizationManager.bindResource(
-						getConnectionFactory(), new JmsResourceHolder(sessionToUse));
+			}
+			try {
+				if (!isAcceptMessagesWhileStopping() && !isRunning()) {
+					if (logger.isWarnEnabled()) {
+						logger.warn("Rejecting received message because of the listener container " +
+							"having been stopped in the meantime: ");
+					}
+					rollbackIfNecessary(session);
+					throw new RuntimeException();
 				}
+
 				try {
-					doExecuteListener(sessionToUse, message);
-				}
-				catch (Throwable ex) {
-					if (status != null) {
-						if (logger.isDebugEnabled()) {
-							logger.debug("status=rolling back transaction, cause=listener exception thrown: " + ex);
-						}
-						status.setRollbackOnly();
-					}
-					handleListenerException(ex);
-					// Rethrow JMSException to indicate an infrastructure problem
-					// that may have to trigger recovery...
-					if (ex instanceof JMSException) {
-						throw (JMSException) ex;
-					}
-				}
-				finally {
+
 					if (exposeResource) {
-						TransactionSynchronizationManager.unbindResource(getConnectionFactory());
+						TransactionSynchronizationManager.bindResource(
+							getConnectionFactory(), new JmsResourceHolder(sessionToUse));
 					}
+					getMessageListener().onMessage(msgs);
+				} catch (RuntimeException ex) {
+					rollbackOnExceptionIfNecessary(session, ex);
+					throw ex;
+				} catch (Error err) {
+					rollbackOnExceptionIfNecessary(session, err);
+					throw err;
 				}
-				// Indicate that a message has been received.
-				return true;
+				commitIfNecessary(session, null);
+			} catch (Throwable ex) {
+				if (status != null) {
+					if (logger.isDebugEnabled()) {
+						logger.debug("status=rolling back transaction, cause=listener exception thrown: " + ex);
+					}
+					status.setRollbackOnly();
+				}
+				handleListenerException(ex);
+				// Rethrow JMSException to indicate an infrastructure problem
+				// that may have to trigger recovery...
+				if (ex instanceof JMSException) {
+					throw (JMSException) ex;
+				}
+			} finally {
+				if (exposeResource) {
+					TransactionSynchronizationManager.unbindResource(getConnectionFactory());
+				}
 			}
-			else {
-				if (logger.isTraceEnabled()) {
-					logger.trace("consumer=" + consumerToUse + ", transactional=" + (transactional ? "transactional " : "") +
-						"session=" + sessionToUse + ", status=did not receive a message");
-				}
-				noMessageReceived(invoker, sessionToUse);
-				// Nevertheless call commit, in order to reset the transaction timeout (if any).
-				if (shouldCommitAfterNoMessageReceived(sessionToUse)) {
-					commitIfNecessary(sessionToUse, message);
-				}
-				// Indicate that no message has been received.
-				return false;
-			}
-		}
-		finally {
+			// Indicate that a message has been received.
+			return true;
+
+		} finally {
 			JmsUtils.closeMessageConsumer(consumerToClose);
 			JmsUtils.closeSession(sessionToClose);
 			ConnectionFactoryUtils.releaseConnection(conToClose, getConnectionFactory(), true);
 		}
+	}
+
+	@Override
+	public BatchMessageListener getMessageListener() {
+		return this.messageListener;
+	}
+
+	@Override
+	public void setMessageListener(Object messageListener) {
+		if (!(messageListener instanceof BatchMessageListener)){
+			throw new IllegalArgumentException();
+		}
+		this.messageListener = (BatchMessageListener) messageListener;
+		if (this.subscriptionName == null) {
+			this.subscriptionName = getDefaultSubscriptionName(messageListener);
+		}
+	}
+
+	@Override
+	public String getSubscriptionName() {
+		return this.subscriptionName;
+	}
+
+	@Override
+	public void setSubscriptionName(String subscriptionName) {
+		this.subscriptionName = subscriptionName;
 	}
 
 	/**
@@ -128,8 +187,7 @@ public class BatchMessageListenerContainer extends DefaultMessageListenerContain
 			if (BatchMessageListenerContainer.this.sharedConnectionEnabled()) {
 				Connection sharedCon = BatchMessageListenerContainer.this.getSharedConnection();
 				return new SingleConnectionFactory(sharedCon).createConnection();
-			}
-			else {
+			} else {
 				return BatchMessageListenerContainer.this.createConnection();
 			}
 		}
