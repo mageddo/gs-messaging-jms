@@ -12,6 +12,7 @@ import org.springframework.jms.listener.DefaultMessageListenerContainer;
 import org.springframework.jms.listener.adapter.MessageListenerAdapter;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.PlatformTransactionManager;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -28,6 +29,9 @@ public class PingReceiver {
 
 	@Autowired
 	private JmsTemplate jmsTemplate;
+
+	@Autowired
+	private PlatformTransactionManager txManager;
 
 	private AtomicInteger ip = new AtomicInteger(1);
 

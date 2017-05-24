@@ -28,10 +28,15 @@ public class SaleService {
 
 	public void completeSale(Sale sale){
 		logger.info("status=completeSale, sale={}", sale);
+		try {
+			Thread.sleep(150);
+		} catch (InterruptedException e) {}
 	}
 
 	public void createMockSale(){
-		for(int i=0; i < 1000; i++)
-			jmsTemplate.convertAndSend(DestinationEnum.SALE.getDestination(), String.format("safe %05d", id.incrementAndGet()));
+//		for(int i=0; i < 1000; i++)
+		final String sale = String.format("safe %05d", id.incrementAndGet());
+		logger.info("status=new-sale, sale={}", sale);
+		jmsTemplate.convertAndSend(DestinationEnum.SALE.getDestination(), sale);
 	}
 }

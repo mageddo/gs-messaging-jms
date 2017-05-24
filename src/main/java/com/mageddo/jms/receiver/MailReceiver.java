@@ -38,7 +38,6 @@ public class MailReceiver {
 	}
 
 	@JmsListener(destination = DestinationConstants.MAIL, containerFactory = DestinationConstants.MAIL + "Factory")
-	@Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
 	public void consume(String email) throws InterruptedException {
 
 		mailService.insert(email);

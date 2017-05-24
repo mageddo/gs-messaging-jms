@@ -5,10 +5,12 @@ import com.mageddo.jms.config.MageddoMessageListenerContainerFactory;
 import com.mageddo.jms.queue.CompleteDestination;
 import com.mageddo.jms.queue.DestinationEnum;
 import com.mageddo.jms.service.DestinationParameterService;
+import com.mageddo.jms.utils.PropertiesUtils;
 import com.mageddo.jms.utils.QueueUtils;
 import com.mageddo.jms.vo.Color;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.pool.PooledConnectionFactory;
+import org.apache.tomcat.jdbc.pool.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.SpringApplication;
@@ -25,15 +27,19 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jms.annotation.EnableJms;
 import org.springframework.jms.core.JmsTemplate;
+import org.springframework.jmx.export.MBeanExporter;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.SchedulingConfigurer;
 import org.springframework.scheduling.config.ScheduledTaskRegistrar;
+import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.annotation.PostConstruct;
 import javax.jms.ConnectionFactory;
 import javax.jms.Session;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.Executors;
 
 @EnableScheduling
@@ -58,6 +64,9 @@ public class Application implements SchedulingConfigurer {
 
 	@Autowired
 	DestinationParameterService destinationParameterService;
+
+	@Autowired
+	private PlatformTransactionManager txManager;
 
 	@PostConstruct
 	public void setupQueues(){
@@ -85,6 +94,7 @@ public class Application implements SchedulingConfigurer {
 		final MageddoMessageListenerContainerFactory factory = QueueUtils.createDefaultFactory(
 			activeMQConnectionFactory, destination
 		);
+//		factory.setTransactionManager(txManager); // use too much database sessions
 		QueueUtils.configureRedelivery(activeMQConnectionFactory, destinationEnum);
 		configurer.configure(factory, cf);
 		beanFactory.registerSingleton(factory.getBeanName(), factory);
@@ -135,6 +145,15 @@ public class Application implements SchedulingConfigurer {
 	@Override
 	public void configureTasks(ScheduledTaskRegistrar taskRegistrar) {
 		taskRegistrar.setScheduler(Executors.newScheduledThreadPool(50));
+	}
+
+	@Bean
+	public MBeanExporter jdbcPoolJMX(DataSource dataSource){
+		final MBeanExporter beanExporter = new MBeanExporter();
+		Map<String, Object> map = new HashMap<>();
+		map.put("bean:name=DataSource", dataSource.getPool().getJmxPool());
+		beanExporter.setBeans(map);
+		return beanExporter;
 	}
 
 	public static void main(String[] args) {

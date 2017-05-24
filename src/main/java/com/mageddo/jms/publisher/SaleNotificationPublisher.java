@@ -14,9 +14,9 @@ public class SaleNotificationPublisher {
 	@Autowired
 	private SaleService saleService;
 
-	@Scheduled(fixedRate = 1)
+//	@Scheduled(fixedRate = Integer.MAX_VALUE)
 	public void postSales(){
-//		for(;;)
+		for(;;)
 			saleService.createMockSale();
 	}
 }

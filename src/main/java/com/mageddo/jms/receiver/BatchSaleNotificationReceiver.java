@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.jms.JMSException;
 import java.util.List;
@@ -33,6 +34,9 @@ public class BatchSaleNotificationReceiver implements BatchMessageListener{
 	@Autowired
 	private SaleService saleService;
 
+	@Autowired
+	private PlatformTransactionManager txManager;
+
 	@Override
 	public void onMessage(List<ActiveMQTextMessage> messages) throws JMSException {
 		logger.info("status=onMessage, size={}", messages.size());
@@ -46,7 +50,7 @@ public class BatchSaleNotificationReceiver implements BatchMessageListener{
 
 		final DestinationEnum queue = DestinationEnum.SALE;
 		final DefaultMessageListenerContainer container = createContainer(
-			cf, queue.getCompleteDestination(), new BatchMessageListenerContainer(1000)
+			cf, queue.getCompleteDestination(), new BatchMessageListenerContainer(200)
 		);
 		container.setDestination(queue.getDestination());
 		configureRedelivery(cf, queue);
