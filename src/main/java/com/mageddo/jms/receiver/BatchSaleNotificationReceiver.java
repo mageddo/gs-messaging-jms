@@ -46,7 +46,7 @@ public class BatchSaleNotificationReceiver implements BatchMessageListener{
 
 		final DestinationEnum queue = DestinationEnum.SALE;
 		final DefaultMessageListenerContainer container = createContainer(
-			cf, queue.getCompleteDestination(), new BatchMessageListenerContainer(10)
+			cf, queue.getCompleteDestination(), new BatchMessageListenerContainer(1000)
 		);
 		container.setDestination(queue.getDestination());
 		configureRedelivery(cf, queue);

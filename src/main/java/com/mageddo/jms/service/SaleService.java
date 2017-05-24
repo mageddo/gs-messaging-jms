@@ -31,6 +31,7 @@ public class SaleService {
 	}
 
 	public void createMockSale(){
-		jmsTemplate.convertAndSend(DestinationEnum.SALE.getDestination(), String.format("safe %05d", id.incrementAndGet()));
+		for(int i=0; i < 1000; i++)
+			jmsTemplate.convertAndSend(DestinationEnum.SALE.getDestination(), String.format("safe %05d", id.incrementAndGet()));
 	}
 }

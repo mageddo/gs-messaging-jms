@@ -1,6 +1,5 @@
 package com.mageddo.jms.queue.container;
 
-import org.apache.activemq.command.ActiveMQMessage;
 import org.apache.activemq.command.ActiveMQTextMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -109,7 +108,7 @@ public class BatchMessageListenerContainer extends DefaultMessageListenerContain
 
 					if (exposeResource) {
 						TransactionSynchronizationManager.bindResource(
-							getConnectionFactory(), new JmsResourceHolder(sessionToUse));
+							getConnectionFactory(), new LocallyExposedJmsResourceHolder(sessionToUse));
 					}
 					getMessageListener().onMessage(msgs);
 				} catch (RuntimeException ex) {
@@ -210,6 +209,31 @@ public class BatchMessageListenerContainer extends DefaultMessageListenerContain
 		@Override
 		public boolean isSynchedLocalTransactionAllowed() {
 			return BatchMessageListenerContainer.this.isSessionTransacted();
+		}
+	}
+
+
+	/**
+	 * This implementation checks whether the Session is externally synchronized.
+	 * In this case, the Session is not locally transacted, despite the listener
+	 * container's "sessionTransacted" flag being set to "true".
+	 * @see org.springframework.jms.connection.JmsResourceHolder
+	 */
+	@Override
+	protected boolean isSessionLocallyTransacted(Session session) {
+		if (!super.isSessionTransacted()) {
+			return false;
+		}
+		JmsResourceHolder resourceHolder =
+			(JmsResourceHolder) TransactionSynchronizationManager.getResource(getConnectionFactory());
+		return (resourceHolder == null || resourceHolder instanceof LocallyExposedJmsResourceHolder ||
+			!resourceHolder.containsSession(session));
+	}
+
+	class LocallyExposedJmsResourceHolder extends JmsResourceHolder {
+
+		public LocallyExposedJmsResourceHolder(Session session) {
+			super(session);
 		}
 	}
 }
