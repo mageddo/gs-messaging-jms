@@ -52,6 +52,7 @@ public class QueueUtils {
 			CompleteDestination destination){
 
 		final DefaultMessageListenerContainer container = new DefaultMessageListenerContainer();
+		container.setBeanName(destination.getName());
 		final MageddoMessageListenerContainerFactory factory = new MageddoMessageListenerContainerFactory(container,
 			QueueUtils.getFactoryName(destination)
 		);

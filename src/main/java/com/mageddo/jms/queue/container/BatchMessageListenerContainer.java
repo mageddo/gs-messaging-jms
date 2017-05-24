@@ -1,5 +1,9 @@
 package com.mageddo.jms.queue.container;
 
+import org.apache.activemq.command.ActiveMQMessage;
+import org.apache.activemq.command.ActiveMQTextMessage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.jms.connection.ConnectionFactoryUtils;
 import org.springframework.jms.connection.JmsResourceHolder;
 import org.springframework.jms.connection.SingleConnectionFactory;
@@ -16,6 +20,8 @@ import java.util.List;
  * Created by elvis on 22/05/17.
  */
 public class BatchMessageListenerContainer extends DefaultMessageListenerContainer {
+
+	private final Logger logger = LoggerFactory.getLogger(getClass());
 
 	private MessageListenerContainerResourceFactory transactionalResourceFactory = new MessageListenerContainerResourceFactory();
 	private int batchSize;
@@ -60,24 +66,25 @@ public class BatchMessageListenerContainer extends DefaultMessageListenerContain
 			boolean exposeResource = (!transactional && isExposeListenerSession() &&
 				!TransactionSynchronizationManager.hasResource(getConnectionFactory()));
 
-			final List<Message> msgs = new ArrayList<>();
+			final List<ActiveMQTextMessage> msgs = new ArrayList<>();
 			for (int i = 0; i < batchSize; i++) {
 
 				final Message message = receiveMessage(consumerToUse);
 				if (message != null) {
-					if (logger.isDebugEnabled()) {
-						logger.debug("status=Received message, type=" + message.getClass() + ", consumer=" +
-							consumerToUse + ", transactional=" + (transactional ? "transactional " : "") + ", session=" + sessionToUse);
+					if (logger.isTraceEnabled()) {
+						logger.trace("status=Received message, msgs=" + msgs.size() + ", type=" + message.getClass() + ", consumer=" +
+							consumerToUse + ", transactional=" + (transactional ? "transactional " : "") + ", session=" +
+							sessionToUse);
 					}
 					messageReceived(invoker, sessionToUse);
-					msgs.add(message);
+					msgs.add((ActiveMQTextMessage) message);
 				} else {
-					if (!msgs.isEmpty()) {
-						break;
-					}
 					if (logger.isTraceEnabled()) {
 						logger.trace("consumer=" + consumerToUse + ", transactional=" + (transactional ? "transactional " : "") +
 							"session=" + sessionToUse + ", status=did not receive a message");
+					}
+					if (!msgs.isEmpty()) {
+						break;
 					}
 					noMessageReceived(invoker, sessionToUse);
 					// Nevertheless call commit, in order to reset the transaction timeout (if any).
@@ -94,7 +101,7 @@ public class BatchMessageListenerContainer extends DefaultMessageListenerContain
 						logger.warn("Rejecting received message because of the listener container " +
 							"having been stopped in the meantime: ");
 					}
-					rollbackIfNecessary(session);
+					rollbackIfNecessary(sessionToUse);
 					throw new RuntimeException();
 				}
 
@@ -106,13 +113,13 @@ public class BatchMessageListenerContainer extends DefaultMessageListenerContain
 					}
 					getMessageListener().onMessage(msgs);
 				} catch (RuntimeException ex) {
-					rollbackOnExceptionIfNecessary(session, ex);
+					rollbackOnExceptionIfNecessary(sessionToUse, ex);
 					throw ex;
 				} catch (Error err) {
-					rollbackOnExceptionIfNecessary(session, err);
+					rollbackOnExceptionIfNecessary(sessionToUse, err);
 					throw err;
 				}
-				commitIfNecessary(session, null);
+				commitIfNecessary(sessionToUse, null);
 			} catch (Throwable ex) {
 				if (status != null) {
 					if (logger.isDebugEnabled()) {
@@ -132,6 +139,9 @@ public class BatchMessageListenerContainer extends DefaultMessageListenerContain
 				}
 			}
 			// Indicate that a message has been received.
+			if(logger.isTraceEnabled()){
+				logger.trace("status=consume-completed, msg={}", msgs.size());
+			}
 			return true;
 
 		} finally {
