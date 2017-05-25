@@ -34,7 +34,7 @@ public class QueueService {
 
 		logger.info("status=begin, name={}", entity.getName());
 
-		final DestinationEnum destination = DestinationEnum.fromQueueName(entity.getName());
+		final DestinationEnum destination = DestinationEnum.fromDestinationName(entity.getName());
 		Assert.notNull(destination, "destination not found: " + entity.getName());
 
 		destinationParameterService.changeConsumers(entity.getName(), entity.getConsumers(), entity.getMaxConsumers());

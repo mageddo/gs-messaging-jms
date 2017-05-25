@@ -4,6 +4,10 @@ import org.apache.activemq.RedeliveryPolicy;
 import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.command.ActiveMQQueue;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
 import static com.mageddo.jms.queue.QueueBuilder.pingQueue;
 import static com.mageddo.jms.utils.QueueUtils.queue;
 import static com.mageddo.jms.utils.QueueUtils.topic;
@@ -20,6 +24,16 @@ public enum DestinationEnum {
 	DEFAULT_DLQ(queue(DestinationConstants.DEFAULT_DLQ), true, 10000, RedeliveryPolicy.NO_MAXIMUM_REDELIVERIES, 1, 2),
 
 	;
+	private static final Map<String, DestinationEnum> DESTINATION_BY_NAME = new HashMap<>();
+	static {
+		for (final DestinationEnum destinationEnum : values()) {
+			final String destinationName = destinationEnum.getDestination().getPhysicalName();
+			if(!DESTINATION_BY_NAME.containsKey(destinationName)){
+				DESTINATION_BY_NAME.put(destinationName, destinationEnum);
+			}
+		}
+		Collections.unmodifiableMap(DESTINATION_BY_NAME);
+	}
 
 	private ActiveMQQueue dlq;
 	private CompleteDestination destination;
@@ -60,12 +74,12 @@ public enum DestinationEnum {
 		return autoDeclare;
 	}
 
-	public static DestinationEnum fromQueueName(String name){
-		for (DestinationEnum destinationEnum : values()) {
-			if(destinationEnum.getCompleteDestination().getName().equals(name)){
-				return destinationEnum;
-			}
-		}
-		return null;
+	/**
+	 * Obs; the destination name is not unique
+	 * @param name
+	 * @return
+	 */
+	public static DestinationEnum fromDestinationName(String name){
+		return DESTINATION_BY_NAME.get(name);
 	}
 }

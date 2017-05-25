@@ -1,6 +1,8 @@
 package com.mageddo.jms.receiver;
 
 import com.mageddo.jms.queue.DestinationConstants;
+import com.mageddo.jms.queue.DestinationEnum;
+import org.apache.activemq.command.ActiveMQMessage;
 import org.apache.activemq.command.ActiveMQQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +15,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.jms.JMSException;
-import javax.jms.Message;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -30,25 +31,38 @@ public class DlqDistrubutorReceiver {
 
 	@JmsListener(destination = DestinationConstants.DEFAULT_DLQ, containerFactory = DestinationConstants.DEFAULT_DLQ + "Factory")
 	@Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
-	public void consume(Message message) throws JMSException {
+	public void consume(ActiveMQMessage message) throws JMSException {
 
 		try {
-			final String deliveryFailureCause = message.getStringProperty("dlqDeliveryFailureCause");
-			final Matcher matcher = Pattern.compile(".*destination = queue://([^,]+),.*").matcher(deliveryFailureCause);
-			final ActiveMQQueue dlqQueue;
-			if (matcher.find()) {
-				dlqQueue = new ActiveMQQueue(matcher.group(1));
-			} else {
-				dlqQueue = new ActiveMQQueue("dlq.general");
-			}
-			dlqQueue.setDLQ();
+			final ActiveMQQueue dlqQueue = getDLQ(message);
+			LOGGER.debug("status=movingDLQ, dlq={}, msgId={}", dlqQueue.getPhysicalName(), message.getJMSMessageID());
 			jmsTemplate.convertAndSend(dlqQueue, message);
-
 		} catch (Throwable e) {
-			LOGGER.error("msg={}", e.getMessage(), e);
+			LOGGER.error("errorMsg={}, msg={}", e.getMessage(), message.getJMSMessageID(), e);
 			throw e;
 		}
 
+	}
+
+	private ActiveMQQueue getDLQ(ActiveMQMessage message) throws JMSException {
+		final DestinationEnum dlq = DestinationEnum.fromDestinationName(message.getOriginalDestination().getPhysicalName());
+		if(dlq != null){
+			return dlq.getDlq();
+		}
+		return getDLQByFailureCause(message);
+	}
+
+	private ActiveMQQueue getDLQByFailureCause(ActiveMQMessage message) throws JMSException {
+		final String deliveryFailureCause = message.getStringProperty("dlqDeliveryFailureCause");
+		final Matcher matcher = Pattern.compile(".*destination = queue://([^,]+),.*").matcher(deliveryFailureCause);
+		final ActiveMQQueue dlqQueue;
+		if (matcher.find()) {
+			dlqQueue = new ActiveMQQueue(matcher.group(1));
+		} else {
+			dlqQueue = new ActiveMQQueue("dlq.general");
+		}
+		dlqQueue.setDLQ();
+		return dlqQueue;
 	}
 
 }
