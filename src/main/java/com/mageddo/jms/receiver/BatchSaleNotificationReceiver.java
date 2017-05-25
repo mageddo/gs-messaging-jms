@@ -17,7 +17,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.jms.JMSException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import static com.mageddo.jms.utils.QueueUtils.configureRedelivery;
 import static com.mageddo.jms.utils.QueueUtils.createContainer;
@@ -27,7 +29,7 @@ import static com.mageddo.jms.utils.QueueUtils.createContainer;
  */
 
 @Component
-public class BatchSaleNotificationReceiver implements BatchMessageListener{
+public class BatchSaleNotificationReceiver implements BatchMessageListener {
 
 	private Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -38,11 +40,21 @@ public class BatchSaleNotificationReceiver implements BatchMessageListener{
 	private PlatformTransactionManager txManager;
 
 	@Override
-	public void onMessage(List<ActiveMQTextMessage> messages) throws JMSException {
+	public List<ActiveMQTextMessage> onMessage(List<ActiveMQTextMessage> messages) throws JMSException {
 		logger.info("status=onMessage, size={}", messages.size());
+
+		final List<ActiveMQTextMessage> notConsumed = new ArrayList<>();
 		for (final ActiveMQTextMessage saleMsg: messages) {
-			saleService.completeSale(new Sale(saleMsg.getText()));
+
+			final boolean error = new Random().nextBoolean();
+			if (error){
+				saleService.completeSale(new Sale(saleMsg.getText()));
+			} else {
+				notConsumed.add(saleMsg);
+			}
+
 		}
+		return notConsumed;
 	}
 
 	@Bean(name = DestinationConstants.SALE + "Container", initMethod = "start", destroyMethod = "stop")

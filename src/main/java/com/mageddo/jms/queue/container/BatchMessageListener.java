@@ -9,5 +9,7 @@ import java.util.List;
  * Created by elvis on 23/05/17.
  */
 public interface BatchMessageListener {
-	void onMessage(List<ActiveMQTextMessage> messages) throws JMSException;
+
+	List<ActiveMQTextMessage> onMessage(List<ActiveMQTextMessage> messages) throws JMSException;
+
 }

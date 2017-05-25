@@ -1,6 +1,9 @@
 package com.mageddo.jms.queue.container;
 
+import com.mageddo.jms.queue.DestinationEnum;
+import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.command.ActiveMQTextMessage;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jms.connection.ConnectionFactoryUtils;
@@ -10,6 +13,7 @@ import org.springframework.jms.listener.DefaultMessageListenerContainer;
 import org.springframework.jms.support.JmsUtils;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
+import org.springframework.util.Assert;
 
 import javax.jms.*;
 import java.util.ArrayList;
@@ -110,7 +114,37 @@ public class BatchMessageListenerContainer extends DefaultMessageListenerContain
 						TransactionSynchronizationManager.bindResource(
 							getConnectionFactory(), new LocallyExposedJmsResourceHolder(sessionToUse));
 					}
-					getMessageListener().onMessage(msgs);
+
+					// consuming and get not consumed messages
+					final List<ActiveMQTextMessage> notConsumedMsgs = getMessageListener().onMessage(msgs);
+					if(!notConsumedMsgs.isEmpty()){
+
+						final ActiveMQDestination destination = (ActiveMQDestination) getDestination();
+						Assert.notNull(destination, "Destination can not be null");
+						final DestinationEnum destinationEnum = DestinationEnum.fromDestinationName(destination.getPhysicalName());
+						final MessageProducer queueProducer = sessionToUse.createProducer(destinationEnum.getDestination()),
+																	dlqProducer = sessionToUse.createProducer(destinationEnum.getDlq());
+
+						for (final ActiveMQTextMessage notConsumedMsg : notConsumedMsgs) {
+							notConsumedMsg.setReadOnlyProperties(false);
+
+							final long deliveries = getDeliveries(notConsumedMsg);
+							if(deliveries < destinationEnum.getCompleteDestination().getRetries()){
+								notConsumedMsg.setLongProperty("deliveries", deliveries + 1);
+								notConsumedMsg.setReadOnlyProperties(true);
+								queueProducer.send(notConsumedMsg);
+							}else{
+								dlqProducer.send(notConsumedMsg);
+								logger.info(
+									"status=send-to-dlq, dlq={}, msgId={}", destinationEnum.getDlq().getPhysicalName(),
+									notConsumedMsg.getJMSMessageID()
+								);
+							}
+
+						}
+						dlqProducer.close();
+						queueProducer.close();
+					}
 				} catch (RuntimeException ex) {
 					rollbackOnExceptionIfNecessary(sessionToUse, ex);
 					throw ex;
@@ -148,6 +182,11 @@ public class BatchMessageListenerContainer extends DefaultMessageListenerContain
 			JmsUtils.closeSession(sessionToClose);
 			ConnectionFactoryUtils.releaseConnection(conToClose, getConnectionFactory(), true);
 		}
+	}
+
+	private long getDeliveries(ActiveMQTextMessage textMessage) throws JMSException {
+		final String deliveries = textMessage.getStringProperty("deliveries");
+		return StringUtils.isBlank(deliveries) ? 0 : Long.parseLong(deliveries);
 	}
 
 	@Override
