@@ -24,6 +24,10 @@ import java.util.List;
  */
 public class BatchMessageListenerContainer extends DefaultMessageListenerContainer {
 
+	/**
+	 * Qtd of redeliveries tries
+	 */
+	public static final String DELIVERIES = "deliveries";
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 
 	private MessageListenerContainerResourceFactory transactionalResourceFactory = new MessageListenerContainerResourceFactory();
@@ -130,10 +134,12 @@ public class BatchMessageListenerContainer extends DefaultMessageListenerContain
 
 							final long deliveries = getDeliveries(notConsumedMsg);
 							if(deliveries < destinationEnum.getCompleteDestination().getRetries()){
-								notConsumedMsg.setLongProperty("deliveries", deliveries + 1);
+								notConsumedMsg.setLongProperty(DELIVERIES, deliveries + 1);
 								notConsumedMsg.setReadOnlyProperties(true);
 								queueProducer.send(notConsumedMsg);
 							}else{
+								notConsumedMsg.removeProperty(DELIVERIES);
+								notConsumedMsg.setReadOnlyProperties(true);
 								dlqProducer.send(notConsumedMsg);
 								logger.info(
 									"status=send-to-dlq, dlq={}, msgId={}", destinationEnum.getDlq().getPhysicalName(),
