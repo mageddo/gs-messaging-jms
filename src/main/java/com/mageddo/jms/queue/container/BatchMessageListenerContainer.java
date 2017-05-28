@@ -1,6 +1,8 @@
 package com.mageddo.jms.queue.container;
 
 import com.mageddo.jms.queue.DestinationEnum;
+import org.apache.activemq.RedeliveryPolicy;
+import org.apache.activemq.ScheduledMessage;
 import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.command.ActiveMQTextMessage;
 import org.apache.commons.lang3.StringUtils;
@@ -32,11 +34,13 @@ public class BatchMessageListenerContainer extends DefaultMessageListenerContain
 
 	private MessageListenerContainerResourceFactory transactionalResourceFactory = new MessageListenerContainerResourceFactory();
 	private int batchSize;
+	private final RedeliveryPolicy redeliveryPolicy;
 	private BatchMessageListener messageListener;
 	private String subscriptionName;
 
-	public BatchMessageListenerContainer(int batchSize) {
+	public BatchMessageListenerContainer(int batchSize, RedeliveryPolicy redeliveryPolicy) {
 		this.batchSize = batchSize;
+		this.redeliveryPolicy = redeliveryPolicy;
 	}
 
 	@Override
@@ -133,8 +137,12 @@ public class BatchMessageListenerContainer extends DefaultMessageListenerContain
 							notConsumedMsg.setReadOnlyProperties(false);
 
 							final long deliveries = getDeliveries(notConsumedMsg);
-							if(deliveries < destinationEnum.getCompleteDestination().getRetries()){
+							if(deliveries < redeliveryPolicy.getMaximumRedeliveries()){
 								notConsumedMsg.setLongProperty(DELIVERIES, deliveries + 1);
+								notConsumedMsg.setLongProperty(
+									ScheduledMessage.AMQ_SCHEDULED_DELAY,
+									redeliveryPolicy.getNextRedeliveryDelay(redeliveryPolicy.getRedeliveryDelay())
+								);
 								notConsumedMsg.setReadOnlyProperties(true);
 								queueProducer.send(notConsumedMsg);
 							}else{

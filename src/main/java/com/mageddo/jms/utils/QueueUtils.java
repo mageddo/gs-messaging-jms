@@ -8,13 +8,10 @@ import org.apache.activemq.RedeliveryPolicy;
 import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.command.ActiveMQQueue;
 import org.apache.activemq.command.ActiveMQTopic;
-import org.apache.catalina.util.CustomObjectInputStream;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
 
 import javax.jms.ConnectionFactory;
 import javax.jms.Session;
-import java.io.ObjectInputStream;
-import java.util.HashMap;
 import java.util.Properties;
 
 /**
@@ -42,10 +39,12 @@ public class QueueUtils {
 		return destination.getFactory() + "Factory";
 	}
 
-	public static void configureRedelivery(ActiveMQConnectionFactory connectionFactory, DestinationEnum destinationEnum){
+	public static RedeliveryPolicy configureRedelivery(ActiveMQConnectionFactory connectionFactory, DestinationEnum destinationEnum){
+		final RedeliveryPolicy rp = createRedeliveryPolicy(destinationEnum.getCompleteDestination(), destinationEnum.getDlq());
 		connectionFactory
 			.getRedeliveryPolicyMap()
-				.put(destinationEnum.getDestination(), createRedeliveryPolicy(destinationEnum.getCompleteDestination(), destinationEnum.getDlq()));
+				.put(destinationEnum.getDestination(), rp);
+		return rp;
 	}
 
 	public static MageddoMessageListenerContainerFactory createDefaultFactory(ConnectionFactory connectionFactory,

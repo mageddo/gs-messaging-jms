@@ -7,6 +7,7 @@ import com.mageddo.jms.queue.container.BatchMessageListenerContainer;
 import com.mageddo.jms.service.SaleService;
 import com.mageddo.jms.vo.Sale;
 import org.apache.activemq.ActiveMQConnectionFactory;
+import org.apache.activemq.RedeliveryPolicy;
 import org.apache.activemq.command.ActiveMQTextMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,8 +47,10 @@ public class BatchSaleNotificationReceiver implements BatchMessageListener {
 		final List<ActiveMQTextMessage> notConsumed = new ArrayList<>();
 		for (final ActiveMQTextMessage saleMsg: messages) {
 
-			final boolean error = new Random().nextBoolean();
-			if (error){
+//			final boolean success = new Random().nextBoolean();
+			final boolean success = false;
+			logger.info("status=onMessage, status={}, msg={}", success ? "success" : "redelivery", saleMsg.getText());
+			if (success){
 				saleService.completeSale(new Sale(saleMsg.getText()));
 			} else {
 				notConsumed.add(saleMsg);
@@ -61,11 +64,11 @@ public class BatchSaleNotificationReceiver implements BatchMessageListener {
 	public DefaultMessageListenerContainer container(ActiveMQConnectionFactory cf, BatchSaleNotificationReceiver receiver){
 
 		final DestinationEnum queue = DestinationEnum.SALE;
+		final RedeliveryPolicy redeliveryPolicy = configureRedelivery(cf, queue);
 		final DefaultMessageListenerContainer container = createContainer(
-			cf, queue.getCompleteDestination(), new BatchMessageListenerContainer(200)
+			cf, queue.getCompleteDestination(), new BatchMessageListenerContainer(1, redeliveryPolicy)
 		);
 		container.setDestination(queue.getDestination());
-		configureRedelivery(cf, queue);
 		container.setMessageListener(receiver);
 
 		return container;
