@@ -138,13 +138,20 @@ public class BatchMessageListenerContainer extends DefaultMessageListenerContain
 
 							final long deliveries = getDeliveries(notConsumedMsg);
 							if(deliveries < redeliveryPolicy.getMaximumRedeliveries()){
+
+								// removing schedule to can be scheduled again
+								notConsumedMsg.removeProperty("scheduledJobId");
+
+								// redelivery policy
 								notConsumedMsg.setLongProperty(DELIVERIES, deliveries + 1);
 								notConsumedMsg.setLongProperty(
 									ScheduledMessage.AMQ_SCHEDULED_DELAY,
 									redeliveryPolicy.getNextRedeliveryDelay(redeliveryPolicy.getRedeliveryDelay())
 								);
+
 								notConsumedMsg.setReadOnlyProperties(true);
 								queueProducer.send(notConsumedMsg);
+
 							}else{
 								notConsumedMsg.removeProperty(DELIVERIES);
 								notConsumedMsg.setReadOnlyProperties(true);
