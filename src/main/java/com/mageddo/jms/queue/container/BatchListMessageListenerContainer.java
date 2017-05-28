@@ -24,7 +24,7 @@ import java.util.List;
 /**
  * Created by elvis on 22/05/17.
  */
-public class BatchMessageListenerContainer extends DefaultMessageListenerContainer {
+public class BatchListMessageListenerContainer extends DefaultMessageListenerContainer {
 
 	/**
 	 * Qtd of redeliveries tries
@@ -38,7 +38,7 @@ public class BatchMessageListenerContainer extends DefaultMessageListenerContain
 	private BatchMessageListener messageListener;
 	private String subscriptionName;
 
-	public BatchMessageListenerContainer(int batchSize, RedeliveryPolicy redeliveryPolicy) {
+	public BatchListMessageListenerContainer(int batchSize, RedeliveryPolicy redeliveryPolicy) {
 		this.batchSize = batchSize;
 		this.redeliveryPolicy = redeliveryPolicy;
 	}
@@ -243,32 +243,32 @@ public class BatchMessageListenerContainer extends DefaultMessageListenerContain
 
 		@Override
 		public Connection getConnection(JmsResourceHolder holder) {
-			return BatchMessageListenerContainer.this.getConnection(holder);
+			return BatchListMessageListenerContainer.this.getConnection(holder);
 		}
 
 		@Override
 		public Session getSession(JmsResourceHolder holder) {
-			return BatchMessageListenerContainer.this.getSession(holder);
+			return BatchListMessageListenerContainer.this.getSession(holder);
 		}
 
 		@Override
 		public Connection createConnection() throws JMSException {
-			if (BatchMessageListenerContainer.this.sharedConnectionEnabled()) {
-				Connection sharedCon = BatchMessageListenerContainer.this.getSharedConnection();
+			if (BatchListMessageListenerContainer.this.sharedConnectionEnabled()) {
+				Connection sharedCon = BatchListMessageListenerContainer.this.getSharedConnection();
 				return new SingleConnectionFactory(sharedCon).createConnection();
 			} else {
-				return BatchMessageListenerContainer.this.createConnection();
+				return BatchListMessageListenerContainer.this.createConnection();
 			}
 		}
 
 		@Override
 		public Session createSession(Connection con) throws JMSException {
-			return BatchMessageListenerContainer.this.createSession(con);
+			return BatchListMessageListenerContainer.this.createSession(con);
 		}
 
 		@Override
 		public boolean isSynchedLocalTransactionAllowed() {
-			return BatchMessageListenerContainer.this.isSessionTransacted();
+			return BatchListMessageListenerContainer.this.isSessionTransacted();
 		}
 	}
 
