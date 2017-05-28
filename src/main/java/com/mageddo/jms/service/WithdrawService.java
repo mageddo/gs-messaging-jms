@@ -1,12 +1,17 @@
 package com.mageddo.jms.service;
 
 import com.mageddo.jms.queue.DestinationEnum;
+import com.mageddo.jms.queue.container.BatchMessage;
+import org.apache.activemq.command.ActiveMQMessage;
 import org.apache.activemq.command.ActiveMQTextMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.jms.JMSException;
 import javax.jms.MessageNotWriteableException;
@@ -24,8 +29,18 @@ public class WithdrawService {
 	@Autowired
 	private JmsTemplate jmsTemplate;
 
-	public void doWithdraw(String withdraw) {
-		logger.info("status=withdraw, msg={}", withdraw);
+	@Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
+	public void doWithdraw(BatchMessage withdraws) throws JMSException {
+		for (final ActiveMQMessage withdrawMsg: withdraws.messages()) {
+
+			final boolean success = true;//new Random().nextBoolean();
+			if (success){
+				logger.info("status=withdraw, msg={}", (((ActiveMQTextMessage)withdrawMsg).getText()));
+			} else {
+				withdraws.onError(withdrawMsg);
+			}
+
+		}
 	}
 
 	public void createMockWithdraw() throws JMSException {

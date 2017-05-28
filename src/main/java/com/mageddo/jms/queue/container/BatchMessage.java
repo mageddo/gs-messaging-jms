@@ -56,8 +56,8 @@ public class BatchMessage extends ActiveMQMessage {
 	 * Add message to the collection of messages and return true if the batch meets the criteria for releasing it to the MessageListener.
 	 */
 	boolean releaseAfterMessage(ActiveMQMessage message) {
-		if(logger.isDebugEnabled()){
-			logger.debug("msg={}", message != null ? message.getJMSMessageID() : null);
+		if(logger.isTraceEnabled()){
+			logger.trace("msg={}", message != null ? message.getJMSMessageID() : null);
 		}
 		if (message != null) {
 			this.messages.add(message);

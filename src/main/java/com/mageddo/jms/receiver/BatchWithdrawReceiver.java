@@ -41,7 +41,7 @@ public class BatchWithdrawReceiver {
 	@Autowired
 	private PlatformTransactionManager txManager;
 
-//	@Scheduled(fixedDelay = Integer.MAX_VALUE)
+	@Scheduled(fixedDelay = Integer.MAX_VALUE)
 	public void makeWithdraws() throws JMSException {
 		for(;;){
 			withdrawService.createMockWithdraw();
@@ -50,17 +50,7 @@ public class BatchWithdrawReceiver {
 
 	public void onMessage(final BatchMessage withdraws) throws JMSException {
 		logger.info("status=onMessage, size={}", withdraws.size());
-
-		for (final ActiveMQMessage withdrawMsg: withdraws.messages()) {
-
-			final boolean success = true;//new Random().nextBoolean();
-			if (success){
-				withdrawService.doWithdraw(((ActiveMQTextMessage)withdrawMsg).getText());
-			} else {
-				withdraws.onError(withdrawMsg);
-			}
-
-		}
+		withdrawService.doWithdraw(withdraws);
 	}
 
 	@Bean(name = DestinationConstants.WITHDRAW + "Container", initMethod = "start", destroyMethod = "stop")
