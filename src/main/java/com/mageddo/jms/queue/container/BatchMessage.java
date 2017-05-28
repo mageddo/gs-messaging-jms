@@ -39,9 +39,13 @@ public class BatchMessage extends ActiveMQMessage {
 		this.container = container;
 	}
 
-	private long getDeliveries(final Message message) throws JMSException {
+	private long getDeliveries(final ActiveMQMessage message) throws JMSException {
 		final String deliveries = message.getStringProperty(DELIVERIES);
-		return StringUtils.isBlank(deliveries) ? 0 : Long.parseLong(deliveries);
+		if(StringUtils.isBlank(deliveries)) {
+			return message.getRedeliveryCounter();
+		} else {
+			return Math.max(Long.parseLong(deliveries), message.getRedeliveryCounter());
+		}
 	}
 
 	private ActiveMQConnectionFactory getActiveMQConnection() {
@@ -92,10 +96,10 @@ public class BatchMessage extends ActiveMQMessage {
 		final long deliveries = getDeliveries(message);
 		message.setReadOnlyProperties(false);
 		try {
+			message.removeProperty("scheduledJobId");
 			if (deliveries < redeliveryPolicy.getMaximumRedeliveries()) {
 
 				// removing schedule to can be scheduled again
-				message.removeProperty("scheduledJobId");
 
 				// redelivery policy
 				message.setLongProperty(DELIVERIES, deliveries + 1);
@@ -123,8 +127,12 @@ public class BatchMessage extends ActiveMQMessage {
 	}
 
 	void release() {
-		JmsUtils.closeMessageProducer(dlqProducer);
-		JmsUtils.closeMessageProducer(queueProducer);
+		if (dlqProducer == null && queueProducer == null ){
+			JmsUtils.closeMessageProducer(dlqProducer);
+			JmsUtils.closeMessageProducer(queueProducer);
+			dlqProducer = null;
+			queueProducer = null;
+		}
 	}
 
 	public int size(){

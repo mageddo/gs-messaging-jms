@@ -15,10 +15,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
+import org.springframework.jms.listener.adapter.MessageListenerAdapter;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.jms.JMSException;
+
+import java.util.Random;
 
 import static com.mageddo.jms.utils.QueueUtils.configureRedelivery;
 import static com.mageddo.jms.utils.QueueUtils.createContainer;
@@ -42,8 +45,7 @@ public class BatchWithdrawReceiver {
 
 		for (final ActiveMQMessage withdrawMsg: withdraws.messages()) {
 
-//			final boolean success = new Random().nextBoolean();
-			final boolean success = false;
+			final boolean success = new Random().nextBoolean();
 			if (success){
 				withdrawService.doWithdraw(((ActiveMQTextMessage)withdrawMsg).getText());
 			} else {
@@ -62,7 +64,9 @@ public class BatchWithdrawReceiver {
 			cf, queue.getCompleteDestination(), new BatchMessageListenerContainer(5)
 		);
 		container.setDestination(queue.getDestination());
-		container.setMessageListener(receiver);
+		final MessageListenerAdapter adapter = new MessageListenerAdapter(receiver);
+		adapter.setDefaultListenerMethod("onMessage");
+		container.setMessageListener(adapter);
 
 		return container;
 

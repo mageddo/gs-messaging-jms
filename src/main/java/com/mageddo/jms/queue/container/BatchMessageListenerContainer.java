@@ -27,10 +27,10 @@ public class BatchMessageListenerContainer extends DefaultMessageListenerContain
 	}
 
 	@Override
-	protected void executeListener(Session session, Message message) {
+	protected void doExecuteListener(Session session, Message message) throws JMSException {
 		final BatchMessage batchMessage = (BatchMessage) message;
 		batchMessage.setSession(session);
-		super.executeListener(session, message);
+		super.doExecuteListener(session, message);
 		batchMessage.release();
 	}
 
