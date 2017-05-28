@@ -10,10 +10,11 @@ import javax.jms.*;
  */
 public class BatchMessageListenerContainer extends DefaultMessageListenerContainer {
 
-	public static final int DEFAULT_BATCH_SIZE = 100;
+	protected final int batchSize;
 
-	protected final int batchSize = DEFAULT_BATCH_SIZE;
-
+	public BatchMessageListenerContainer(int batchSize) {
+		this.batchSize = batchSize;
+	}
 
 	/**
 	 * Override the method receiveMessage to return an instance of BatchMessage - an inner class being declared further down.

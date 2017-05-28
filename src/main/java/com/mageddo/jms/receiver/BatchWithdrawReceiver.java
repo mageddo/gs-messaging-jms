@@ -2,12 +2,13 @@ package com.mageddo.jms.receiver;
 
 import com.mageddo.jms.queue.DestinationConstants;
 import com.mageddo.jms.queue.DestinationEnum;
-import com.mageddo.jms.queue.container.BatchMessageListener;
 import com.mageddo.jms.queue.container.BatchListMessageListenerContainer;
-import com.mageddo.jms.service.SaleService;
-import com.mageddo.jms.vo.Sale;
+import com.mageddo.jms.queue.container.BatchMessage;
+import com.mageddo.jms.queue.container.BatchMessageListenerContainer;
+import com.mageddo.jms.service.WithdrawService;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.RedeliveryPolicy;
+import org.apache.activemq.command.ActiveMQMessage;
 import org.apache.activemq.command.ActiveMQTextMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,54 +19,47 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.jms.JMSException;
-import java.util.ArrayList;
-import java.util.List;
 
 import static com.mageddo.jms.utils.QueueUtils.configureRedelivery;
 import static com.mageddo.jms.utils.QueueUtils.createContainer;
 
 /**
- * Created by elvis on 23/05/17.
+ * Created by elvis on 28/05/17.
  */
-
 @Component
-public class BatchSaleNotificationReceiver implements BatchMessageListener {
+public class BatchWithdrawReceiver {
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 
 	@Autowired
-	private SaleService saleService;
+	private WithdrawService withdrawService;
 
 	@Autowired
 	private PlatformTransactionManager txManager;
 
-	@Override
-	public List<ActiveMQTextMessage> onMessage(List<ActiveMQTextMessage> messages) throws JMSException {
-		logger.info("status=onMessage, size={}", messages.size());
+	public void onMessage(final BatchMessage withdraws) throws JMSException {
+		logger.info("status=onMessage, size={}", withdraws.size());
 
-		final List<ActiveMQTextMessage> notConsumed = new ArrayList<>();
-		for (final ActiveMQTextMessage saleMsg: messages) {
+		for (final ActiveMQMessage withdrawMsg: withdraws.messages()) {
 
 //			final boolean success = new Random().nextBoolean();
 			final boolean success = false;
-			logger.info("status=onMessage, status={}, msg={}", success ? "success" : "redelivery", saleMsg.getText());
 			if (success){
-				saleService.completeSale(new Sale(saleMsg.getText()));
+				withdrawService.doWithdraw(((ActiveMQTextMessage)withdrawMsg).getText());
 			} else {
-				notConsumed.add(saleMsg);
+				withdraws.onError(withdrawMsg);
 			}
 
 		}
-		return notConsumed;
 	}
 
-	@Bean(name = DestinationConstants.SALE + "Container", initMethod = "start", destroyMethod = "stop")
-	public DefaultMessageListenerContainer container(ActiveMQConnectionFactory cf, BatchSaleNotificationReceiver receiver){
+	@Bean(name = DestinationConstants.WITHDRAW + "Container", initMethod = "start", destroyMethod = "stop")
+	public DefaultMessageListenerContainer container(ActiveMQConnectionFactory cf, BatchWithdrawReceiver receiver){
 
-		final DestinationEnum queue = DestinationEnum.SALE;
-		final RedeliveryPolicy redeliveryPolicy = configureRedelivery(cf, queue);
+		final DestinationEnum queue = DestinationEnum.WITHDRAW;
+		configureRedelivery(cf, queue);
 		final DefaultMessageListenerContainer container = createContainer(
-			cf, queue.getCompleteDestination(), new BatchListMessageListenerContainer(1, redeliveryPolicy)
+			cf, queue.getCompleteDestination(), new BatchMessageListenerContainer(5)
 		);
 		container.setDestination(queue.getDestination());
 		container.setMessageListener(receiver);
@@ -73,5 +67,4 @@ public class BatchSaleNotificationReceiver implements BatchMessageListener {
 		return container;
 
 	}
-
 }

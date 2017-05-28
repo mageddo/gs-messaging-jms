@@ -23,7 +23,7 @@ import java.util.List;
  * As BatchMessage implements the javax.jms.Message interface it fits perfectly into the DMLC - only caveat is that SimpleMessageConverter dont know how to convert it to a Spring Integration Message - but that can be helped.
  * As BatchMessage will only serve as a container to carry the actual javax.jms.Message's from DMLC to the MessageListener it need not provide meaningful implementations of the methods of the interface as long as they are there.
  */
-class BatchMessage extends ActiveMQMessage {
+public class BatchMessage extends ActiveMQMessage {
 
 	private static final String DELIVERIES = "deliveries";
 
@@ -71,7 +71,8 @@ class BatchMessage extends ActiveMQMessage {
 		return Collections.unmodifiableList(messages);
 	}
 
-	public void onError(final ActiveMQMessage message) throws JMSException, IOException {
+	public void onError(final ActiveMQMessage message) throws JMSException {
+		logger.trace("status=msg-error, msg={}", message.getJMSMessageID());
 		if(this.session == null){
 			throw new IllegalStateException("Session can not be null");
 		}
@@ -90,35 +91,47 @@ class BatchMessage extends ActiveMQMessage {
 
 		final long deliveries = getDeliveries(message);
 		message.setReadOnlyProperties(false);
-		if(deliveries < redeliveryPolicy.getMaximumRedeliveries()){
+		try {
+			if (deliveries < redeliveryPolicy.getMaximumRedeliveries()) {
 
-			// removing schedule to can be scheduled again
-			message.removeProperty("scheduledJobId");
+				// removing schedule to can be scheduled again
+				message.removeProperty("scheduledJobId");
 
-			// redelivery policy
-			message.setLongProperty(DELIVERIES, deliveries + 1);
-			message.setLongProperty(
-				ScheduledMessage.AMQ_SCHEDULED_DELAY,
-				redeliveryPolicy.getNextRedeliveryDelay(redeliveryPolicy.getRedeliveryDelay())
-			);
+				// redelivery policy
+				message.setLongProperty(DELIVERIES, deliveries + 1);
+				message.setLongProperty(
+					ScheduledMessage.AMQ_SCHEDULED_DELAY,
+					redeliveryPolicy.getNextRedeliveryDelay(redeliveryPolicy.getRedeliveryDelay())
+				);
 
-			message.setReadOnlyProperties(true);
-			queueProducer.send(message);
+				message.setReadOnlyProperties(true);
+				queueProducer.send(message);
 
-		}else{
-			message.removeProperty(DELIVERIES);
-			message.setReadOnlyProperties(true);
-			dlqProducer.send(message);
-			logger.info(
-				"status=send-to-dlq, dlq={}, msgId={}", redeliveryPolicy.getDestination().getPhysicalName(),
-				message.getJMSMessageID()
-			);
+			} else {
+				message.removeProperty(DELIVERIES);
+				message.setReadOnlyProperties(true);
+				dlqProducer.send(message);
+				logger.info(
+					"status=send-to-dlq, dlq={}, msgId={}", redeliveryPolicy.getDestination().getPhysicalName(),
+					message.getJMSMessageID()
+				);
+			}
+		}catch (final IOException e){
+			logger.debug("status=error-at-set-property, msg={}", e.getMessage(), e);
+			throw new JMSException(e.getMessage());
 		}
-
 	}
 
 	void release() {
 		JmsUtils.closeMessageProducer(dlqProducer);
 		JmsUtils.closeMessageProducer(queueProducer);
+	}
+
+	public int size(){
+		return this.getMessages().size();
+	}
+
+	public int getBatchSize(){
+		return this.container.batchSize;
 	}
 }

@@ -20,10 +20,12 @@ public enum DestinationEnum {
 	RED_COLOR(queue(DestinationConstants.COLOR), true, 10000, 2, 1, 2, DestinationConstants.FACTORY_RED_COLOR),
 	PING(pingQueue(), false, 2000, 3, 5, 10, DestinationConstants.FACTORY_PING),
 	SALE(queue(DestinationConstants.SALE), false, 20000, 3, 1, 1),
+	WITHDRAW(queue(DestinationConstants.WITHDRAW), false, 20000, 3, 1, 1),
 
-	DEFAULT_DLQ(queue(DestinationConstants.DEFAULT_DLQ), true, 10000, RedeliveryPolicy.NO_MAXIMUM_REDELIVERIES, 1, 2),
+	DEFAULT_DLQ(queue(DestinationConstants.DEFAULT_DLQ), true, 10000, RedeliveryPolicy.NO_MAXIMUM_REDELIVERIES, 1, 2)
 
 	;
+
 	private static final Map<String, DestinationEnum> DESTINATION_BY_NAME = new HashMap<>();
 	static {
 		for (final DestinationEnum destinationEnum : values()) {
