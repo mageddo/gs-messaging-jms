@@ -31,11 +31,12 @@ public class DlqDistrubutorReceiver {
 
 	@JmsListener(destination = DestinationConstants.DEFAULT_DLQ, containerFactory = DestinationConstants.DEFAULT_DLQ + "Factory")
 	@Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
-	public void consume(ActiveMQMessage message) throws JMSException {
+	public void consume(ActiveMQMessage message) throws Exception {
 
 		try {
 			final ActiveMQQueue dlqQueue = getDLQ(message);
-			LOGGER.debug("status=movingDLQ, dlq={}, msgId={}", dlqQueue.getPhysicalName(), message.getJMSMessageID());
+			LOGGER.debug("status=movingDLQ, dlq={}, msgId={}, cause={}", dlqQueue.getPhysicalName(),
+				message.getJMSMessageID(), message.getProperty("dlqDeliveryFailureCause"));
 			jmsTemplate.convertAndSend(dlqQueue, message);
 		} catch (Throwable e) {
 			LOGGER.error("errorMsg={}, msg={}", e.getMessage(), message.getJMSMessageID(), e);

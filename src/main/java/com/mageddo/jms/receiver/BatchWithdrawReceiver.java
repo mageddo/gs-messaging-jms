@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
 import org.springframework.jms.listener.adapter.MessageListenerAdapter;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.PlatformTransactionManager;
 
@@ -40,12 +41,19 @@ public class BatchWithdrawReceiver {
 	@Autowired
 	private PlatformTransactionManager txManager;
 
+//	@Scheduled(fixedDelay = Integer.MAX_VALUE)
+	public void makeWithdraws() throws JMSException {
+		for(;;){
+			withdrawService.createMockWithdraw();
+		}
+	}
+
 	public void onMessage(final BatchMessage withdraws) throws JMSException {
 		logger.info("status=onMessage, size={}", withdraws.size());
 
 		for (final ActiveMQMessage withdrawMsg: withdraws.messages()) {
 
-			final boolean success = new Random().nextBoolean();
+			final boolean success = true;//new Random().nextBoolean();
 			if (success){
 				withdrawService.doWithdraw(((ActiveMQTextMessage)withdrawMsg).getText());
 			} else {
@@ -61,7 +69,7 @@ public class BatchWithdrawReceiver {
 		final DestinationEnum queue = DestinationEnum.WITHDRAW;
 		configureRedelivery(cf, queue);
 		final DefaultMessageListenerContainer container = createContainer(
-			cf, queue.getCompleteDestination(), new BatchMessageListenerContainer(5)
+			cf, queue.getCompleteDestination(), new BatchMessageListenerContainer(500)
 		);
 		container.setDestination(queue.getDestination());
 		final MessageListenerAdapter adapter = new MessageListenerAdapter(receiver);

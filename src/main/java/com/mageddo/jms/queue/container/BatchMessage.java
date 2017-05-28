@@ -56,6 +56,9 @@ public class BatchMessage extends ActiveMQMessage {
 	 * Add message to the collection of messages and return true if the batch meets the criteria for releasing it to the MessageListener.
 	 */
 	boolean releaseAfterMessage(ActiveMQMessage message) {
+		if(logger.isDebugEnabled()){
+			logger.debug("msg={}", message != null ? message.getJMSMessageID() : null);
+		}
 		if (message != null) {
 			this.messages.add(message);
 		}
@@ -76,7 +79,6 @@ public class BatchMessage extends ActiveMQMessage {
 	}
 
 	public void onError(final ActiveMQMessage message) throws JMSException {
-		logger.trace("status=msg-error, msg={}", message.getJMSMessageID());
 		if(this.session == null){
 			throw new IllegalStateException("Session can not be null");
 		}
@@ -94,12 +96,12 @@ public class BatchMessage extends ActiveMQMessage {
 		}
 
 		final long deliveries = getDeliveries(message);
+		logger.debug("status=msg-error, msg={}, redeliveries={}", message.getJMSMessageID(), deliveries);
 		message.setReadOnlyProperties(false);
 		try {
+			// removing schedule to can be scheduled again
 			message.removeProperty("scheduledJobId");
 			if (deliveries < redeliveryPolicy.getMaximumRedeliveries()) {
-
-				// removing schedule to can be scheduled again
 
 				// redelivery policy
 				message.setLongProperty(DELIVERIES, deliveries + 1);
@@ -115,7 +117,7 @@ public class BatchMessage extends ActiveMQMessage {
 				message.removeProperty(DELIVERIES);
 				message.setReadOnlyProperties(true);
 				dlqProducer.send(message);
-				logger.info(
+				logger.debug(
 					"status=send-to-dlq, dlq={}, msgId={}", redeliveryPolicy.getDestination().getPhysicalName(),
 					message.getJMSMessageID()
 				);
@@ -123,6 +125,9 @@ public class BatchMessage extends ActiveMQMessage {
 		}catch (final IOException e){
 			logger.debug("status=error-at-set-property, msg={}", e.getMessage(), e);
 			throw new JMSException(e.getMessage());
+		} catch (Exception e){
+			logger.info("status=generalError, msg={}", e.getMessage(), e);
+			throw e;
 		}
 	}
 
