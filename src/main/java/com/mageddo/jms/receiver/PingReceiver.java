@@ -38,12 +38,9 @@ public class PingReceiver {
 	@Autowired
 	private JmsTemplate jmsTemplate;
 
-	@Autowired
-	private PlatformTransactionManager txManager;
-
 	private AtomicInteger ip = new AtomicInteger(1);
 
-//	@Scheduled(fixedDelay = 1 * 1000 )
+	@Scheduled(fixedDelay = 1 * 10000 )
 	public void pinger() throws MessageNotWriteableException {
 
 		jmsTemplate.convertAndSend(DestinationEnum.PING.getDestination(), String.valueOf(ip.getAndIncrement()));

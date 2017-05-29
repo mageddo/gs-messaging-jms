@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.annotation.JmsListener;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -17,15 +18,13 @@ public class MailReceiver {
 	@Autowired
 	private MailService mailService;
 
-//	@Scheduled(fixedRate = Integer.MAX_VALUE)
+	@Scheduled(fixedDelay = 10000)
 	public void postMail() {
-		for(;;) {
-			final StopWatch stopWatch = new StopWatch();
-			stopWatch.start();
-			int qtd = 10000;
-			mailService.sendMockMail(qtd);
-			LOGGER.info("status=success, qtd={}, time={}", qtd, stopWatch.getTime());
-		}
+		final StopWatch stopWatch = new StopWatch();
+		stopWatch.start();
+		int qtd = 1;
+		mailService.sendMockMail(qtd);
+		LOGGER.info("status=success, qtd={}, time={}", qtd, stopWatch.getTime());
 	}
 
 	@JmsListener(destination = DestinationConstants.MAIL, containerFactory = DestinationConstants.MAIL + "Factory")

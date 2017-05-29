@@ -4,18 +4,22 @@ import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import org.apache.activemq.command.ActiveMQObjectMessage;
+import org.apache.activemq.command.ActiveMQTextMessage;
 import org.springframework.jms.support.converter.MappingJackson2MessageConverter;
 import org.springframework.jms.support.converter.MessageConversionException;
 import org.springframework.jms.support.converter.MessageType;
 
 import javax.jms.*;
 import java.io.IOException;
+import java.io.Serializable;
 import java.io.StringWriter;
 
 /**
  * Created by elvis on 28/05/17.
  */
 public class JsonMessageConverter extends MappingJackson2MessageConverter {
+
+	private static final String LANG_PACKAGE = Object.class.getPackage().getName();
 
 	private ObjectMapper objectMapper;
 	private MessageType targetType = MessageType.BYTES;
@@ -28,7 +32,11 @@ public class JsonMessageConverter extends MappingJackson2MessageConverter {
 	@Override
 	public Message toMessage(Object object, Session session) throws JMSException, MessageConversionException {
 
-		if (object instanceof Message) {
+		if (object instanceof Serializable && object.getClass().getPackage().getName().equals(LANG_PACKAGE)){
+			final ActiveMQObjectMessage message = new ActiveMQObjectMessage();
+			message.setObject((Serializable) object);
+			return message;
+		} else if (object instanceof Message) {
 
 			try {
 				final Message message = this.mapToMessage(object, session, objectMapper.writer(), this.targetType);
@@ -46,8 +54,8 @@ public class JsonMessageConverter extends MappingJackson2MessageConverter {
 
 		if(object instanceof ActiveMQObjectMessage){
 
-			final StringWriter writer = new StringWriter();
 			final ActiveMQObjectMessage objectMessage = (ActiveMQObjectMessage) object;
+			final StringWriter writer = new StringWriter();
 
 			setTypeIdOnMessage(objectMessage.getObject(), objectMessage);
 
@@ -56,7 +64,7 @@ public class JsonMessageConverter extends MappingJackson2MessageConverter {
 
 			return objectMessage;
 
-		}else {
+		} else {
 			return (Message) object;
 		}
 	}

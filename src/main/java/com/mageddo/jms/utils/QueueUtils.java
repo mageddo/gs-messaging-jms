@@ -8,6 +8,8 @@ import org.apache.activemq.RedeliveryPolicy;
 import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.command.ActiveMQQueue;
 import org.apache.activemq.command.ActiveMQTopic;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
 
 import javax.jms.ConnectionFactory;
@@ -18,6 +20,8 @@ import java.util.Properties;
  * Created by elvis on 21/05/17.
  */
 public class QueueUtils {
+
+	private static final Logger logger = LoggerFactory.getLogger(QueueUtils.class);
 
 	public static RedeliveryPolicy createRedeliveryPolicy(CompleteDestination queue, ActiveMQQueue dlq){
 
@@ -70,7 +74,9 @@ public class QueueUtils {
 		container.setConcurrentConsumers(destination.getConsumers());
 		container.setMaxConcurrentConsumers(destination.getMaxConsumers());
 		container.setIdleConsumerLimit(destination.getConsumers());
-		container.setErrorHandler(t -> {});
+		container.setErrorHandler(t -> {
+			logger.error("msg={}", t.getMessage(), t);
+		});
 		container.setSessionTransacted(true);
 		container.setSessionAcknowledgeMode(Session.SESSION_TRANSACTED);
 		return container;
