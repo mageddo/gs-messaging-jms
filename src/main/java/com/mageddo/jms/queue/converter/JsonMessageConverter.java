@@ -8,10 +8,7 @@ import org.springframework.jms.support.converter.MappingJackson2MessageConverter
 import org.springframework.jms.support.converter.MessageConversionException;
 import org.springframework.jms.support.converter.MessageType;
 
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.ObjectMessage;
-import javax.jms.Session;
+import javax.jms.*;
 import java.io.IOException;
 import java.io.StringWriter;
 
@@ -59,8 +56,9 @@ public class JsonMessageConverter extends MappingJackson2MessageConverter {
 
 			return objectMessage;
 
+		}else {
+			return (Message) object;
 		}
-		return super.mapToMessage(object, session, objectWriter, targetType);
 	}
 
 	@Override

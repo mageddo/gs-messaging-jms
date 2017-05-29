@@ -157,7 +157,7 @@ public class Application implements SchedulingConfigurer {
 	public MessageConverter jsonJmsMessageConverter(ObjectMapper objectMapper) {
 		final JsonMessageConverter converter = new JsonMessageConverter(objectMapper);
 		converter.setTargetType(MessageType.TEXT);
-		converter.setTypeIdPropertyName("_type");
+//		converter.setTypeIdPropertyName("_type");
 		converter.setEncoding("UTF-8");
 		return converter;
 	}
