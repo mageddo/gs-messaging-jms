@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.jms.core.JmsTemplate;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import javax.jms.JMSException;
@@ -22,20 +23,20 @@ import java.util.Random;
 @Component
 public class ColorReceiver {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(MailReceiver.class);
+	private final Logger logger = LoggerFactory.getLogger(getClass());
 
 	@Autowired
 	private JmsTemplate jmsTemplate;
 
 	long id=0;
 
-//	@Scheduled(fixedDelay = 500)
+	@Scheduled(fixedDelay = 500)
 	public void postMail() throws JMSException, IOException {
 
 		final Color colorName = new Color[]{Color.BLUE, Color.RED, Color.WHITE}[new Random().nextInt(3)];
 		final Color color = new Color(++id, colorName.getName());
 
-		LOGGER.info("status=color-post, color={}", color);
+		logger.info("status=color-post, color={}", color);
 		final ActiveMQObjectMessage message = new ActiveMQObjectMessage();
 		message.setObject(color);
 		message.compress();
@@ -60,7 +61,7 @@ public class ColorReceiver {
 
 		Thread.sleep(250);
 
-		LOGGER.info("status=GEN-color-receiver, color={}", color);
+		logger.info("status=GEN-color-receiver, color={}", color);
 	}
 
 	@JmsListener(
@@ -69,12 +70,12 @@ public class ColorReceiver {
 		selector = "color='RED'"
 	)
 	public void receiveMessage(ObjectMessage message) throws InterruptedException, JMSException {
-		LOGGER.info("status=RED-color-receiver, color={}, status=begin", message.getObject());
+		logger.info("status=RED-color-receiver, color={}, status=begin", message.getObject());
 		if (new Random().nextInt(4) == 3) {
 			Thread.sleep(250);
-			LOGGER.info("status=RED-color-receiver, color={}, status=sucess", message.getObject());
+			logger.info("status=RED-color-receiver, color={}, status=sucess", message.getObject());
 		} else {
-			LOGGER.error("status=RED-color-receiver, color={}, status=error", message.getObject());
+			logger.error("status=RED-color-receiver, color={}, status=error", message.getObject());
 			throw new RuntimeException("failed");
 		}
 	}

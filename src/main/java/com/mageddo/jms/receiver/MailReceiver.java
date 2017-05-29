@@ -1,22 +1,13 @@
 package com.mageddo.jms.receiver;
 
-import com.mageddo.jms.config.MageddoMessageListenerContainerFactory;
 import com.mageddo.jms.queue.DestinationConstants;
-import com.mageddo.jms.queue.DestinationEnum;
 import com.mageddo.jms.service.MailService;
-import com.mageddo.jms.utils.QueueUtils;
-import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.jms.annotation.JmsListener;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 @Component
 public class MailReceiver {

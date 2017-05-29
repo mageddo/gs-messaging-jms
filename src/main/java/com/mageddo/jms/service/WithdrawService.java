@@ -2,6 +2,7 @@ package com.mageddo.jms.service;
 
 import com.mageddo.jms.queue.DestinationEnum;
 import com.mageddo.jms.queue.container.BatchMessage;
+import com.mageddo.jms.vo.Withdraw;
 import org.apache.activemq.command.ActiveMQMessage;
 import org.apache.activemq.command.ActiveMQTextMessage;
 import org.slf4j.Logger;
@@ -44,8 +45,9 @@ public class WithdrawService {
 	}
 
 	public void createMockWithdraw() throws JMSException {
-		final ActiveMQTextMessage message = new ActiveMQTextMessage();
-		message.setText(String.valueOf(withdrawsCounter.getAndIncrement()));
-		jmsTemplate.convertAndSend(DestinationEnum.WITHDRAW.getDestination(), message);
+		jmsTemplate.convertAndSend(
+			DestinationEnum.WITHDRAW.getDestination(),
+			new Withdraw(withdrawsCounter.getAndIncrement(), "", "")
+		);
 	}
 }

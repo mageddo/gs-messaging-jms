@@ -1,11 +1,13 @@
 
 package com.mageddo.jms;
 
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mageddo.jms.config.MageddoMessageListenerContainerFactory;
 import com.mageddo.jms.queue.CompleteDestination;
 import com.mageddo.jms.queue.DestinationEnum;
+import com.mageddo.jms.queue.converter.JsonMessageConverter;
 import com.mageddo.jms.service.DestinationParameterService;
-import com.mageddo.jms.utils.PropertiesUtils;
 import com.mageddo.jms.utils.QueueUtils;
 import com.mageddo.jms.vo.Color;
 import org.apache.activemq.ActiveMQConnectionFactory;
@@ -24,19 +26,18 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.context.annotation.Primary;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jms.annotation.EnableJms;
 import org.springframework.jms.core.JmsTemplate;
+import org.springframework.jms.support.converter.MessageConverter;
+import org.springframework.jms.support.converter.MessageType;
 import org.springframework.jmx.export.MBeanExporter;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.SchedulingConfigurer;
 import org.springframework.scheduling.config.ScheduledTaskRegistrar;
-import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.annotation.PostConstruct;
-import javax.jms.ConnectionFactory;
-import javax.jms.Session;
+import javax.jms.*;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -64,9 +65,6 @@ public class Application implements SchedulingConfigurer {
 
 	@Autowired
 	DestinationParameterService destinationParameterService;
-
-	@Autowired
-	private PlatformTransactionManager txManager;
 
 	@PostConstruct
 	public void setupQueues(){
@@ -118,9 +116,6 @@ public class Application implements SchedulingConfigurer {
 		final ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory(
 			properties.getUser(), properties.getPassword(), properties.getBrokerUrl()
 		);
-		if(properties.getPackages().getTrustAll()){
-			cf.setTrustAllPackages(true);
-		}
 		cf.setUseAsyncSend(true);
 		cf.setDispatchAsync(true);
 		cf.setUseCompression(true);
@@ -135,9 +130,10 @@ public class Application implements SchedulingConfigurer {
 
 	@Primary
 	@Bean
-	public JmsTemplate jmsTemplate(PooledConnectionFactory connectionFactory){
+	public JmsTemplate jmsTemplate(PooledConnectionFactory connectionFactory, MessageConverter messageConverter){
 		final JmsTemplate jmsTemplate = new JmsTemplate(connectionFactory);
 		jmsTemplate.setSessionAcknowledgeMode(Session.AUTO_ACKNOWLEDGE);
+		jmsTemplate.setMessageConverter(messageConverter);
 		jmsTemplate.setSessionTransacted(true);
 		return jmsTemplate;
 	}
@@ -154,6 +150,16 @@ public class Application implements SchedulingConfigurer {
 		map.put("bean:name=DataSource", dataSource.getPool().getJmxPool());
 		beanExporter.setBeans(map);
 		return beanExporter;
+	}
+
+	@Primary
+	@Bean
+	public MessageConverter jsonJmsMessageConverter(ObjectMapper objectMapper) {
+		final JsonMessageConverter converter = new JsonMessageConverter(objectMapper);
+		converter.setTargetType(MessageType.TEXT);
+		converter.setTypeIdPropertyName("_type");
+		converter.setEncoding("UTF-8");
+		return converter;
 	}
 
 	public static void main(String[] args) {
