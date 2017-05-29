@@ -26,6 +26,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.context.annotation.Primary;
+import org.springframework.core.env.Environment;
 import org.springframework.jms.annotation.EnableJms;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.support.converter.MessageConverter;
@@ -155,9 +156,13 @@ public class Application implements SchedulingConfigurer {
 
 	@Primary
 	@Bean
-	public MessageConverter jsonJmsMessageConverter(ObjectMapper objectMapper) {
+	public MessageConverter jsonJmsMessageConverter(ObjectMapper objectMapper, Environment environment) {
 		final DefaultMessageConverter converter = new DefaultMessageConverter(objectMapper);
-		converter.setMessageType(MessageType.TEXT);
+		if(environment.acceptsProfiles("prod")){
+			converter.setMessageType(MessageType.BYTES);
+		}else{
+			converter.setMessageType(MessageType.TEXT);
+		}
 		return converter;
 	}
 

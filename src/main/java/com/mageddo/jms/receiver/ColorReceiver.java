@@ -35,7 +35,7 @@ public class ColorReceiver {
 
 	long id=0;
 
-	@Scheduled(fixedDelay = 500)
+//	@Scheduled(fixedDelay = 500)
 	public void postMail() throws JMSException, IOException {
 
 		final Color colorName = new Color[]{Color.BLUE, Color.RED, Color.WHITE}[new Random().nextInt(3)];

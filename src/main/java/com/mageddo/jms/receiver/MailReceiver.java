@@ -18,7 +18,7 @@ public class MailReceiver {
 	@Autowired
 	private MailService mailService;
 
-	@Scheduled(fixedDelay = 10000)
+//	@Scheduled(fixedDelay = 10000)
 	public void postMail() {
 		final StopWatch stopWatch = new StopWatch();
 		stopWatch.start();

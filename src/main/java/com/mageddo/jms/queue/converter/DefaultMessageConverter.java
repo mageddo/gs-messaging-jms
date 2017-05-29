@@ -40,10 +40,10 @@ public class DefaultMessageConverter extends SimpleMessageConverter {
 		}
 		try {
 			switch (this.messageType){
-				case BYTES:
+				case TEXT:
 					final String json = objectMapper.writeValueAsString(object);
 					return createMessageForString(json, session);
-				case TEXT:
+				case BYTES:
 					final byte[] jsonBytes = objectMapper.writeValueAsBytes(object);
 					return createMessageForByteArray(jsonBytes, session);
 			}

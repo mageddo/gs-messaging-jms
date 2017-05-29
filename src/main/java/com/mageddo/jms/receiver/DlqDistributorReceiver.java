@@ -22,9 +22,9 @@ import java.util.regex.Pattern;
  * Created by elvis on 13/05/17.
  */
 @Component
-public class DlqDistrubutorReceiver {
+public class DlqDistributorReceiver {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(DlqDistrubutorReceiver.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(DlqDistributorReceiver.class);
 
 	@Autowired
 	private JmsTemplate jmsTemplate;

@@ -1,8 +1,9 @@
 package com.mageddo.jms.service;
 
+import com.mageddo.jms.dao.WithdrawDAO;
 import com.mageddo.jms.queue.DestinationEnum;
 import com.mageddo.jms.queue.container.BatchMessage;
-import com.mageddo.jms.vo.Withdraw;
+import com.mageddo.jms.entity.WithdrawEntity;
 import org.apache.activemq.command.ActiveMQMessage;
 import org.apache.activemq.command.ActiveMQTextMessage;
 import org.slf4j.Logger;
@@ -15,13 +16,16 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.jms.JMSException;
-import javax.jms.MessageNotWriteableException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Created by elvis on 28/05/17.
  */
 @Service
+@Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
 public class WithdrawService {
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
@@ -30,7 +34,9 @@ public class WithdrawService {
 	@Autowired
 	private JmsTemplate jmsTemplate;
 
-	@Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
+	@Autowired
+	private WithdrawDAO withdrawDAO;
+
 	public void doWithdraw(BatchMessage withdraws) throws JMSException {
 		for (final ActiveMQMessage withdrawMsg: withdraws.messages()) {
 
@@ -47,7 +53,32 @@ public class WithdrawService {
 	public void createMockWithdraw() throws JMSException {
 		jmsTemplate.convertAndSend(
 			DestinationEnum.WITHDRAW.getDestination(),
-			new Withdraw(withdrawsCounter.getAndIncrement(), "", "")
+			new WithdrawEntity(withdrawsCounter.getAndIncrement(), WithdrawEntity.WithdrawType.BANK.getType(), withdrawsCounter.get())
 		);
+	}
+
+	public void createWithdraw(List<WithdrawEntity> withdraws){
+		withdrawDAO.createWithdraw(withdraws);
+	}
+
+	public void createMockWithdraws(int batchSize) {
+		logger.info("batchSize={}", batchSize);
+		final List<WithdrawEntity> withdraws = new ArrayList<>();
+		for (int j=0; j < batchSize; j++){
+
+			final char type;
+			if(new Random().nextInt(10) == 1){
+				type = WithdrawEntity.WithdrawType.RFID.getType();
+			}else {
+				type = WithdrawEntity.WithdrawType.BANK.getType();
+			}
+
+			final WithdrawEntity withdraw = new WithdrawEntity(
+				withdrawsCounter.getAndIncrement(), type, withdrawsCounter.get()
+			);
+			withdraws.add(withdraw);
+
+		}
+		this.createWithdraw(withdraws);
 	}
 }

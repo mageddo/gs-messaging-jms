@@ -1,5 +1,6 @@
 package com.mageddo.jms.receiver;
 
+import com.mageddo.jms.entity.WithdrawEntity;
 import com.mageddo.jms.queue.DestinationConstants;
 import com.mageddo.jms.queue.DestinationEnum;
 import com.mageddo.jms.queue.container.BatchListMessageListenerContainer;
@@ -10,6 +11,7 @@ import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.RedeliveryPolicy;
 import org.apache.activemq.command.ActiveMQMessage;
 import org.apache.activemq.command.ActiveMQTextMessage;
+import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +24,8 @@ import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.jms.JMSException;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 import static com.mageddo.jms.utils.QueueUtils.configureRedelivery;
@@ -41,11 +45,23 @@ public class BatchWithdrawReceiver {
 	@Autowired
 	private PlatformTransactionManager txManager;
 
-	@Scheduled(fixedDelay = Integer.MAX_VALUE)
+//	@Scheduled(fixedDelay = Integer.MAX_VALUE)
 	public void makeWithdraws() throws JMSException {
 		for(;;){
 			withdrawService.createMockWithdraw();
 		}
+	}
+
+//	@Scheduled(fixedDelay = Integer.MAX_VALUE)
+	public void createRealWithdraws() throws JMSException {
+		final StopWatch stopWatch = new StopWatch();
+		stopWatch.start();
+		for(int i=0; i < 2_000; i++){
+			stopWatch.split();
+			withdrawService.createMockWithdraws(1_000);
+			logger.info("page-time={}", stopWatch.getTime() - stopWatch.getSplitTime());
+		}
+		logger.info("totalTime={}", stopWatch.getTime());
 	}
 
 	public void onMessage(final BatchMessage withdraws) throws JMSException {
