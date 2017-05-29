@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mageddo.jms.config.MageddoMessageListenerContainerFactory;
 import com.mageddo.jms.queue.CompleteDestination;
 import com.mageddo.jms.queue.DestinationEnum;
-import com.mageddo.jms.queue.converter.JsonMessageConverter;
+import com.mageddo.jms.queue.converter.DefaultMessageConverter;
 import com.mageddo.jms.service.DestinationParameterService;
 import com.mageddo.jms.utils.QueueUtils;
 import com.mageddo.jms.vo.Color;
@@ -37,7 +37,8 @@ import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.annotation.PostConstruct;
-import javax.jms.*;
+import javax.jms.ConnectionFactory;
+import javax.jms.Session;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -155,10 +156,8 @@ public class Application implements SchedulingConfigurer {
 	@Primary
 	@Bean
 	public MessageConverter jsonJmsMessageConverter(ObjectMapper objectMapper) {
-		final JsonMessageConverter converter = new JsonMessageConverter(objectMapper);
-		converter.setTargetType(MessageType.TEXT);
-//		converter.setTypeIdPropertyName("_type");
-		converter.setEncoding("UTF-8");
+		final DefaultMessageConverter converter = new DefaultMessageConverter(objectMapper);
+		converter.setMessageType(MessageType.TEXT);
 		return converter;
 	}
 
