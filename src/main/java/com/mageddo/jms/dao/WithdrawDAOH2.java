@@ -26,18 +26,20 @@ public class WithdrawDAOH2 implements WithdrawDAO {
 
 		final StringBuilder sql = new StringBuilder();
 		sql.append("INSERT INTO WITHDRAW  \n");
-		sql.append("	(IDT_WITHDRAW, IND_TYPE, NUM_VALUE, DAT_CREATION, DAT_UPDATE) VALUES  \n");
-		sql.append("	(?, ?, ?, ?, ?) \n");
+		sql.append("	(IDT_WITHDRAW, IND_STATUS, IND_TYPE, NUM_VALUE, DAT_CREATION, DAT_UPDATE) VALUES  \n");
+		sql.append("	(?, ?, ?, ?, ?, ?) \n");
 		jdbcTemplate.batchUpdate(sql.toString(), new BatchPreparedStatementSetter() {
 
 			@Override
 			public void setValues(PreparedStatement ps, int i) throws SQLException {
 				final WithdrawEntity withdrawEntity = withdraws.get(i);
-				ps.setInt(1, withdrawEntity.getId());
-				ps.setString(2, String.valueOf(withdrawEntity.getType()));
-				ps.setDouble(3, withdrawEntity.getValue());
-				ps.setTimestamp(4, new Timestamp(withdrawEntity.getCreationDate().getTime()));
-				ps.setTimestamp(5, new Timestamp(withdrawEntity.getUpdateDate().getTime()));
+				int index = 1;
+				ps.setInt(index++, withdrawEntity.getId());
+				ps.setString(index++, String.valueOf(withdrawEntity.getStatus()));
+				ps.setString(index++, String.valueOf(withdrawEntity.getType()));
+				ps.setDouble(index++, withdrawEntity.getValue());
+				ps.setTimestamp(index++, new Timestamp(withdrawEntity.getCreationDate().getTime()));
+				ps.setTimestamp(index++, new Timestamp(withdrawEntity.getUpdateDate().getTime()));
 			}
 
 			@Override
