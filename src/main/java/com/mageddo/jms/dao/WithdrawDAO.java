@@ -9,4 +9,6 @@ import java.util.List;
  */
 public interface WithdrawDAO {
 	void createWithdraw(List<WithdrawEntity> withdrawEntity);
+
+	List<WithdrawEntity> findWithdrawsByStatus(WithdrawEntity.WithdrawStatus withdrawStatus);
 }

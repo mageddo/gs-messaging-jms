@@ -42,14 +42,9 @@ public class BatchWithdrawReceiver {
 	@Autowired
 	private WithdrawService withdrawService;
 
-	@Autowired
-	private PlatformTransactionManager txManager;
-
 //	@Scheduled(fixedDelay = Integer.MAX_VALUE)
 	public void makeWithdraws() throws JMSException {
-		for(;;){
-			withdrawService.createMockWithdraw();
-		}
+		withdrawService.enqueuePendingWithdraws();
 	}
 
 //	@Scheduled(fixedDelay = Integer.MAX_VALUE)
