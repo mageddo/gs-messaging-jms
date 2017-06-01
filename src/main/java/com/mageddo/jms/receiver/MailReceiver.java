@@ -10,6 +10,8 @@ import org.springframework.jms.annotation.JmsListener;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.util.Random;
+
 @Component
 public class MailReceiver {
 
@@ -18,7 +20,7 @@ public class MailReceiver {
 	@Autowired
 	private MailService mailService;
 
-//	@Scheduled(fixedDelay = 10000)
+	@Scheduled(fixedDelay = 2000)
 	public void postMail() {
 		final StopWatch stopWatch = new StopWatch();
 		stopWatch.start();
@@ -31,11 +33,11 @@ public class MailReceiver {
 	public void consume(String email) throws InterruptedException {
 
 		mailService.insert(email);
-		boolean error = false;
+		boolean error = new Random().nextBoolean();
 		if (!error) {
-			LOGGER.info("status=mail-received, status=success, mail={}", email);
+			LOGGER.info("status=success, mail={}", email);
 		} else {
-			LOGGER.error("status=mail-received, status=error, mail={}", email);
+			LOGGER.error("status=error, mail={}", email);
 			throw new RuntimeException("failed");
 		}
 	}

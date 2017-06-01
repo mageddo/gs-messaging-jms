@@ -1,6 +1,5 @@
 package com.mageddo.jms.queue;
 
-import org.apache.activemq.RedeliveryPolicy;
 import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.command.ActiveMQQueue;
 
@@ -8,21 +7,19 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.mageddo.jms.queue.QueueBuilder.pingQueue;
-import static com.mageddo.jms.utils.QueueUtils.queue;
-import static com.mageddo.jms.utils.QueueUtils.topic;
+import static com.mageddo.jms.queue.DestinationBuilder.getInstance;
 
 public enum DestinationEnum {
 
-	MAIL(queue(DestinationConstants.MAIL), true, 2000, 3, 5, 10),
-	COLOR_TOPIC(topic("VirtualTopic.color"), true, 10000, 2, 1, 2),
-	COLOR(queue(DestinationConstants.COLOR), true, 10000, 2, 1, 2),
-	RED_COLOR(queue(DestinationConstants.COLOR), true, 10000, 2, 1, 2, DestinationConstants.FACTORY_RED_COLOR),
-	PING(pingQueue(), false, 2000, 3, 5, 10, DestinationConstants.FACTORY_PING),
-	SALE(queue(DestinationConstants.SALE), false, 20000, 3, 1, 1),
-	WITHDRAW(queue(DestinationConstants.WITHDRAW), false, 60000, 3, 1, 1),
+	MAIL(getInstance().mailQueue(), true),
+	COLOR_TOPIC(getInstance().colorTopic(), true),
+	COLOR(getInstance().colorQueue(), true),
+	RED_COLOR(getInstance().redColorQueue(), true),
+	PING(getInstance().pingQueue(), false),
+	SALE(getInstance().saleQueue(), false),
+	WITHDRAW(getInstance().withdrawQueue(), false),
 
-	DEFAULT_DLQ(queue(DestinationConstants.DEFAULT_DLQ), true, 10000, RedeliveryPolicy.NO_MAXIMUM_REDELIVERIES, 1, 2)
+	DEFAULT_DLQ(getInstance().defaultDLQ(), true)
 
 	;
 
@@ -37,31 +34,16 @@ public enum DestinationEnum {
 		Collections.unmodifiableMap(DESTINATION_BY_NAME);
 	}
 
-	private ActiveMQQueue dlq;
 	private CompleteDestination destination;
 	private boolean autoDeclare;
 
-	DestinationEnum(ActiveMQDestination destination, int ttl, int retries) {
-		set(destination, true, ttl, retries, 1, 1, null);
-	}
-
-	DestinationEnum(ActiveMQDestination destination, boolean autoDeclare, int ttl, int retries, int consumers, int maxConsumers) {
-		set(destination, autoDeclare, ttl, retries, consumers, maxConsumers, null);
-	}
-
-	DestinationEnum(ActiveMQDestination destination, boolean autoDeclare, int ttl, int retries, int consumers, int maxConsumers, String factory) {
-		set(destination, autoDeclare, ttl, retries, consumers, maxConsumers, factory);
-	}
-
-	private void set(ActiveMQDestination destination, boolean autoDeclare, int ttl, int retries, int consumers, int maxConsumers, String factory) {
-		this.destination = new CompleteDestination(destination, factory, ttl, retries, consumers, maxConsumers);
-		this.dlq = new ActiveMQQueue("DLQ." + destination.getPhysicalName());
-		this.dlq.setDLQ();
+	DestinationEnum(CompleteDestination destination, boolean autoDeclare) {
+		this.destination = destination;
 		this.autoDeclare = autoDeclare;
 	}
 
 	public ActiveMQQueue getDlq() {
-		return this.dlq;
+		return this.destination.getDLQ();
 	}
 
 	public CompleteDestination getCompleteDestination() {

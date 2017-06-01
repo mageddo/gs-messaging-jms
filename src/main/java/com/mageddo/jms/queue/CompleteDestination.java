@@ -1,6 +1,7 @@
 package com.mageddo.jms.queue;
 
 import org.apache.activemq.command.ActiveMQDestination;
+import org.apache.activemq.command.ActiveMQQueue;
 
 /**
  * Created by elvis on 13/05/17.
@@ -8,21 +9,22 @@ import org.apache.activemq.command.ActiveMQDestination;
 public class CompleteDestination implements MGDestination {
 
 	private final ActiveMQDestination destination;
+	private ActiveMQQueue dlq;
 	private String name, factory;
 	private int ttl, retries, consumers, maxConsumers;
 
-	public CompleteDestination(ActiveMQDestination destination, String factory, int ttl, int retries, int consumers, int maxConsumers) {
+
+	public CompleteDestination(ActiveMQDestination destination, int ttl, int retries, int consumers, int maxConsumers) {
+
 		this.destination = destination;
-		if (factory == null){
-			this.factory = destination.getPhysicalName();
-		}else{
-			this.factory = factory;
-		}
 		this.name = destination.getPhysicalName();
 		this.ttl = ttl;
 		this.retries = retries;
 		this.consumers = consumers;
 		this.maxConsumers = maxConsumers;
+
+		setFactory(destination.getPhysicalName());
+		setDLQ(new ActiveMQQueue("DLQ." + getName()));
 	}
 
 	@Override
@@ -56,5 +58,17 @@ public class CompleteDestination implements MGDestination {
 
 	public ActiveMQDestination getDestination() {
 		return destination;
+	}
+
+	public ActiveMQQueue getDLQ() {
+		return dlq;
+	}
+
+	protected void setFactory(String factory) {
+		this.factory = factory;
+	}
+
+	protected void setDLQ(ActiveMQQueue dlq) {
+		this.dlq = dlq;
 	}
 }

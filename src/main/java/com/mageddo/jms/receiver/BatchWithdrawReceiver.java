@@ -47,7 +47,7 @@ public class BatchWithdrawReceiver {
 		withdrawService.enqueuePendingWithdraws();
 	}
 
-	@Scheduled(fixedDelay = Integer.MAX_VALUE)
+//	@Scheduled(fixedDelay = Integer.MAX_VALUE)
 	public void createRealWithdraws() throws JMSException {
 		final StopWatch stopWatch = new StopWatch();
 		stopWatch.start();
