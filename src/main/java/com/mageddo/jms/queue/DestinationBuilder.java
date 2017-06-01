@@ -19,8 +19,11 @@ public final class DestinationBuilder {
 	public CompleteDestination mailQueue(){
 
 		final CompleteDestination dest = new CompleteDestination(
-			queue(DestinationConstants.MAIL), 60000, 3, 2, 2
+			queue(DestinationConstants.MAIL),
+			60000, RedeliveryPolicy.NO_MAXIMUM_REDELIVERIES, 2, 2
 		);
+		// https://issues.apache.org/jira/browse/AMQ-1853
+		dest.setNonBlockingRedelivery(true);
 		return dest;
 
 	}
@@ -57,8 +60,8 @@ public final class DestinationBuilder {
 	public CompleteDestination pingQueue() {
 
 		final CompleteDestination dest = new CompleteDestination(
-			queue(DestinationConstants.PING + "?consumer.dispatchAsync=false"),
-			10000, 2, 1, 2
+			queue(DestinationConstants.PING + "?consumer.dispatchAsync=false"), // http://activemq.apache.org/consumer-dispatch-async.html
+			120000, 2, 1, 2
 		);
 		dest.setFactory(DestinationConstants.FACTORY_PING);
 		return dest;

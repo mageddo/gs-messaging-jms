@@ -40,7 +40,7 @@ public class PingReceiver {
 
 	private AtomicInteger ip = new AtomicInteger(1);
 
-	@Scheduled(fixedDelay = 1 * 10000 )
+//	@Scheduled(fixedDelay = 1 * 10000 )
 	public void pinger() throws MessageNotWriteableException {
 
 		jmsTemplate.convertAndSend(DestinationEnum.PING.getDestination(), String.valueOf(ip.getAndIncrement()));
@@ -48,8 +48,9 @@ public class PingReceiver {
 	}
 
 	public void consume(String ipMsg) throws JMSException {
-		boolean error = false;
+		boolean error = true;
 		if(error){
+		logger.error("status=error, ip={}", ipMsg);
 			throw new RuntimeException(ipMsg);
 		}
 		logger.info("status=success, ip={}", ipMsg);

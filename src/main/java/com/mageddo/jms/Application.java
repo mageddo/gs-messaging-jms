@@ -43,6 +43,7 @@ import javax.jms.Session;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.Executors;
 
 @EnableScheduling
@@ -71,11 +72,10 @@ public class Application implements SchedulingConfigurer {
 	@PostConstruct
 	public void setupQueues(){
 
-		activeMQConnectionFactory.setTrustedPackages(Arrays.asList(Color.class.getPackage().getName()));
 		for (final DestinationEnum destinationEnum : DestinationEnum.values()) {
 
 			if(destinationEnum.isAutoDeclare()){
-				declareQueue(destinationEnum, activeMQConnectionFactory, activeMQConnectionFactory, beanFactory, configurer);
+				declareQueue(destinationEnum, activeMQConnectionFactory, beanFactory, configurer);
 			}
 			destinationParameterService.createDestinationParameterIfNotExists(destinationEnum.getCompleteDestination());
 
@@ -85,18 +85,20 @@ public class Application implements SchedulingConfigurer {
 
 	private MageddoMessageListenerContainerFactory declareQueue(
 			DestinationEnum destinationEnum,
-			ActiveMQConnectionFactory activeMQConnectionFactory, ConnectionFactory cf,
+			ActiveMQConnectionFactory connectionFactory,
 			ConfigurableBeanFactory beanFactory, DefaultJmsListenerContainerFactoryConfigurer configurer
 	) {
-
 		final CompleteDestination destination = destinationEnum.getCompleteDestination();
-
+		if(destination.isNonBlockingRedelivery()){
+			connectionFactory = connectionFactory.copy();
+			connectionFactory.setNonBlockingRedelivery(true);
+		}
 		final MageddoMessageListenerContainerFactory factory = QueueUtils.createDefaultFactory(
-			activeMQConnectionFactory, destination
+			connectionFactory, destination
 		);
 //		factory.setTransactionManager(txManager); // use too much database sessions
-		QueueUtils.configureRedelivery(activeMQConnectionFactory, destinationEnum);
-		configurer.configure(factory, cf);
+		QueueUtils.configureRedelivery(connectionFactory, destinationEnum);
+//		configurer.configure(factory, cf); // dont use because it will override custom settings to global spring settings
 		beanFactory.registerSingleton(factory.getBeanName(), factory);
 		return factory;
 	}

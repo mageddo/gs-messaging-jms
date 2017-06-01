@@ -64,7 +64,7 @@ public class QueueUtils {
 		return factory;
 	}
 
-	public static DefaultMessageListenerContainer createContainer(ConnectionFactory connectionFactory, CompleteDestination destination) {
+	public static DefaultMessageListenerContainer createContainer(ActiveMQConnectionFactory connectionFactory, CompleteDestination destination) {
 		return createContainer(connectionFactory, destination, new DefaultMessageListenerContainer());
 	}
 

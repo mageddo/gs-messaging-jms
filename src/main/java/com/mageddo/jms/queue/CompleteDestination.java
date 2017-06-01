@@ -12,6 +12,7 @@ public class CompleteDestination implements MGDestination {
 	private ActiveMQQueue dlq;
 	private String name, factory;
 	private int ttl, retries, consumers, maxConsumers;
+	private boolean nonBlockingRedelivery;
 
 
 	public CompleteDestination(ActiveMQDestination destination, int ttl, int retries, int consumers, int maxConsumers) {
@@ -62,6 +63,14 @@ public class CompleteDestination implements MGDestination {
 
 	public ActiveMQQueue getDLQ() {
 		return dlq;
+	}
+
+	public boolean isNonBlockingRedelivery() {
+		return nonBlockingRedelivery;
+	}
+
+	protected void setNonBlockingRedelivery(boolean nonBlockingRedelivery) {
+		this.nonBlockingRedelivery = nonBlockingRedelivery;
 	}
 
 	protected void setFactory(String factory) {

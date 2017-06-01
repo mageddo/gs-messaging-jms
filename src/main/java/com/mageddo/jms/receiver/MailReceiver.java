@@ -20,7 +20,7 @@ public class MailReceiver {
 	@Autowired
 	private MailService mailService;
 
-	@Scheduled(fixedDelay = 2000)
+//	@Scheduled(fixedDelay = 2000)
 	public void postMail() {
 		final StopWatch stopWatch = new StopWatch();
 		stopWatch.start();
@@ -29,15 +29,17 @@ public class MailReceiver {
 		LOGGER.info("status=success, qtd={}, time={}", qtd, stopWatch.getTime());
 	}
 
+	int counter = 0;
+
 	@JmsListener(destination = DestinationConstants.MAIL, containerFactory = DestinationConstants.MAIL + "Factory")
 	public void consume(String email) throws InterruptedException {
 
 		mailService.insert(email);
-		boolean error = new Random().nextBoolean();
+		boolean error = true ; // new Random().nextBoolean();
 		if (!error) {
 			LOGGER.info("status=success, mail={}", email);
 		} else {
-			LOGGER.error("status=error, mail={}", email);
+			LOGGER.error("status=error, mail={}, counter={}", email, ++counter);
 			throw new RuntimeException("failed");
 		}
 	}
