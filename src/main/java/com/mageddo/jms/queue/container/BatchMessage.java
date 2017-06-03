@@ -1,6 +1,7 @@
 package com.mageddo.jms.queue.container;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
+import org.apache.activemq.ActiveMQSession;
 import org.apache.activemq.RedeliveryPolicy;
 import org.apache.activemq.ScheduledMessage;
 import org.apache.activemq.command.ActiveMQDestination;
@@ -132,7 +133,7 @@ public class BatchMessage extends ActiveMQMessage {
 	}
 
 	void release() {
-		if (dlqProducer == null && queueProducer == null ){
+		if (dlqProducer != null && queueProducer != null ){
 			JmsUtils.closeMessageProducer(dlqProducer);
 			JmsUtils.closeMessageProducer(queueProducer);
 			dlqProducer = null;

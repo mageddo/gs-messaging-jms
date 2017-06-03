@@ -20,7 +20,7 @@ public final class DestinationBuilder {
 
 		final CompleteDestination dest = new CompleteDestination(
 			queue(DestinationConstants.MAIL),
-			60000, RedeliveryPolicy.NO_MAXIMUM_REDELIVERIES, 2, 2
+			3000, 2, 1, 1
 		);
 		// https://issues.apache.org/jira/browse/AMQ-1853
 		dest.setNonBlockingRedelivery(true);
