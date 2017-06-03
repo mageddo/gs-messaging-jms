@@ -1,5 +1,6 @@
 package com.mageddo.jms.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mageddo.jms.dao.WithdrawDAO;
 import com.mageddo.jms.entity.WithdrawEntity.WithdrawStatus;
 import com.mageddo.jms.entity.WithdrawEntity.WithdrawType;
@@ -18,6 +19,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.jms.JMSException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -33,6 +35,8 @@ public class WithdrawService {
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 	private final AtomicInteger withdrawsCounter = new AtomicInteger(1);
 
+	@Autowired
+	private ObjectMapper objectMapper;
 
 	@Autowired
 	private JmsTemplate jmsTemplate;
@@ -43,13 +47,15 @@ public class WithdrawService {
 	@Autowired
 	private WithdrawService withdrawService;
 
-	public void doWithdraw(BatchMessage withdraws) throws JMSException {
+	public void doWithdraw(BatchMessage withdraws) throws JMSException, IOException {
 		for (final ActiveMQMessage withdrawMsg: withdraws.messages()) {
 
-			final boolean success = true;//new Random().nextBoolean();
-			if (success){
-				logger.info("status=withdraw, msg={}", (((ActiveMQTextMessage)withdrawMsg).getText()));
+				final String json = ((ActiveMQTextMessage) withdrawMsg).getText();
+			final WithdrawEntity withdrawEntity = objectMapper.readValue(json, WithdrawEntity.class);
+			if (withdrawEntity.getType() == WithdrawType.BANK.getType()){
+				logger.info("status=success, withdraw={}", withdrawEntity.getId());
 			} else {
+				logger.info("status=error, withdraw={}", withdrawEntity.getId());
 				withdraws.onError(withdrawMsg);
 			}
 
@@ -101,6 +107,7 @@ public class WithdrawService {
 		final List<WithdrawEntity> withdrawEntities = withdrawDAO.findWithdrawsByStatus(WithdrawStatus.OPEN);
 		for (final WithdrawEntity withdrawEntity : withdrawEntities) {
 			jmsTemplate.convertAndSend(DestinationEnum.WITHDRAW.getDestination(), withdrawEntity);
+			withdrawDAO.changeStatus(withdrawEntity.getId(), WithdrawStatus.PROCESING);
 		}
 		logger.info("status=enqueued-page, withdraws={}, empty={}", withdrawEntities.size(), withdrawEntities.isEmpty());
 		return withdrawEntities.isEmpty();

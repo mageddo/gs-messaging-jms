@@ -42,7 +42,7 @@ public class BatchWithdrawReceiver {
 	@Autowired
 	private WithdrawService withdrawService;
 
-//	@Scheduled(fixedDelay = Integer.MAX_VALUE)
+	@Scheduled(fixedDelay = Integer.MAX_VALUE)
 	public void makeWithdraws() throws JMSException {
 		withdrawService.enqueuePendingWithdraws();
 	}
@@ -64,7 +64,7 @@ public class BatchWithdrawReceiver {
 		withdrawService.doWithdraw(withdraws);
 	}
 
-	@Bean(name = DestinationConstants.WITHDRAW + "Container", initMethod = "start", destroyMethod = "stop")
+//	@Bean(name = DestinationConstants.WITHDRAW + "Container", initMethod = "start", destroyMethod = "stop")
 	public DefaultMessageListenerContainer container(ActiveMQConnectionFactory cf, BatchWithdrawReceiver receiver){
 
 		final DestinationEnum queue = DestinationEnum.WITHDRAW;

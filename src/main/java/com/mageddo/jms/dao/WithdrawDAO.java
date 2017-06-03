@@ -11,4 +11,6 @@ public interface WithdrawDAO {
 	void createWithdraw(List<WithdrawEntity> withdrawEntity);
 
 	List<WithdrawEntity> findWithdrawsByStatus(WithdrawEntity.WithdrawStatus withdrawStatus);
+
+	int changeStatus(int id, WithdrawEntity.WithdrawStatus statusEnum);
 }

@@ -73,4 +73,9 @@ public class WithdrawDAOH2 implements WithdrawDAO {
 			return w;
 		}, String.valueOf(withdrawStatus.getStatus()));
 	}
+
+	@Override
+	public int changeStatus(int id, WithdrawStatus statusEnum) {
+		return jdbcTemplate.update("UPDATE WITHDRAW SET IND_STATUS = ? WHERE IDT_WITHDRAW = ?", statusEnum.getStatus(), id);
+	}
 }
