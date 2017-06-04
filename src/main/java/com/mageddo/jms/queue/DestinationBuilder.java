@@ -82,7 +82,7 @@ public final class DestinationBuilder {
 
 		final CompleteDestination dest = new CompleteDestination(
 			queue(DestinationConstants.WITHDRAW),
-			60000, 3, 5, 5
+			60000, 3, 2, 2
 		);
 		dest.setNonBlockingRedelivery(true);
 		return dest;

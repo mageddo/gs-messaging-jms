@@ -9,7 +9,6 @@ import com.mageddo.jms.queue.DestinationEnum;
 import com.mageddo.jms.queue.converter.DefaultMessageConverter;
 import com.mageddo.jms.service.DestinationParameterService;
 import com.mageddo.jms.utils.QueueUtils;
-import com.mageddo.jms.vo.Color;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.pool.PooledConnectionFactory;
 import org.apache.tomcat.jdbc.pool.DataSource;
@@ -38,12 +37,9 @@ import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.annotation.PostConstruct;
-import javax.jms.ConnectionFactory;
 import javax.jms.Session;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 import java.util.concurrent.Executors;
 
 @EnableScheduling
@@ -89,10 +85,7 @@ public class Application implements SchedulingConfigurer {
 			ConfigurableBeanFactory beanFactory, DefaultJmsListenerContainerFactoryConfigurer configurer
 	) {
 		final CompleteDestination destination = destinationEnum.getCompleteDestination();
-		if(destination.isNonBlockingRedelivery()){
-			connectionFactory = connectionFactory.copy();
-			connectionFactory.setNonBlockingRedelivery(true);
-		}
+		connectionFactory = QueueUtils.configureNoBlockRedelivery(connectionFactory, destination);
 		final MageddoMessageListenerContainerFactory factory = QueueUtils.createDefaultFactory(
 			connectionFactory, destination
 		);

@@ -9,6 +9,7 @@ import com.mageddo.jms.queue.container.BatchMessage;
 import com.mageddo.jms.entity.WithdrawEntity;
 import org.apache.activemq.command.ActiveMQMessage;
 import org.apache.activemq.command.ActiveMQTextMessage;
+import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,18 +49,26 @@ public class WithdrawService {
 	private WithdrawService withdrawService;
 
 	public void doWithdraw(BatchMessage withdraws) throws JMSException, IOException {
-		for (final ActiveMQMessage withdrawMsg: withdraws.messages()) {
+		final StopWatch stopWatch = new StopWatch();
+		stopWatch.start();
 
-				final String json = ((ActiveMQTextMessage) withdrawMsg).getText();
-			final WithdrawEntity withdrawEntity = objectMapper.readValue(json, WithdrawEntity.class);
+		final List<ActiveMQMessage> messages = withdraws.messages();
+		for (int i = 0; i < messages.size(); i++) {
+
+			final ActiveMQTextMessage withdrawMsg = ((ActiveMQTextMessage) messages.get(i));
+			final WithdrawEntity withdrawEntity = objectMapper.readValue(withdrawMsg.getText(), WithdrawEntity.class);
+			long start = stopWatch.getTime();
+
 			if (withdrawEntity.getType() == WithdrawType.BANK.getType()){
-				logger.info("status=success, withdraw={}", withdrawEntity.getId());
+				withdrawDAO.changeStatus(withdrawEntity.getId(), WithdrawStatus.COMPLETED);
+				logger.info("status=consumed, withdraw={}, time={}, index={}", withdrawEntity.getId(), stopWatch.getTime() - start, i);
 			} else {
-				logger.info("status=error, withdraw={}", withdrawEntity.getId());
+				withdrawDAO.changeStatus(withdrawEntity.getId(), WithdrawStatus.ERROR);
 				withdraws.onError(withdrawMsg);
+				logger.info("status=error, withdraw={}, time={}, index={}", withdrawEntity.getId(), stopWatch.getTime() - start, i);
 			}
-
 		}
+		logger.info("status=success, time={}", stopWatch.getTime());
 	}
 
 	public void createMockWithdraw() throws JMSException {

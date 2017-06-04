@@ -7,6 +7,7 @@ import com.mageddo.jms.queue.container.BatchListMessageListenerContainer;
 import com.mageddo.jms.queue.container.BatchMessage;
 import com.mageddo.jms.queue.container.BatchMessageListenerContainer;
 import com.mageddo.jms.service.WithdrawService;
+import com.mageddo.jms.utils.QueueUtils;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.RedeliveryPolicy;
 import org.apache.activemq.command.ActiveMQMessage;
@@ -24,6 +25,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.jms.JMSException;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -42,8 +44,8 @@ public class BatchWithdrawReceiver {
 	@Autowired
 	private WithdrawService withdrawService;
 
-	@Scheduled(fixedDelay = Integer.MAX_VALUE)
-	public void makeWithdraws() throws JMSException {
+//	@Scheduled(fixedDelay = Integer.MAX_VALUE)
+	public void makeWithdraws () throws JMSException {
 		withdrawService.enqueuePendingWithdraws();
 	}
 
@@ -59,18 +61,21 @@ public class BatchWithdrawReceiver {
 		logger.info("totalTime={}", stopWatch.getTime());
 	}
 
-	public void onMessage(final BatchMessage withdraws) throws JMSException {
+	public void onMessage(final BatchMessage withdraws) throws JMSException, IOException {
 		logger.info("status=onMessage, size={}", withdraws.size());
 		withdrawService.doWithdraw(withdraws);
 	}
 
-//	@Bean(name = DestinationConstants.WITHDRAW + "Container", initMethod = "start", destroyMethod = "stop")
+	@Bean(name = DestinationConstants.WITHDRAW + "Container", initMethod = "start", destroyMethod = "stop")
 	public DefaultMessageListenerContainer container(ActiveMQConnectionFactory cf, BatchWithdrawReceiver receiver){
 
 		final DestinationEnum queue = DestinationEnum.WITHDRAW;
+
+		cf = QueueUtils.configureNoBlockRedelivery(cf, queue.getCompleteDestination());
+//		cf.setDispatchAsync(false);
 		configureRedelivery(cf, queue);
 		final DefaultMessageListenerContainer container = createContainer(
-			cf, queue.getCompleteDestination(), new BatchMessageListenerContainer(500)
+			cf, queue.getCompleteDestination(), new BatchMessageListenerContainer(1000)
 		);
 		container.setDestination(queue.getDestination());
 		final MessageListenerAdapter adapter = new MessageListenerAdapter(receiver);

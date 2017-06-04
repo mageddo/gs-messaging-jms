@@ -101,4 +101,13 @@ public class QueueUtils {
 	public static ActiveMQDestination destination(ActiveMQDestination destination, Properties properties){
 		return destination;
 	}
+
+	public static ActiveMQConnectionFactory configureNoBlockRedelivery(ActiveMQConnectionFactory connectionFactory,
+																																		 CompleteDestination destination) {
+		if(destination.isNonBlockingRedelivery()){
+			connectionFactory = connectionFactory.copy();
+			connectionFactory.setNonBlockingRedelivery(true);
+		}
+		return connectionFactory;
+	}
 }

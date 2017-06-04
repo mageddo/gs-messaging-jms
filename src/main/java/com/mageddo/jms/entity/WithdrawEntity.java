@@ -13,6 +13,9 @@ public class WithdrawEntity {
 	private Date creationDate;
 	private Date updateDate;
 
+	public WithdrawEntity() {
+	}
+
 	public WithdrawEntity(int id, char status, char type, double value) {
 		this.id = id;
 		this.status = status;
