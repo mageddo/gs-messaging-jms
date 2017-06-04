@@ -1,11 +1,18 @@
 package com.mageddo.jms.entity;
 
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.util.Converter;
+import com.mageddo.jms.parser.JsonParser;
+
+import java.io.IOException;
 import java.util.Date;
 
 /**
  * Created by elvis on 28/05/17.
  */
-public class WithdrawEntity {
+public class WithdrawEntity implements JsonParser<String, WithdrawEntity> {
 	private int id;
 	private char type;
 	private char status;
@@ -79,6 +86,24 @@ public class WithdrawEntity {
 
 	public void setStatusEnum(WithdrawStatus status){
 		setStatus(status.getStatus());
+	}
+
+	@Override
+	public WithdrawEntity parse(String json) {
+		try {
+			return new ObjectMapper().readValue(json, getClass());
+		} catch (IOException e) {
+			return null;
+		}
+	}
+
+	@Override
+	public String format(WithdrawEntity withdrawEntity) {
+		try {
+			return new ObjectMapper().writeValueAsString(withdrawEntity);
+		} catch (JsonProcessingException e) {
+			return null;
+		}
 	}
 
 	public enum WithdrawType {

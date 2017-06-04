@@ -66,8 +66,14 @@ public class BatchWithdrawReceiver {
 		withdrawService.doWithdraw(withdraws);
 	}
 
-	@Bean(name = DestinationConstants.WITHDRAW + "Container", initMethod = "start", destroyMethod = "stop")
-	public DefaultMessageListenerContainer container(ActiveMQConnectionFactory cf, BatchWithdrawReceiver receiver){
+	public void onMessage(final String withdraw) throws JMSException, IOException {
+		logger.info("status=onMessage, size={}", withdraw);
+		final WithdrawEntity withdrawEntity = new WithdrawEntity().parse(withdraw);
+		withdrawService.doWithdraw(withdrawEntity);
+	}
+
+//	@Bean(name = DestinationConstants.WITHDRAW + "Container", initMethod = "start", destroyMethod = "stop")
+	public DefaultMessageListenerContainer batchContainer(ActiveMQConnectionFactory cf, BatchWithdrawReceiver receiver){
 
 		final DestinationEnum queue = DestinationEnum.WITHDRAW;
 
@@ -76,6 +82,26 @@ public class BatchWithdrawReceiver {
 		configureRedelivery(cf, queue);
 		final DefaultMessageListenerContainer container = createContainer(
 			cf, queue.getCompleteDestination(), new BatchMessageListenerContainer(1000)
+		);
+		container.setDestination(queue.getDestination());
+		final MessageListenerAdapter adapter = new MessageListenerAdapter(receiver);
+		adapter.setDefaultListenerMethod("onMessage");
+		container.setMessageListener(adapter);
+
+		return container;
+
+	}
+
+	@Bean(name = DestinationConstants.WITHDRAW + "Container", initMethod = "start", destroyMethod = "stop")
+	public DefaultMessageListenerContainer container(ActiveMQConnectionFactory cf, BatchWithdrawReceiver receiver){
+
+		final DestinationEnum queue = DestinationEnum.WITHDRAW;
+
+		cf = QueueUtils.configureNoBlockRedelivery(cf, queue.getCompleteDestination());
+
+		configureRedelivery(cf, queue);
+		final DefaultMessageListenerContainer container = createContainer(
+			cf, queue.getCompleteDestination(), new DefaultMessageListenerContainer()
 		);
 		container.setDestination(queue.getDestination());
 		final MessageListenerAdapter adapter = new MessageListenerAdapter(receiver);

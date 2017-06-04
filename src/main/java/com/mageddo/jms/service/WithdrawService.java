@@ -37,9 +37,6 @@ public class WithdrawService {
 	private final AtomicInteger withdrawsCounter = new AtomicInteger(1);
 
 	@Autowired
-	private ObjectMapper objectMapper;
-
-	@Autowired
 	private JmsTemplate jmsTemplate;
 
 	@Autowired
@@ -56,19 +53,28 @@ public class WithdrawService {
 		for (int i = 0; i < messages.size(); i++) {
 
 			final ActiveMQTextMessage withdrawMsg = ((ActiveMQTextMessage) messages.get(i));
-			final WithdrawEntity withdrawEntity = objectMapper.readValue(withdrawMsg.getText(), WithdrawEntity.class);
+			final WithdrawEntity withdrawEntity = new WithdrawEntity().parse(withdrawMsg.getText());
 			long start = stopWatch.getTime();
 
-			if (withdrawEntity.getType() == WithdrawType.BANK.getType()){
-				withdrawDAO.changeStatus(withdrawEntity.getId(), WithdrawStatus.COMPLETED);
-				logger.info("status=consumed, withdraw={}, time={}, index={}", withdrawEntity.getId(), stopWatch.getTime() - start, i);
-			} else {
+			try{
+				doWithdraw(withdrawEntity);
+			} catch (UnsupportedOperationException e){
 				withdrawDAO.changeStatus(withdrawEntity.getId(), WithdrawStatus.ERROR);
 				withdraws.onError(withdrawMsg);
-				logger.info("status=error, withdraw={}, time={}, index={}", withdrawEntity.getId(), stopWatch.getTime() - start, i);
+				logger.error("status=error, withdraw={}, time={}, index={}", withdrawEntity.getId(), stopWatch.getTime() - start, i);
+
 			}
+
 		}
 		logger.info("status=success, time={}", stopWatch.getTime());
+	}
+
+	public void doWithdraw(WithdrawEntity withdrawEntity) {
+		final StopWatch stopWatch = new StopWatch();
+		if (withdrawEntity.getType() == WithdrawType.BANK.getType()){
+			withdrawDAO.changeStatus(withdrawEntity.getId(), WithdrawStatus.COMPLETED);
+			logger.info("status=consumed, withdraw={}, time={}", withdrawEntity.getId(), stopWatch.getTime());
+		}
 	}
 
 	public void createMockWithdraw() throws JMSException {
