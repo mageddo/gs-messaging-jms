@@ -43,8 +43,12 @@ dependencies {
 	compile("com.google.guava:guava:22.0")
 	compile("org.apache.commons:commons-lang3:3.0")
 	compile("com.h2database:h2:1.4.194")
+	compile ("commons-io:commons-io:2.5")
 
-//	compile("com.fasterxml.jackson.core:jackson-databind")
+
+	testCompile("junit:junit:4.12")
+	testCompile("org.mockito:mockito-all:1.10.19")
+
 
 
 }

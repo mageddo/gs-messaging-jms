@@ -80,4 +80,13 @@ public class UserEntity {
 			return null;
 		}
 	}
+
+	@Override
+	public String toString() {
+		return "UserEntity{" +
+			"id=" + id +
+			", name='" + name + '\'' +
+			", status=" + status +
+			'}';
+	}
 }

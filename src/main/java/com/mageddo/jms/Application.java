@@ -160,14 +160,8 @@ public class Application implements SchedulingConfigurer {
 
 	@Primary
 	@Bean
-	public MessageConverter jsonJmsMessageConverter(ObjectMapper objectMapper, Environment environment) {
-		final DefaultMessageConverter converter = new DefaultMessageConverter(objectMapper);
-		if(environment.acceptsProfiles("prod")){
-			converter.setMessageType(MessageType.BYTES);
-		}else{
-			converter.setMessageType(MessageType.TEXT);
-		}
-		return converter;
+	public MessageConverter jsonJmsMessageConverter(ObjectMapper objectMapper) {
+		return new DefaultMessageConverter(objectMapper);
 	}
 
 	@Bean
