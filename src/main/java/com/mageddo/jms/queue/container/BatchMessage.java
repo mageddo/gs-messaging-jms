@@ -80,6 +80,9 @@ public class BatchMessage extends ActiveMQMessage {
 	}
 
 	public void onError(final ActiveMQMessage message) throws JMSException {
+
+		if(1==1)throw new RuntimeException("");
+
 		if(this.session == null){
 			throw new IllegalStateException("Session can not be null");
 		}

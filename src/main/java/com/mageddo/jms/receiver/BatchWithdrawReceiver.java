@@ -72,7 +72,7 @@ public class BatchWithdrawReceiver {
 		withdrawService.doWithdraw(withdrawEntity);
 	}
 
-//	@Bean(name = DestinationConstants.WITHDRAW + "Container", initMethod = "start", destroyMethod = "stop")
+	@Bean(name = DestinationConstants.WITHDRAW + "Container", initMethod = "start", destroyMethod = "stop")
 	public DefaultMessageListenerContainer batchContainer(ActiveMQConnectionFactory cf, BatchWithdrawReceiver receiver){
 
 		final DestinationEnum queue = DestinationEnum.WITHDRAW;
@@ -92,7 +92,7 @@ public class BatchWithdrawReceiver {
 
 	}
 
-	@Bean(name = DestinationConstants.WITHDRAW + "Container", initMethod = "start", destroyMethod = "stop")
+//	@Bean(name = DestinationConstants.WITHDRAW + "Container", initMethod = "start", destroyMethod = "stop")
 	public DefaultMessageListenerContainer container(ActiveMQConnectionFactory cf, BatchWithdrawReceiver receiver){
 
 		final DestinationEnum queue = DestinationEnum.WITHDRAW;

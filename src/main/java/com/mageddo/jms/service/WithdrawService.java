@@ -74,6 +74,8 @@ public class WithdrawService {
 		if (withdrawEntity.getType() == WithdrawType.BANK.getType()){
 			withdrawDAO.changeStatus(withdrawEntity.getId(), WithdrawStatus.COMPLETED);
 			logger.info("status=consumed, withdraw={}, time={}", withdrawEntity.getId(), stopWatch.getTime());
+		}else{
+			throw new UnsupportedOperationException(withdrawEntity.getType() + " not supported");
 		}
 	}
 
