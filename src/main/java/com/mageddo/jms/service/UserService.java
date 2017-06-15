@@ -31,4 +31,8 @@ public class UserService {
 	public void markAsEnqueued(List<UserEntity> entities){
 		// UPDATE SET STATUS=Q
 	}
+
+	public void markAsCompleted(UserEntity userEntity) {
+		// UPDATE SET STATUS=C
+	}
 }

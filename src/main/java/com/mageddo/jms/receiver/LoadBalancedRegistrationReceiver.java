@@ -48,6 +48,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Component
 public class LoadBalancedRegistrationReceiver {
 
+	private static final int MAX_QUEUE_SIZE = 999;
 	@Autowired
 	private UserService userService;
 
@@ -65,7 +66,7 @@ public class LoadBalancedRegistrationReceiver {
 	@Scheduled(fixedDelay = 10 * 1000)
 	public void enqueuer(){
 
-		if (queueSize > MIN_QUEUE_SIZE){
+		if (queueSize > MAX_QUEUE_SIZE){
 			return ;
 		}
 
@@ -77,8 +78,9 @@ public class LoadBalancedRegistrationReceiver {
 
 	}
 
-	public void consume(){
-
+	public void consume(UserEntity userEntity) throws InterruptedException {
+		Thread.sleep(5000);
+		userService.markAsCompleted(userEntity);
 	}
 
 }
