@@ -3,7 +3,9 @@ package com.mageddo.jms;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.cache.CacheBuilder;
 import com.mageddo.jms.config.MageddoMessageListenerContainerFactory;
+import com.mageddo.jms.enums.CacheNames;
 import com.mageddo.jms.queue.CompleteDestination;
 import com.mageddo.jms.queue.DestinationEnum;
 import com.mageddo.jms.queue.converter.DefaultMessageConverter;
@@ -20,7 +22,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jms.DefaultJmsListenerContainerFactoryConfigurer;
 import org.springframework.boot.autoconfigure.jms.activemq.ActiveMQProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.cache.Cache;
 import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.cache.concurrent.ConcurrentMapCache;
 import org.springframework.context.annotation.*;
 import org.springframework.core.env.Environment;
 import org.springframework.jms.annotation.EnableJms;
@@ -39,6 +43,7 @@ import javax.jms.Session;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 @EnableScheduling
 @EnableCaching
@@ -164,6 +169,21 @@ public class Application implements SchedulingConfigurer {
 	public RestTemplate restTemplate(){
 		return new RestTemplate();
 	}
+
+	@Bean
+	public Cache cacheOne() {
+		return new ConcurrentMapCache(
+			CacheNames.ACTIVE_MQ,
+			CacheBuilder
+				.newBuilder()
+				.expireAfterWrite(5, TimeUnit.MINUTES)
+				.maximumSize(100)
+				.build()
+				.asMap(),
+			true
+		);
+	}
+
 
 	public static void main(String[] args) {
 		SpringApplication.run(Application.class, args);

@@ -209,4 +209,19 @@ public class QueueUtilJMX {
             return "error: " + e.toString();
         }
     }
+
+
+    @ManagedOperation(description = "Gets queue size")
+    @ManagedOperationParameters({
+        @ManagedOperationParameter(name = "destination", description = "The destination name")
+    })
+    public String getQueueSize(String destination){
+        try{
+            LOGGER.info("status=start, destination={}", destination);
+            return String.valueOf(queueService.getQueueSize(destination));
+        }catch (Exception e){
+            LOGGER.error("msg={}", e.getMessage(), e);
+            return "error: " + e.toString();
+        }
+    }
 }

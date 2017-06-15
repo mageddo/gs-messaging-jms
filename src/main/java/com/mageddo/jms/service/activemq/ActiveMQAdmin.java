@@ -1,12 +1,14 @@
 package com.mageddo.jms.service.activemq;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mageddo.jms.enums.CacheNames;
 import com.mageddo.jms.service.activemq.vo.MBeanSearchVO;
 import com.mageddo.jms.service.activemq.vo.PropertyVO;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -34,6 +36,9 @@ public class ActiveMQAdmin {
 	@Autowired
 	private RestTemplate restTemplate;
 
+	@Autowired
+	private ActiveMQAdmin activeMQAdmin;
+
 	@PostConstruct
 	public void construct(){
 		final String base64Creds = new String(Base64.encodeBase64(String.format("%s:%s", username, password).getBytes()));
@@ -42,11 +47,14 @@ public class ActiveMQAdmin {
 	}
 
 	public PropertyVO getProperty(final String destination, final String property){
-		final String url = String.format("%s/read/%s/%s", baseURI, findMBeanByDestination(destination).getMainBean(), property);
+		logger.info("destination={}, property={}", destination, property);
+		final String url = String.format("%s/read/%s/%s", baseURI, activeMQAdmin.findMBeanByDestination(destination).getMainBean(), property);
 		return doRequest(url, HttpMethod.GET, PropertyVO.class);
 	}
 
+	@Cacheable(CacheNames.ACTIVE_MQ)
 	public MBeanSearchVO findMBeanByDestination(String destination){
+		logger.info("destination={}", destination);
 		final String url = String.format(
 			"%s/search/org.apache.activemq:destinationName=%s,destinationType=Queue,type=Broker,brokerName=*",
 			baseURI, destination

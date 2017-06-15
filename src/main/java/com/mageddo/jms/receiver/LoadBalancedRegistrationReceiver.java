@@ -1,8 +1,13 @@
 package com.mageddo.jms.receiver;
 
 import com.mageddo.jms.entity.UserEntity;
+import com.mageddo.jms.queue.DestinationEnum;
+import com.mageddo.jms.service.QueueService;
 import com.mageddo.jms.service.UserService;
 import com.mageddo.jms.vo.UserVO;
+import org.apache.activemq.command.ActiveMQDestination;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -49,13 +54,18 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class LoadBalancedRegistrationReceiver {
 
 	private static final int MAX_QUEUE_SIZE = 999;
+	private final Logger logger = LoggerFactory.getLogger(getClass());
+
+	private AtomicInteger counter = new AtomicInteger(1);
+
 	@Autowired
 	private UserService userService;
 
 	@Autowired
 	private JmsTemplate jmsTemplate;
 
-	private AtomicInteger counter = new AtomicInteger(1);
+	@Autowired
+	private QueueService queueService;
 
 //	@Scheduled(fixedRate = 1000 / 30)
 	public void registrationRequest(){
@@ -66,13 +76,15 @@ public class LoadBalancedRegistrationReceiver {
 //	@Scheduled(fixedDelay = 10 * 1000)
 	public void enqueuer(){
 
-//		if (queueSize > MAX_QUEUE_SIZE){
-//			return ;
-//		}
+		final ActiveMQDestination destination = DestinationEnum.REGISTRATION.getDestination();
+		if (queueService.getQueueSize(destination.getPhysicalName()) > MAX_QUEUE_SIZE){
+			logger.info("status=queue-full, queue={}", destination.getPhysicalName());
+			return ;
+		}
 
 		final List<UserEntity> users = userService.findNotEnqueuedRegistrations();
 		for (UserEntity userEntity : users) {
-			jmsTemplate.convertAndSend(userEntity);
+			jmsTemplate.convertAndSend(destination, userEntity);
 		}
 		userService.markAsEnqueued(users);
 

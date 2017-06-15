@@ -14,6 +14,7 @@ public class DestinationConstants {
 	public static final String FACTORY_PING = "Ping";
 	public static final String SALE = "Sale";
 	public static final String WITHDRAW = "Withdraw";
+	public static final String REGISTRATION = "Registration";
 
 	private DestinationConstants() {
 	}

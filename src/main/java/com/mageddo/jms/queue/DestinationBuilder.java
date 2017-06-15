@@ -98,4 +98,11 @@ public final class DestinationBuilder {
 		return dest;
 
 	}
+
+	public CompleteDestination registrationQueue() {
+		return new CompleteDestination(
+			queue(DestinationConstants.REGISTRATION),
+			60000, 3, 5, 10
+		);
+	}
 }

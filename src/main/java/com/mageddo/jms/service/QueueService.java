@@ -235,7 +235,7 @@ public class QueueService {
 		return queueDetailsVO;
 	}
 
-	private int getQueueSize(String queueName) {
+	public int getQueueSize(String queueName) {
 		if(queueExists(queueName)){
 			return (int) activeMQAdmin.getProperty(queueName, "QueueSize").getValue();
 		}

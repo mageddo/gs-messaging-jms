@@ -18,6 +18,7 @@ public enum DestinationEnum {
 	PING(getInstance().pingQueue(), false),
 	SALE(getInstance().saleQueue(), false),
 	WITHDRAW(getInstance().withdrawQueue(), false),
+	REGISTRATION(getInstance().registrationQueue(), true),
 
 	DEFAULT_DLQ(getInstance().defaultDLQ(), true)
 

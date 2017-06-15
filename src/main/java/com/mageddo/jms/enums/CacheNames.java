@@ -8,4 +8,5 @@ package com.mageddo.jms.enums;
  */
 public interface CacheNames {
 	String APP_CACHE = "/appCache";
+	String ACTIVE_MQ = "/activeMQ";
 }
