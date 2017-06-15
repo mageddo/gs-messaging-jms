@@ -59,7 +59,7 @@ public class BatchSaleNotificationReceiver implements BatchMessageListener {
 		return notConsumed;
 	}
 
-	@Bean(name = DestinationConstants.SALE + "Container", initMethod = "start", destroyMethod = "stop")
+//	@Bean(name = DestinationConstants.SALE + "Container", initMethod = "start", destroyMethod = "stop")
 	public DefaultMessageListenerContainer container(ActiveMQConnectionFactory cf, BatchSaleNotificationReceiver receiver){
 
 		final DestinationEnum queue = DestinationEnum.SALE;

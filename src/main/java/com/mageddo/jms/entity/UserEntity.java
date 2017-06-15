@@ -1,5 +1,8 @@
 package com.mageddo.jms.entity;
 
+import org.springframework.jdbc.core.RowCallbackHandler;
+import org.springframework.jdbc.core.RowMapper;
+
 /**
  * Created by elvis on 15/06/17.
  */
@@ -14,6 +17,7 @@ public class UserEntity {
 
 	public UserEntity(String name, Status status) {
 		this.name = name;
+		this.status = status;
 	}
 
 	public String getName() {
@@ -40,6 +44,16 @@ public class UserEntity {
 		this.id = id;
 	}
 
+	public static RowMapper<UserEntity> mapper() {
+		return (rs, rowNum) -> {
+			final UserEntity userEntity = new UserEntity();
+			userEntity.setId(rs.getInt("ID"));
+			userEntity.setName(rs.getString("NAME"));
+			userEntity.setStatus(Status.fromCode(rs.getString("STATUS")));
+			return userEntity;
+		};
+	}
+
 	public enum Status {
 		PENDING("P"),
 		QUEUED("Q"),
@@ -55,6 +69,15 @@ public class UserEntity {
 
 		public String getCode() {
 			return code;
+		}
+
+		public static Status fromCode(String code) {
+			for (Status status : values()) {
+				if(status.getCode().equals(code)){
+					return status;
+				}
+			}
+			return null;
 		}
 	}
 }

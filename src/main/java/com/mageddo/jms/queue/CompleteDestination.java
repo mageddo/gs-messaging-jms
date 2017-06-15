@@ -11,11 +11,18 @@ public class CompleteDestination implements MGDestination {
 	private final ActiveMQDestination destination;
 	private ActiveMQQueue dlq;
 	private String name, factory;
-	private int ttl, retries, consumers, maxConsumers;
+	private int ttl;
+	private int retries;
+	private int consumers;
+	private int maxConsumers;
 	private boolean nonBlockingRedelivery;
 
-
 	public CompleteDestination(ActiveMQDestination destination, int ttl, int retries, int consumers, int maxConsumers) {
+		this(destination, ttl, retries, consumers, maxConsumers, false);
+	}
+
+	public CompleteDestination(ActiveMQDestination destination, int ttl, int retries, int consumers, int maxConsumers,
+														 boolean nonBlockingRedelivery) {
 
 		this.destination = destination;
 		this.name = destination.getPhysicalName();
@@ -23,6 +30,7 @@ public class CompleteDestination implements MGDestination {
 		this.retries = retries;
 		this.consumers = consumers;
 		this.maxConsumers = maxConsumers;
+		this.nonBlockingRedelivery = nonBlockingRedelivery;
 
 		setFactory(destination.getPhysicalName());
 		setDLQ(new ActiveMQQueue("DLQ." + getName()));

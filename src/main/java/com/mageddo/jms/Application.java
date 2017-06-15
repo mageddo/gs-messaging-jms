@@ -69,6 +69,9 @@ public class Application implements SchedulingConfigurer {
 	@Autowired
 	DestinationParameterService destinationParameterService;
 
+	@Autowired
+	MessageConverter messageConverter;
+
 	@PostConstruct
 	public void setupQueues(){
 
@@ -93,6 +96,8 @@ public class Application implements SchedulingConfigurer {
 		final MageddoMessageListenerContainerFactory factory = QueueUtils.createDefaultFactory(
 			connectionFactory, destination
 		);
+		factory.setMessageConverter(messageConverter);
+
 //		factory.setTransactionManager(txManager); // use too much database sessions
 		QueueUtils.configureRedelivery(connectionFactory, destinationEnum);
 //		configurer.configure(factory, cf); // dont use because it will override custom settings to global spring settings

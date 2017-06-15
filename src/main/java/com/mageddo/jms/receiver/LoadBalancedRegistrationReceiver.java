@@ -1,19 +1,16 @@
 package com.mageddo.jms.receiver;
 
 import com.mageddo.jms.entity.UserEntity;
-import com.mageddo.jms.queue.DestinationEnum;
-import com.mageddo.jms.service.QueueService;
+import com.mageddo.jms.queue.DestinationConstants;
 import com.mageddo.jms.service.UserService;
 import com.mageddo.jms.vo.UserVO;
-import org.apache.activemq.command.ActiveMQDestination;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jms.core.JmsTemplate;
+import org.springframework.jms.annotation.JmsListener;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -53,7 +50,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Component
 public class LoadBalancedRegistrationReceiver {
 
-	private static final int MAX_QUEUE_SIZE = 999;
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 
 	private AtomicInteger counter = new AtomicInteger(1);
@@ -61,38 +57,22 @@ public class LoadBalancedRegistrationReceiver {
 	@Autowired
 	private UserService userService;
 
-	@Autowired
-	private JmsTemplate jmsTemplate;
-
-	@Autowired
-	private QueueService queueService;
-
-//	@Scheduled(fixedRate = 1000 / 30)
+	@Scheduled(fixedRate = 1000 / 30)
 	public void registrationRequest(){
 		final UserVO userVO = new UserVO("User " + counter.getAndIncrement());
 		userService.register(userVO);
 	}
 
-//	@Scheduled(fixedDelay = 10 * 1000)
+	@Scheduled(fixedDelay = 60 * 1000)
 	public void enqueuer(){
-
-		final ActiveMQDestination destination = DestinationEnum.REGISTRATION.getDestination();
-		if (queueService.getQueueSize(destination.getPhysicalName()) > MAX_QUEUE_SIZE){
-			logger.info("status=queue-full, queue={}", destination.getPhysicalName());
-			return ;
-		}
-
-		final List<UserEntity> users = userService.findNotEnqueuedRegistrations();
-		for (UserEntity userEntity : users) {
-			jmsTemplate.convertAndSend(destination, userEntity);
-		}
-		userService.markAsEnqueued(users);
-
+		userService.enqueuePendingRegistrations();
 	}
 
+	@JmsListener(destination = DestinationConstants.REGISTRATION, containerFactory = DestinationConstants.REGISTRATION + "Factory")
 	public void consume(UserEntity userEntity) throws InterruptedException {
-		Thread.sleep(5000);
+		Thread.sleep(100);
 		userService.markAsCompleted(userEntity);
+		logger.info("status=success, user={}", userEntity.getId());
 	}
 
 }
