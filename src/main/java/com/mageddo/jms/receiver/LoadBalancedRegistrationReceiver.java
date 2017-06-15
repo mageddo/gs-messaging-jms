@@ -57,18 +57,18 @@ public class LoadBalancedRegistrationReceiver {
 
 	private AtomicInteger counter = new AtomicInteger(1);
 
-	@Scheduled(fixedRate = 1000 / 30)
+//	@Scheduled(fixedRate = 1000 / 30)
 	public void registrationRequest(){
 		final UserVO userVO = new UserVO("User " + counter.getAndIncrement());
 		userService.register(userVO);
 	}
 
-	@Scheduled(fixedDelay = 10 * 1000)
+//	@Scheduled(fixedDelay = 10 * 1000)
 	public void enqueuer(){
 
-		if (queueSize > MAX_QUEUE_SIZE){
-			return ;
-		}
+//		if (queueSize > MAX_QUEUE_SIZE){
+//			return ;
+//		}
 
 		final List<UserEntity> users = userService.findNotEnqueuedRegistrations();
 		for (UserEntity userEntity : users) {
