@@ -101,6 +101,7 @@ public class Application implements SchedulingConfigurer {
 //		factory.setTransactionManager(txManager); // use too much database sessions
 		QueueUtils.configureRedelivery(connectionFactory, destinationEnum);
 //		configurer.configure(factory, cf); // dont use because it will override custom settings to global spring settings
+		beanFactory.registerSingleton(QueueUtils.getContainerName(destination), factory.getContainer());
 		beanFactory.registerSingleton(factory.getBeanName(), factory);
 		return factory;
 	}

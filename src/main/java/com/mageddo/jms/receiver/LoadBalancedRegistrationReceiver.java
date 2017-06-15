@@ -2,9 +2,9 @@ package com.mageddo.jms.receiver;
 
 import com.mageddo.jms.entity.UserEntity;
 import com.mageddo.jms.queue.DestinationConstants;
+import com.mageddo.jms.queue.JsonConverter;
 import com.mageddo.jms.service.UserService;
 import com.mageddo.jms.vo.UserVO;
-import org.apache.activemq.command.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +12,8 @@ import org.springframework.jms.annotation.JmsListener;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import javax.jms.BytesMessage;
+import javax.jms.JMSException;
+import javax.jms.Message;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -59,21 +60,24 @@ public class LoadBalancedRegistrationReceiver {
 	@Autowired
 	private UserService userService;
 
-//	@Scheduled(fixedRate = 1000 / 30)
+	@Autowired
+	private JsonConverter jsonConverter;
+
+	@Scheduled(fixedRate = 1000 / 30)
 	public void registrationRequest(){
 		final UserVO userVO = new UserVO("User " + counter.getAndIncrement());
 		userService.register(userVO);
 	}
 
-//	@Scheduled(fixedDelay = 60 * 1000)
+	@Scheduled(fixedDelay = 60 * 1000)
 	public void enqueuer(){
 		userService.enqueuePendingRegistrations();
 	}
 
-//	@JmsListener(destination = DestinationConstants.REGISTRATION, containerFactory = DestinationConstants.REGISTRATION + "Factory")
-	public void consume(BytesMessage bytesMessage) throws InterruptedException {
- 		Thread.sleep(100);
-//		userService.markAsCompleted(userEntity);
+	@JmsListener(destination = DestinationConstants.REGISTRATION, containerFactory = DestinationConstants.REGISTRATION + "Factory")
+	public void consume(Message message) throws InterruptedException, JMSException {
+		final UserEntity userEntity = jsonConverter.readValue(message, UserEntity.class);
+		userService.completeRegistration(userEntity);
 	}
 
 }

@@ -29,11 +29,11 @@ public class BytesMessageReceiver {
 
 	private AtomicInteger counter = new AtomicInteger(1);
 
-	@Scheduled(fixedDelay = 2000)
+//	@Scheduled(fixedDelay = 2000)
 	public void post(){
 		jmsTemplate.convertAndSend(
 			BYTES_MESSAGE,
-			new ByteMessageVO(counter.getAndIncrement(), new byte[new Random().nextInt(0)])
+			new ByteMessageVO(counter.getAndIncrement(), new byte[new Random().nextInt(1)])
 		);
 	}
 

@@ -3,9 +3,9 @@ package com.mageddo.jms.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.mageddo.jms.entity.DestinationParameterEntity;
+import com.mageddo.jms.queue.ActiveMQAdmin;
 import com.mageddo.jms.queue.DestinationEnum;
-import com.mageddo.jms.service.activemq.ActiveMQAdmin;
-import com.mageddo.jms.service.activemq.vo.QueueDetailsVO;
+import com.mageddo.jms.queue.vo.QueueDetailsVO;
 import com.mageddo.jms.utils.QueueUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,9 +19,10 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import javax.jms.*;
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
+import javax.jms.BytesMessage;
+import javax.jms.Message;
+import javax.jms.ObjectMessage;
+import javax.jms.TextMessage;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,7 +34,6 @@ import java.util.List;
 @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
 public class QueueService {
 
-	private static final String ACTIVEMQ_CHARSET = "UTF-8";
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 
 	@Autowired

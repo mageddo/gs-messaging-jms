@@ -1,4 +1,4 @@
-package com.mageddo.jms.service.activemq.vo;
+package com.mageddo.jms.queue.vo;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

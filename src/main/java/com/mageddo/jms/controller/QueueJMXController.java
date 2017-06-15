@@ -22,7 +22,7 @@ public class QueueJMXController {
 	private QueueService queueService;
 
 	@RequestMapping(method = RequestMethod.PUT)
-	public void changeConsumers(@RequestBody  DestinationParameterEntity entity){
+	public void changeConsumers(@RequestBody DestinationParameterEntity entity){
 		queueService.changeConsumersAndSave(entity);
 	}
 

@@ -22,7 +22,7 @@ import java.util.List;
 @Service
 public class UserService {
 
-	private static final int MAX_QUEUE_SIZE = 999;
+	private static final int MAX_QUEUE_SIZE = 9999;
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -47,8 +47,14 @@ public class UserService {
 		userDAO.changeStatus(entities, UserEntity.Status.QUEUED);
 	}
 
-	public void markAsCompleted(UserEntity userEntity) {
+	public void completeRegistration(UserEntity userEntity) {
+		try {
+			Thread.sleep(100);
+		} catch (InterruptedException e) {
+			throw new RuntimeException(e);
+		}
 		userDAO.changeStatus(Arrays.asList(userEntity), UserEntity.Status.COMPLETED);
+		logger.info("userId={}", userEntity.getId());
 	}
 
 	@Transactional

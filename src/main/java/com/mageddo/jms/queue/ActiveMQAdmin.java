@@ -1,9 +1,9 @@
-package com.mageddo.jms.service.activemq;
+package com.mageddo.jms.queue;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mageddo.jms.enums.CacheNames;
-import com.mageddo.jms.service.activemq.vo.MBeanSearchVO;
-import com.mageddo.jms.service.activemq.vo.PropertyVO;
+import com.mageddo.jms.queue.vo.MBeanSearchVO;
+import com.mageddo.jms.queue.vo.PropertyVO;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

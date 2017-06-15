@@ -1,4 +1,4 @@
-package com.mageddo.jms.service.activemq.vo;
+package com.mageddo.jms.queue.vo;
 
 /**
  * Created by elvis on 15/06/17.
