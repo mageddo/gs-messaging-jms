@@ -2,6 +2,8 @@ package com.mageddo.jms.queue;
 
 import org.apache.activemq.RedeliveryPolicy;
 
+import javax.jms.DeliveryMode;
+
 import static com.mageddo.jms.utils.QueueUtils.queue;
 import static com.mageddo.jms.utils.QueueUtils.topic;
 
@@ -103,7 +105,15 @@ public final class DestinationBuilder {
 		return new CompleteDestination(
 			queue(DestinationConstants.REGISTRATION),
 			60000, 3, 35, 40,
-			true, true, false
+			true, true, DeliveryMode.NON_PERSISTENT
+		);
+	}
+
+	public CompleteDestination youtubeNotificationQueue() {
+		return new CompleteDestination(
+			queue(DestinationConstants.YOUTUBE_NOTIFICATION),
+			60000, 3, 1, 3,
+			true, true, DeliveryMode.NON_PERSISTENT
 		);
 	}
 }

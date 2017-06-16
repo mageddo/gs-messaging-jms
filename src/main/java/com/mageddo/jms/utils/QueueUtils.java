@@ -1,8 +1,7 @@
 package com.mageddo.jms.utils;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mageddo.jms.queue.CompleteDestination;
-import com.mageddo.jms.config.MageddoMessageListenerContainerFactory;
+import com.mageddo.jms.queue.config.MageddoMessageListenerContainerFactory;
 import com.mageddo.jms.queue.DestinationEnum;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.RedeliveryPolicy;

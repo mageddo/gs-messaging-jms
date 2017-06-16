@@ -4,7 +4,8 @@ package com.mageddo.jms;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.cache.CacheBuilder;
-import com.mageddo.jms.config.MageddoMessageListenerContainerFactory;
+import com.mageddo.jms.queue.config.FlexibleJmsTemplate;
+import com.mageddo.jms.queue.config.MageddoMessageListenerContainerFactory;
 import com.mageddo.jms.enums.CacheNames;
 import com.mageddo.jms.queue.CompleteDestination;
 import com.mageddo.jms.queue.DestinationEnum;
@@ -136,10 +137,11 @@ public class Application implements SchedulingConfigurer {
 	@Primary
 	@Bean
 	public JmsTemplate jmsTemplate(PooledConnectionFactory connectionFactory, MessageConverter messageConverter){
-		final JmsTemplate jmsTemplate = new JmsTemplate(connectionFactory);
+		final JmsTemplate jmsTemplate = new FlexibleJmsTemplate(connectionFactory);
+		jmsTemplate.setExplicitQosEnabled(true);
 		jmsTemplate.setSessionAcknowledgeMode(Session.AUTO_ACKNOWLEDGE);
-		jmsTemplate.setMessageConverter(messageConverter);
 		jmsTemplate.setSessionTransacted(true);
+		jmsTemplate.setMessageConverter(messageConverter);
 		return jmsTemplate;
 	}
 

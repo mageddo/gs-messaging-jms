@@ -15,6 +15,7 @@ public class DestinationConstants {
 	public static final String SALE = "Sale";
 	public static final String WITHDRAW = "Withdraw";
 	public static final String REGISTRATION = "Registration";
+	public static final String YOUTUBE_NOTIFICATION = "YoutubeNotification";
 
 	private DestinationConstants() {
 	}

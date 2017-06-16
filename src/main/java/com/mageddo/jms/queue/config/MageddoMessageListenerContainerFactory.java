@@ -1,4 +1,4 @@
-package com.mageddo.jms.config;
+package com.mageddo.jms.queue.config;
 
 import org.springframework.beans.factory.NamedBean;
 import org.springframework.jms.config.DefaultJmsListenerContainerFactory;

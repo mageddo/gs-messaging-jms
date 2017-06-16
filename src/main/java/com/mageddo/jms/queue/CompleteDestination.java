@@ -3,6 +3,8 @@ package com.mageddo.jms.queue;
 import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.command.ActiveMQQueue;
 
+import javax.jms.DeliveryMode;
+
 /**
  * Created by elvis on 13/05/17.
  */
@@ -17,7 +19,7 @@ public class CompleteDestination implements MGDestination {
 	private int maxConsumers;
 	private boolean nonBlockingRedelivery;
 	private boolean asyncSend;
-	private boolean persistentDelivery;
+	private int deliveryMode;
 
 	public CompleteDestination(ActiveMQDestination destination, int ttl, int retries, int consumers, int maxConsumers) {
 		this(destination, ttl, retries, consumers, maxConsumers, false);
@@ -30,11 +32,11 @@ public class CompleteDestination implements MGDestination {
 
 	public CompleteDestination(ActiveMQDestination destination, int ttl, int retries, int consumers, int maxConsumers,
 													 boolean nonBlockingRedelivery, boolean asyncSend) {
-		this(destination, ttl, retries, consumers, maxConsumers, nonBlockingRedelivery, asyncSend, true);
+		this(destination, ttl, retries, consumers, maxConsumers, nonBlockingRedelivery, asyncSend, DeliveryMode.PERSISTENT);
 	}
 
 	public CompleteDestination(ActiveMQDestination destination, int ttl, int retries, int consumers, int maxConsumers,
-														 boolean nonBlockingRedelivery, boolean asyncSend, boolean persistentDelivery) {
+														 boolean nonBlockingRedelivery, boolean asyncSend, int deliveryMode) {
 
 		this.destination = destination;
 		this.name = destination.getPhysicalName();
@@ -44,7 +46,7 @@ public class CompleteDestination implements MGDestination {
 		this.maxConsumers = maxConsumers;
 		this.nonBlockingRedelivery = nonBlockingRedelivery;
 		this.asyncSend = asyncSend;
-		this.persistentDelivery = persistentDelivery;
+		this.deliveryMode = deliveryMode;
 
 		setFactory(destination.getPhysicalName());
 		setDLQ(new ActiveMQQueue("DLQ." + getName()));
@@ -111,7 +113,7 @@ public class CompleteDestination implements MGDestination {
 		this.asyncSend = asyncSend;
 	}
 
-	public boolean isPersistentDelivery() {
-		return persistentDelivery;
+	public int getDeliveryMode() {
+		return deliveryMode;
 	}
 }

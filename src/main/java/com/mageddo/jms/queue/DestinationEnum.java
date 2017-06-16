@@ -19,6 +19,7 @@ public enum DestinationEnum {
 	SALE(getInstance().saleQueue(), false),
 	WITHDRAW(getInstance().withdrawQueue(), false),
 	REGISTRATION(getInstance().registrationQueue(), true),
+	YOUTUBE_NOTIFICATION(getInstance().youtubeNotificationQueue(), true),
 
 	DEFAULT_DLQ(getInstance().defaultDLQ(), true)
 
