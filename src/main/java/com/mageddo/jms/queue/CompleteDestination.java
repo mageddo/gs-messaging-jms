@@ -21,6 +21,10 @@ public class CompleteDestination implements MGDestination {
 	private boolean asyncSend;
 	private int deliveryMode;
 
+	public CompleteDestination(ActiveMQDestination destination) {
+		this(destination, 60 * 1000, 6, 1, 1);
+	}
+
 	public CompleteDestination(ActiveMQDestination destination, int ttl, int retries, int consumers, int maxConsumers) {
 		this(destination, ttl, retries, consumers, maxConsumers, false);
 	}

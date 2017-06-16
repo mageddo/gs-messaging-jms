@@ -48,9 +48,23 @@ dependencies {
 
 	testCompile("org.springframework.boot:spring-boot-starter-test:${springBootVersion}")
 	testCompile("junit:junit:4.12")
-	testCompile("org.mockito:mockito-all:1.10.19")
+//	testCompile("org.apache.activemq:activemq-core:5.7.0")
+	testCompile group: 'org.apache.xbean', name: 'xbean-spring', version: '4.5'
+	testCompile group: 'org.apache.activemq', name: 'activemq-spring', version: '5.14.5'
+	testCompile group: 'org.apache.activemq', name: 'activemq-kahadb-store', version: '5.14.5'
 
 
 
+
+
+
+
+}
+
+compileTestJava {
+	classpath = classpath.filter {
+		it.name != "Abc.jar"
+		println(it.name)
+	}
 }
 

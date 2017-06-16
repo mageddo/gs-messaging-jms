@@ -1,3 +1,4 @@
+Starting a Gradle Daemon (subsequent builds will be faster)
 :dependencies
 
 ------------------------------------------------------------
@@ -8,7 +9,7 @@ archives - Configuration for archive artifacts.
 No dependencies
 
 compile - Dependencies for source set 'main'.
-+--- org.springframework.boot:spring-boot-starter-activemq: -> 1.5.3.RELEASE
++--- org.springframework.boot:spring-boot-starter-jdbc:1.5.3.RELEASE
 |    +--- org.springframework.boot:spring-boot-starter:1.5.3.RELEASE
 |    |    +--- org.springframework.boot:spring-boot:1.5.3.RELEASE
 |    |    |    +--- org.springframework:spring-core:4.3.8.RELEASE
@@ -35,6 +36,20 @@ compile - Dependencies for source set 'main'.
 |    |    |         \--- org.slf4j:slf4j-api:1.7.25
 |    |    +--- org.springframework:spring-core:4.3.8.RELEASE
 |    |    \--- org.yaml:snakeyaml:1.17
+|    +--- org.apache.tomcat:tomcat-jdbc:8.5.14
+|    |    \--- org.apache.tomcat:tomcat-juli:8.5.14
+|    \--- org.springframework:spring-jdbc:4.3.8.RELEASE
+|         +--- org.springframework:spring-beans:4.3.8.RELEASE (*)
+|         +--- org.springframework:spring-core:4.3.8.RELEASE
+|         \--- org.springframework:spring-tx:4.3.8.RELEASE
+|              +--- org.springframework:spring-beans:4.3.8.RELEASE (*)
+|              \--- org.springframework:spring-core:4.3.8.RELEASE
++--- org.springframework.boot:spring-boot-starter-aop:1.5.3.RELEASE
+|    +--- org.springframework.boot:spring-boot-starter:1.5.3.RELEASE (*)
+|    +--- org.springframework:spring-aop:4.3.8.RELEASE (*)
+|    \--- org.aspectj:aspectjweaver:1.8.10
++--- org.springframework.boot:spring-boot-starter-activemq:1.5.3.RELEASE
+|    +--- org.springframework.boot:spring-boot-starter:1.5.3.RELEASE (*)
 |    +--- org.springframework:spring-jms:4.3.8.RELEASE
 |    |    +--- org.springframework:spring-aop:4.3.8.RELEASE (*)
 |    |    +--- org.springframework:spring-beans:4.3.8.RELEASE (*)
@@ -44,9 +59,7 @@ compile - Dependencies for source set 'main'.
 |    |    |    +--- org.springframework:spring-beans:4.3.8.RELEASE (*)
 |    |    |    +--- org.springframework:spring-context:4.3.8.RELEASE (*)
 |    |    |    \--- org.springframework:spring-core:4.3.8.RELEASE
-|    |    \--- org.springframework:spring-tx:4.3.8.RELEASE
-|    |         +--- org.springframework:spring-beans:4.3.8.RELEASE (*)
-|    |         \--- org.springframework:spring-core:4.3.8.RELEASE
+|    |    \--- org.springframework:spring-tx:4.3.8.RELEASE (*)
 |    \--- org.apache.activemq:activemq-broker:5.14.5
 |         +--- org.apache.activemq:activemq-client:5.14.5
 |         |    +--- org.slf4j:slf4j-api:1.7.13 -> 1.7.25
@@ -55,7 +68,7 @@ compile - Dependencies for source set 'main'.
 |         |    \--- org.apache.geronimo.specs:geronimo-j2ee-management_1.1_spec:1.0.1
 |         \--- org.apache.activemq:activemq-openwire-legacy:5.14.5
 |              \--- org.apache.activemq:activemq-client:5.14.5 (*)
-+--- org.springframework.boot:spring-boot-starter-web: -> 1.5.3.RELEASE
++--- org.springframework.boot:spring-boot-starter-web:1.5.3.RELEASE
 |    +--- org.springframework.boot:spring-boot-starter:1.5.3.RELEASE (*)
 |    +--- org.springframework.boot:spring-boot-starter-tomcat:1.5.3.RELEASE
 |    |    +--- org.apache.tomcat.embed:tomcat-embed-core:8.5.14
@@ -81,13 +94,38 @@ compile - Dependencies for source set 'main'.
 |         +--- org.springframework:spring-core:4.3.8.RELEASE
 |         +--- org.springframework:spring-expression:4.3.8.RELEASE (*)
 |         \--- org.springframework:spring-web:4.3.8.RELEASE (*)
++--- org.springframework.boot:spring-boot-starter-actuator:1.5.3.RELEASE
+|    +--- org.springframework.boot:spring-boot-starter:1.5.3.RELEASE (*)
+|    \--- org.springframework.boot:spring-boot-actuator:1.5.3.RELEASE
+|         +--- org.springframework.boot:spring-boot:1.5.3.RELEASE (*)
+|         +--- org.springframework.boot:spring-boot-autoconfigure:1.5.3.RELEASE (*)
+|         +--- com.fasterxml.jackson.core:jackson-databind:2.8.8 (*)
+|         +--- org.springframework:spring-core:4.3.8.RELEASE
+|         \--- org.springframework:spring-context:4.3.8.RELEASE (*)
++--- org.apache.activemq:activemq-broker:5.14.5 (*)
++--- org.apache.activemq:activemq-pool:5.14.5
+|    +--- org.slf4j:slf4j-api:1.7.13 -> 1.7.25
+|    +--- org.apache.activemq:activemq-jms-pool:5.14.5
+|    |    +--- org.slf4j:slf4j-api:1.7.13 -> 1.7.25
+|    |    +--- org.apache.geronimo.specs:geronimo-jms_1.1_spec:1.1.1
+|    |    +--- org.apache.geronimo.specs:geronimo-jta_1.0.1B_spec:1.0.1
+|    |    \--- org.apache.commons:commons-pool2:2.4.2
+|    +--- org.apache.activemq:activemq-client:5.14.5 (*)
+|    +--- org.apache.geronimo.specs:geronimo-jta_1.0.1B_spec:1.0.1
+|    \--- org.apache.commons:commons-pool2:2.4.2
 +--- org.jolokia:jolokia-core:1.3.6
 |    \--- com.googlecode.json-simple:json-simple:1.1.1
-+--- org.apache.activemq:activemq-broker: -> 5.14.5 (*)
-\--- com.fasterxml.jackson.core:jackson-databind: -> 2.8.8 (*)
++--- com.google.guava:guava:22.0
+|    +--- com.google.code.findbugs:jsr305:1.3.9
+|    +--- com.google.errorprone:error_prone_annotations:2.0.18
+|    +--- com.google.j2objc:j2objc-annotations:1.1
+|    \--- org.codehaus.mojo:animal-sniffer-annotations:1.14
++--- org.apache.commons:commons-lang3:3.0
++--- com.h2database:h2:1.4.194
+\--- commons-io:commons-io:2.5
 
 compileClasspath - Compile classpath for source set 'main'.
-+--- org.springframework.boot:spring-boot-starter-activemq: -> 1.5.3.RELEASE
++--- org.springframework.boot:spring-boot-starter-jdbc:1.5.3.RELEASE
 |    +--- org.springframework.boot:spring-boot-starter:1.5.3.RELEASE
 |    |    +--- org.springframework.boot:spring-boot:1.5.3.RELEASE
 |    |    |    +--- org.springframework:spring-core:4.3.8.RELEASE
@@ -114,6 +152,20 @@ compileClasspath - Compile classpath for source set 'main'.
 |    |    |         \--- org.slf4j:slf4j-api:1.7.25
 |    |    +--- org.springframework:spring-core:4.3.8.RELEASE
 |    |    \--- org.yaml:snakeyaml:1.17
+|    +--- org.apache.tomcat:tomcat-jdbc:8.5.14
+|    |    \--- org.apache.tomcat:tomcat-juli:8.5.14
+|    \--- org.springframework:spring-jdbc:4.3.8.RELEASE
+|         +--- org.springframework:spring-beans:4.3.8.RELEASE (*)
+|         +--- org.springframework:spring-core:4.3.8.RELEASE
+|         \--- org.springframework:spring-tx:4.3.8.RELEASE
+|              +--- org.springframework:spring-beans:4.3.8.RELEASE (*)
+|              \--- org.springframework:spring-core:4.3.8.RELEASE
++--- org.springframework.boot:spring-boot-starter-aop:1.5.3.RELEASE
+|    +--- org.springframework.boot:spring-boot-starter:1.5.3.RELEASE (*)
+|    +--- org.springframework:spring-aop:4.3.8.RELEASE (*)
+|    \--- org.aspectj:aspectjweaver:1.8.10
++--- org.springframework.boot:spring-boot-starter-activemq:1.5.3.RELEASE
+|    +--- org.springframework.boot:spring-boot-starter:1.5.3.RELEASE (*)
 |    +--- org.springframework:spring-jms:4.3.8.RELEASE
 |    |    +--- org.springframework:spring-aop:4.3.8.RELEASE (*)
 |    |    +--- org.springframework:spring-beans:4.3.8.RELEASE (*)
@@ -123,9 +175,7 @@ compileClasspath - Compile classpath for source set 'main'.
 |    |    |    +--- org.springframework:spring-beans:4.3.8.RELEASE (*)
 |    |    |    +--- org.springframework:spring-context:4.3.8.RELEASE (*)
 |    |    |    \--- org.springframework:spring-core:4.3.8.RELEASE
-|    |    \--- org.springframework:spring-tx:4.3.8.RELEASE
-|    |         +--- org.springframework:spring-beans:4.3.8.RELEASE (*)
-|    |         \--- org.springframework:spring-core:4.3.8.RELEASE
+|    |    \--- org.springframework:spring-tx:4.3.8.RELEASE (*)
 |    \--- org.apache.activemq:activemq-broker:5.14.5
 |         +--- org.apache.activemq:activemq-client:5.14.5
 |         |    +--- org.slf4j:slf4j-api:1.7.13 -> 1.7.25
@@ -134,7 +184,7 @@ compileClasspath - Compile classpath for source set 'main'.
 |         |    \--- org.apache.geronimo.specs:geronimo-j2ee-management_1.1_spec:1.0.1
 |         \--- org.apache.activemq:activemq-openwire-legacy:5.14.5
 |              \--- org.apache.activemq:activemq-client:5.14.5 (*)
-+--- org.springframework.boot:spring-boot-starter-web: -> 1.5.3.RELEASE
++--- org.springframework.boot:spring-boot-starter-web:1.5.3.RELEASE
 |    +--- org.springframework.boot:spring-boot-starter:1.5.3.RELEASE (*)
 |    +--- org.springframework.boot:spring-boot-starter-tomcat:1.5.3.RELEASE
 |    |    +--- org.apache.tomcat.embed:tomcat-embed-core:8.5.14
@@ -160,13 +210,38 @@ compileClasspath - Compile classpath for source set 'main'.
 |         +--- org.springframework:spring-core:4.3.8.RELEASE
 |         +--- org.springframework:spring-expression:4.3.8.RELEASE (*)
 |         \--- org.springframework:spring-web:4.3.8.RELEASE (*)
++--- org.springframework.boot:spring-boot-starter-actuator:1.5.3.RELEASE
+|    +--- org.springframework.boot:spring-boot-starter:1.5.3.RELEASE (*)
+|    \--- org.springframework.boot:spring-boot-actuator:1.5.3.RELEASE
+|         +--- org.springframework.boot:spring-boot:1.5.3.RELEASE (*)
+|         +--- org.springframework.boot:spring-boot-autoconfigure:1.5.3.RELEASE (*)
+|         +--- com.fasterxml.jackson.core:jackson-databind:2.8.8 (*)
+|         +--- org.springframework:spring-core:4.3.8.RELEASE
+|         \--- org.springframework:spring-context:4.3.8.RELEASE (*)
++--- org.apache.activemq:activemq-broker:5.14.5 (*)
++--- org.apache.activemq:activemq-pool:5.14.5
+|    +--- org.slf4j:slf4j-api:1.7.13 -> 1.7.25
+|    +--- org.apache.activemq:activemq-jms-pool:5.14.5
+|    |    +--- org.slf4j:slf4j-api:1.7.13 -> 1.7.25
+|    |    +--- org.apache.geronimo.specs:geronimo-jms_1.1_spec:1.1.1
+|    |    +--- org.apache.geronimo.specs:geronimo-jta_1.0.1B_spec:1.0.1
+|    |    \--- org.apache.commons:commons-pool2:2.4.2
+|    +--- org.apache.activemq:activemq-client:5.14.5 (*)
+|    +--- org.apache.geronimo.specs:geronimo-jta_1.0.1B_spec:1.0.1
+|    \--- org.apache.commons:commons-pool2:2.4.2
 +--- org.jolokia:jolokia-core:1.3.6
 |    \--- com.googlecode.json-simple:json-simple:1.1.1
-+--- org.apache.activemq:activemq-broker: -> 5.14.5 (*)
-\--- com.fasterxml.jackson.core:jackson-databind: -> 2.8.8 (*)
++--- com.google.guava:guava:22.0
+|    +--- com.google.code.findbugs:jsr305:1.3.9
+|    +--- com.google.errorprone:error_prone_annotations:2.0.18
+|    +--- com.google.j2objc:j2objc-annotations:1.1
+|    \--- org.codehaus.mojo:animal-sniffer-annotations:1.14
++--- org.apache.commons:commons-lang3:3.0
++--- com.h2database:h2:1.4.194
+\--- commons-io:commons-io:2.5
 
 compileOnly - Compile dependencies for source set 'main'.
-+--- org.springframework.boot:spring-boot-starter-activemq: -> 1.5.3.RELEASE
++--- org.springframework.boot:spring-boot-starter-jdbc:1.5.3.RELEASE
 |    +--- org.springframework.boot:spring-boot-starter:1.5.3.RELEASE
 |    |    +--- org.springframework.boot:spring-boot:1.5.3.RELEASE
 |    |    |    +--- org.springframework:spring-core:4.3.8.RELEASE
@@ -193,6 +268,20 @@ compileOnly - Compile dependencies for source set 'main'.
 |    |    |         \--- org.slf4j:slf4j-api:1.7.25
 |    |    +--- org.springframework:spring-core:4.3.8.RELEASE
 |    |    \--- org.yaml:snakeyaml:1.17
+|    +--- org.apache.tomcat:tomcat-jdbc:8.5.14
+|    |    \--- org.apache.tomcat:tomcat-juli:8.5.14
+|    \--- org.springframework:spring-jdbc:4.3.8.RELEASE
+|         +--- org.springframework:spring-beans:4.3.8.RELEASE (*)
+|         +--- org.springframework:spring-core:4.3.8.RELEASE
+|         \--- org.springframework:spring-tx:4.3.8.RELEASE
+|              +--- org.springframework:spring-beans:4.3.8.RELEASE (*)
+|              \--- org.springframework:spring-core:4.3.8.RELEASE
++--- org.springframework.boot:spring-boot-starter-aop:1.5.3.RELEASE
+|    +--- org.springframework.boot:spring-boot-starter:1.5.3.RELEASE (*)
+|    +--- org.springframework:spring-aop:4.3.8.RELEASE (*)
+|    \--- org.aspectj:aspectjweaver:1.8.10
++--- org.springframework.boot:spring-boot-starter-activemq:1.5.3.RELEASE
+|    +--- org.springframework.boot:spring-boot-starter:1.5.3.RELEASE (*)
 |    +--- org.springframework:spring-jms:4.3.8.RELEASE
 |    |    +--- org.springframework:spring-aop:4.3.8.RELEASE (*)
 |    |    +--- org.springframework:spring-beans:4.3.8.RELEASE (*)
@@ -202,9 +291,7 @@ compileOnly - Compile dependencies for source set 'main'.
 |    |    |    +--- org.springframework:spring-beans:4.3.8.RELEASE (*)
 |    |    |    +--- org.springframework:spring-context:4.3.8.RELEASE (*)
 |    |    |    \--- org.springframework:spring-core:4.3.8.RELEASE
-|    |    \--- org.springframework:spring-tx:4.3.8.RELEASE
-|    |         +--- org.springframework:spring-beans:4.3.8.RELEASE (*)
-|    |         \--- org.springframework:spring-core:4.3.8.RELEASE
+|    |    \--- org.springframework:spring-tx:4.3.8.RELEASE (*)
 |    \--- org.apache.activemq:activemq-broker:5.14.5
 |         +--- org.apache.activemq:activemq-client:5.14.5
 |         |    +--- org.slf4j:slf4j-api:1.7.13 -> 1.7.25
@@ -213,7 +300,7 @@ compileOnly - Compile dependencies for source set 'main'.
 |         |    \--- org.apache.geronimo.specs:geronimo-j2ee-management_1.1_spec:1.0.1
 |         \--- org.apache.activemq:activemq-openwire-legacy:5.14.5
 |              \--- org.apache.activemq:activemq-client:5.14.5 (*)
-+--- org.springframework.boot:spring-boot-starter-web: -> 1.5.3.RELEASE
++--- org.springframework.boot:spring-boot-starter-web:1.5.3.RELEASE
 |    +--- org.springframework.boot:spring-boot-starter:1.5.3.RELEASE (*)
 |    +--- org.springframework.boot:spring-boot-starter-tomcat:1.5.3.RELEASE
 |    |    +--- org.apache.tomcat.embed:tomcat-embed-core:8.5.14
@@ -239,13 +326,38 @@ compileOnly - Compile dependencies for source set 'main'.
 |         +--- org.springframework:spring-core:4.3.8.RELEASE
 |         +--- org.springframework:spring-expression:4.3.8.RELEASE (*)
 |         \--- org.springframework:spring-web:4.3.8.RELEASE (*)
++--- org.springframework.boot:spring-boot-starter-actuator:1.5.3.RELEASE
+|    +--- org.springframework.boot:spring-boot-starter:1.5.3.RELEASE (*)
+|    \--- org.springframework.boot:spring-boot-actuator:1.5.3.RELEASE
+|         +--- org.springframework.boot:spring-boot:1.5.3.RELEASE (*)
+|         +--- org.springframework.boot:spring-boot-autoconfigure:1.5.3.RELEASE (*)
+|         +--- com.fasterxml.jackson.core:jackson-databind:2.8.8 (*)
+|         +--- org.springframework:spring-core:4.3.8.RELEASE
+|         \--- org.springframework:spring-context:4.3.8.RELEASE (*)
++--- org.apache.activemq:activemq-broker:5.14.5 (*)
++--- org.apache.activemq:activemq-pool:5.14.5
+|    +--- org.slf4j:slf4j-api:1.7.13 -> 1.7.25
+|    +--- org.apache.activemq:activemq-jms-pool:5.14.5
+|    |    +--- org.slf4j:slf4j-api:1.7.13 -> 1.7.25
+|    |    +--- org.apache.geronimo.specs:geronimo-jms_1.1_spec:1.1.1
+|    |    +--- org.apache.geronimo.specs:geronimo-jta_1.0.1B_spec:1.0.1
+|    |    \--- org.apache.commons:commons-pool2:2.4.2
+|    +--- org.apache.activemq:activemq-client:5.14.5 (*)
+|    +--- org.apache.geronimo.specs:geronimo-jta_1.0.1B_spec:1.0.1
+|    \--- org.apache.commons:commons-pool2:2.4.2
 +--- org.jolokia:jolokia-core:1.3.6
 |    \--- com.googlecode.json-simple:json-simple:1.1.1
-+--- org.apache.activemq:activemq-broker: -> 5.14.5 (*)
-\--- com.fasterxml.jackson.core:jackson-databind: -> 2.8.8 (*)
++--- com.google.guava:guava:22.0
+|    +--- com.google.code.findbugs:jsr305:1.3.9
+|    +--- com.google.errorprone:error_prone_annotations:2.0.18
+|    +--- com.google.j2objc:j2objc-annotations:1.1
+|    \--- org.codehaus.mojo:animal-sniffer-annotations:1.14
++--- org.apache.commons:commons-lang3:3.0
++--- com.h2database:h2:1.4.194
+\--- commons-io:commons-io:2.5
 
 default - Configuration for default artifacts.
-+--- org.springframework.boot:spring-boot-starter-activemq: -> 1.5.3.RELEASE
++--- org.springframework.boot:spring-boot-starter-jdbc:1.5.3.RELEASE
 |    +--- org.springframework.boot:spring-boot-starter:1.5.3.RELEASE
 |    |    +--- org.springframework.boot:spring-boot:1.5.3.RELEASE
 |    |    |    +--- org.springframework:spring-core:4.3.8.RELEASE
@@ -272,6 +384,20 @@ default - Configuration for default artifacts.
 |    |    |         \--- org.slf4j:slf4j-api:1.7.25
 |    |    +--- org.springframework:spring-core:4.3.8.RELEASE
 |    |    \--- org.yaml:snakeyaml:1.17
+|    +--- org.apache.tomcat:tomcat-jdbc:8.5.14
+|    |    \--- org.apache.tomcat:tomcat-juli:8.5.14
+|    \--- org.springframework:spring-jdbc:4.3.8.RELEASE
+|         +--- org.springframework:spring-beans:4.3.8.RELEASE (*)
+|         +--- org.springframework:spring-core:4.3.8.RELEASE
+|         \--- org.springframework:spring-tx:4.3.8.RELEASE
+|              +--- org.springframework:spring-beans:4.3.8.RELEASE (*)
+|              \--- org.springframework:spring-core:4.3.8.RELEASE
++--- org.springframework.boot:spring-boot-starter-aop:1.5.3.RELEASE
+|    +--- org.springframework.boot:spring-boot-starter:1.5.3.RELEASE (*)
+|    +--- org.springframework:spring-aop:4.3.8.RELEASE (*)
+|    \--- org.aspectj:aspectjweaver:1.8.10
++--- org.springframework.boot:spring-boot-starter-activemq:1.5.3.RELEASE
+|    +--- org.springframework.boot:spring-boot-starter:1.5.3.RELEASE (*)
 |    +--- org.springframework:spring-jms:4.3.8.RELEASE
 |    |    +--- org.springframework:spring-aop:4.3.8.RELEASE (*)
 |    |    +--- org.springframework:spring-beans:4.3.8.RELEASE (*)
@@ -281,9 +407,7 @@ default - Configuration for default artifacts.
 |    |    |    +--- org.springframework:spring-beans:4.3.8.RELEASE (*)
 |    |    |    +--- org.springframework:spring-context:4.3.8.RELEASE (*)
 |    |    |    \--- org.springframework:spring-core:4.3.8.RELEASE
-|    |    \--- org.springframework:spring-tx:4.3.8.RELEASE
-|    |         +--- org.springframework:spring-beans:4.3.8.RELEASE (*)
-|    |         \--- org.springframework:spring-core:4.3.8.RELEASE
+|    |    \--- org.springframework:spring-tx:4.3.8.RELEASE (*)
 |    \--- org.apache.activemq:activemq-broker:5.14.5
 |         +--- org.apache.activemq:activemq-client:5.14.5
 |         |    +--- org.slf4j:slf4j-api:1.7.13 -> 1.7.25
@@ -292,7 +416,7 @@ default - Configuration for default artifacts.
 |         |    \--- org.apache.geronimo.specs:geronimo-j2ee-management_1.1_spec:1.0.1
 |         \--- org.apache.activemq:activemq-openwire-legacy:5.14.5
 |              \--- org.apache.activemq:activemq-client:5.14.5 (*)
-+--- org.springframework.boot:spring-boot-starter-web: -> 1.5.3.RELEASE
++--- org.springframework.boot:spring-boot-starter-web:1.5.3.RELEASE
 |    +--- org.springframework.boot:spring-boot-starter:1.5.3.RELEASE (*)
 |    +--- org.springframework.boot:spring-boot-starter-tomcat:1.5.3.RELEASE
 |    |    +--- org.apache.tomcat.embed:tomcat-embed-core:8.5.14
@@ -318,13 +442,38 @@ default - Configuration for default artifacts.
 |         +--- org.springframework:spring-core:4.3.8.RELEASE
 |         +--- org.springframework:spring-expression:4.3.8.RELEASE (*)
 |         \--- org.springframework:spring-web:4.3.8.RELEASE (*)
++--- org.springframework.boot:spring-boot-starter-actuator:1.5.3.RELEASE
+|    +--- org.springframework.boot:spring-boot-starter:1.5.3.RELEASE (*)
+|    \--- org.springframework.boot:spring-boot-actuator:1.5.3.RELEASE
+|         +--- org.springframework.boot:spring-boot:1.5.3.RELEASE (*)
+|         +--- org.springframework.boot:spring-boot-autoconfigure:1.5.3.RELEASE (*)
+|         +--- com.fasterxml.jackson.core:jackson-databind:2.8.8 (*)
+|         +--- org.springframework:spring-core:4.3.8.RELEASE
+|         \--- org.springframework:spring-context:4.3.8.RELEASE (*)
++--- org.apache.activemq:activemq-broker:5.14.5 (*)
++--- org.apache.activemq:activemq-pool:5.14.5
+|    +--- org.slf4j:slf4j-api:1.7.13 -> 1.7.25
+|    +--- org.apache.activemq:activemq-jms-pool:5.14.5
+|    |    +--- org.slf4j:slf4j-api:1.7.13 -> 1.7.25
+|    |    +--- org.apache.geronimo.specs:geronimo-jms_1.1_spec:1.1.1
+|    |    +--- org.apache.geronimo.specs:geronimo-jta_1.0.1B_spec:1.0.1
+|    |    \--- org.apache.commons:commons-pool2:2.4.2
+|    +--- org.apache.activemq:activemq-client:5.14.5 (*)
+|    +--- org.apache.geronimo.specs:geronimo-jta_1.0.1B_spec:1.0.1
+|    \--- org.apache.commons:commons-pool2:2.4.2
 +--- org.jolokia:jolokia-core:1.3.6
 |    \--- com.googlecode.json-simple:json-simple:1.1.1
-+--- org.apache.activemq:activemq-broker: -> 5.14.5 (*)
-\--- com.fasterxml.jackson.core:jackson-databind: -> 2.8.8 (*)
++--- com.google.guava:guava:22.0
+|    +--- com.google.code.findbugs:jsr305:1.3.9
+|    +--- com.google.errorprone:error_prone_annotations:2.0.18
+|    +--- com.google.j2objc:j2objc-annotations:1.1
+|    \--- org.codehaus.mojo:animal-sniffer-annotations:1.14
++--- org.apache.commons:commons-lang3:3.0
++--- com.h2database:h2:1.4.194
+\--- commons-io:commons-io:2.5
 
 runtime - Runtime dependencies for source set 'main'.
-+--- org.springframework.boot:spring-boot-starter-activemq: -> 1.5.3.RELEASE
++--- org.springframework.boot:spring-boot-starter-jdbc:1.5.3.RELEASE
 |    +--- org.springframework.boot:spring-boot-starter:1.5.3.RELEASE
 |    |    +--- org.springframework.boot:spring-boot:1.5.3.RELEASE
 |    |    |    +--- org.springframework:spring-core:4.3.8.RELEASE
@@ -351,6 +500,20 @@ runtime - Runtime dependencies for source set 'main'.
 |    |    |         \--- org.slf4j:slf4j-api:1.7.25
 |    |    +--- org.springframework:spring-core:4.3.8.RELEASE
 |    |    \--- org.yaml:snakeyaml:1.17
+|    +--- org.apache.tomcat:tomcat-jdbc:8.5.14
+|    |    \--- org.apache.tomcat:tomcat-juli:8.5.14
+|    \--- org.springframework:spring-jdbc:4.3.8.RELEASE
+|         +--- org.springframework:spring-beans:4.3.8.RELEASE (*)
+|         +--- org.springframework:spring-core:4.3.8.RELEASE
+|         \--- org.springframework:spring-tx:4.3.8.RELEASE
+|              +--- org.springframework:spring-beans:4.3.8.RELEASE (*)
+|              \--- org.springframework:spring-core:4.3.8.RELEASE
++--- org.springframework.boot:spring-boot-starter-aop:1.5.3.RELEASE
+|    +--- org.springframework.boot:spring-boot-starter:1.5.3.RELEASE (*)
+|    +--- org.springframework:spring-aop:4.3.8.RELEASE (*)
+|    \--- org.aspectj:aspectjweaver:1.8.10
++--- org.springframework.boot:spring-boot-starter-activemq:1.5.3.RELEASE
+|    +--- org.springframework.boot:spring-boot-starter:1.5.3.RELEASE (*)
 |    +--- org.springframework:spring-jms:4.3.8.RELEASE
 |    |    +--- org.springframework:spring-aop:4.3.8.RELEASE (*)
 |    |    +--- org.springframework:spring-beans:4.3.8.RELEASE (*)
@@ -360,9 +523,7 @@ runtime - Runtime dependencies for source set 'main'.
 |    |    |    +--- org.springframework:spring-beans:4.3.8.RELEASE (*)
 |    |    |    +--- org.springframework:spring-context:4.3.8.RELEASE (*)
 |    |    |    \--- org.springframework:spring-core:4.3.8.RELEASE
-|    |    \--- org.springframework:spring-tx:4.3.8.RELEASE
-|    |         +--- org.springframework:spring-beans:4.3.8.RELEASE (*)
-|    |         \--- org.springframework:spring-core:4.3.8.RELEASE
+|    |    \--- org.springframework:spring-tx:4.3.8.RELEASE (*)
 |    \--- org.apache.activemq:activemq-broker:5.14.5
 |         +--- org.apache.activemq:activemq-client:5.14.5
 |         |    +--- org.slf4j:slf4j-api:1.7.13 -> 1.7.25
@@ -371,7 +532,7 @@ runtime - Runtime dependencies for source set 'main'.
 |         |    \--- org.apache.geronimo.specs:geronimo-j2ee-management_1.1_spec:1.0.1
 |         \--- org.apache.activemq:activemq-openwire-legacy:5.14.5
 |              \--- org.apache.activemq:activemq-client:5.14.5 (*)
-+--- org.springframework.boot:spring-boot-starter-web: -> 1.5.3.RELEASE
++--- org.springframework.boot:spring-boot-starter-web:1.5.3.RELEASE
 |    +--- org.springframework.boot:spring-boot-starter:1.5.3.RELEASE (*)
 |    +--- org.springframework.boot:spring-boot-starter-tomcat:1.5.3.RELEASE
 |    |    +--- org.apache.tomcat.embed:tomcat-embed-core:8.5.14
@@ -397,25 +558,51 @@ runtime - Runtime dependencies for source set 'main'.
 |         +--- org.springframework:spring-core:4.3.8.RELEASE
 |         +--- org.springframework:spring-expression:4.3.8.RELEASE (*)
 |         \--- org.springframework:spring-web:4.3.8.RELEASE (*)
++--- org.springframework.boot:spring-boot-starter-actuator:1.5.3.RELEASE
+|    +--- org.springframework.boot:spring-boot-starter:1.5.3.RELEASE (*)
+|    \--- org.springframework.boot:spring-boot-actuator:1.5.3.RELEASE
+|         +--- org.springframework.boot:spring-boot:1.5.3.RELEASE (*)
+|         +--- org.springframework.boot:spring-boot-autoconfigure:1.5.3.RELEASE (*)
+|         +--- com.fasterxml.jackson.core:jackson-databind:2.8.8 (*)
+|         +--- org.springframework:spring-core:4.3.8.RELEASE
+|         \--- org.springframework:spring-context:4.3.8.RELEASE (*)
++--- org.apache.activemq:activemq-broker:5.14.5 (*)
++--- org.apache.activemq:activemq-pool:5.14.5
+|    +--- org.slf4j:slf4j-api:1.7.13 -> 1.7.25
+|    +--- org.apache.activemq:activemq-jms-pool:5.14.5
+|    |    +--- org.slf4j:slf4j-api:1.7.13 -> 1.7.25
+|    |    +--- org.apache.geronimo.specs:geronimo-jms_1.1_spec:1.1.1
+|    |    +--- org.apache.geronimo.specs:geronimo-jta_1.0.1B_spec:1.0.1
+|    |    \--- org.apache.commons:commons-pool2:2.4.2
+|    +--- org.apache.activemq:activemq-client:5.14.5 (*)
+|    +--- org.apache.geronimo.specs:geronimo-jta_1.0.1B_spec:1.0.1
+|    \--- org.apache.commons:commons-pool2:2.4.2
 +--- org.jolokia:jolokia-core:1.3.6
 |    \--- com.googlecode.json-simple:json-simple:1.1.1
-+--- org.apache.activemq:activemq-broker: -> 5.14.5 (*)
-\--- com.fasterxml.jackson.core:jackson-databind: -> 2.8.8 (*)
++--- com.google.guava:guava:22.0
+|    +--- com.google.code.findbugs:jsr305:1.3.9
+|    +--- com.google.errorprone:error_prone_annotations:2.0.18
+|    +--- com.google.j2objc:j2objc-annotations:1.1
+|    \--- org.codehaus.mojo:animal-sniffer-annotations:1.14
++--- org.apache.commons:commons-lang3:3.0
++--- com.h2database:h2:1.4.194
+\--- commons-io:commons-io:2.5
 
 testCompile - Dependencies for source set 'test'.
-+--- org.springframework.boot:spring-boot-starter-activemq: -> 1.5.3.RELEASE
++--- org.springframework.boot:spring-boot-starter-jdbc:1.5.3.RELEASE
 |    +--- org.springframework.boot:spring-boot-starter:1.5.3.RELEASE
 |    |    +--- org.springframework.boot:spring-boot:1.5.3.RELEASE
 |    |    |    +--- org.springframework:spring-core:4.3.8.RELEASE
+|    |    |    |    \--- commons-logging:commons-logging:1.2
 |    |    |    \--- org.springframework:spring-context:4.3.8.RELEASE
 |    |    |         +--- org.springframework:spring-aop:4.3.8.RELEASE
 |    |    |         |    +--- org.springframework:spring-beans:4.3.8.RELEASE
-|    |    |         |    |    \--- org.springframework:spring-core:4.3.8.RELEASE
-|    |    |         |    \--- org.springframework:spring-core:4.3.8.RELEASE
+|    |    |         |    |    \--- org.springframework:spring-core:4.3.8.RELEASE (*)
+|    |    |         |    \--- org.springframework:spring-core:4.3.8.RELEASE (*)
 |    |    |         +--- org.springframework:spring-beans:4.3.8.RELEASE (*)
-|    |    |         +--- org.springframework:spring-core:4.3.8.RELEASE
+|    |    |         +--- org.springframework:spring-core:4.3.8.RELEASE (*)
 |    |    |         \--- org.springframework:spring-expression:4.3.8.RELEASE
-|    |    |              \--- org.springframework:spring-core:4.3.8.RELEASE
+|    |    |              \--- org.springframework:spring-core:4.3.8.RELEASE (*)
 |    |    +--- org.springframework.boot:spring-boot-autoconfigure:1.5.3.RELEASE
 |    |    |    \--- org.springframework.boot:spring-boot:1.5.3.RELEASE (*)
 |    |    +--- org.springframework.boot:spring-boot-starter-logging:1.5.3.RELEASE
@@ -428,20 +615,32 @@ testCompile - Dependencies for source set 'test'.
 |    |    |    |    \--- org.slf4j:slf4j-api:1.7.25
 |    |    |    \--- org.slf4j:log4j-over-slf4j:1.7.25
 |    |    |         \--- org.slf4j:slf4j-api:1.7.25
-|    |    +--- org.springframework:spring-core:4.3.8.RELEASE
+|    |    +--- org.springframework:spring-core:4.3.8.RELEASE (*)
 |    |    \--- org.yaml:snakeyaml:1.17
+|    +--- org.apache.tomcat:tomcat-jdbc:8.5.14
+|    |    \--- org.apache.tomcat:tomcat-juli:8.5.14
+|    \--- org.springframework:spring-jdbc:4.3.8.RELEASE
+|         +--- org.springframework:spring-beans:4.3.8.RELEASE (*)
+|         +--- org.springframework:spring-core:4.3.8.RELEASE (*)
+|         \--- org.springframework:spring-tx:4.3.8.RELEASE
+|              +--- org.springframework:spring-beans:4.3.8.RELEASE (*)
+|              \--- org.springframework:spring-core:4.3.8.RELEASE (*)
++--- org.springframework.boot:spring-boot-starter-aop:1.5.3.RELEASE
+|    +--- org.springframework.boot:spring-boot-starter:1.5.3.RELEASE (*)
+|    +--- org.springframework:spring-aop:4.3.8.RELEASE (*)
+|    \--- org.aspectj:aspectjweaver:1.8.10
++--- org.springframework.boot:spring-boot-starter-activemq:1.5.3.RELEASE
+|    +--- org.springframework.boot:spring-boot-starter:1.5.3.RELEASE (*)
 |    +--- org.springframework:spring-jms:4.3.8.RELEASE
 |    |    +--- org.springframework:spring-aop:4.3.8.RELEASE (*)
 |    |    +--- org.springframework:spring-beans:4.3.8.RELEASE (*)
 |    |    +--- org.springframework:spring-context:4.3.8.RELEASE (*)
-|    |    +--- org.springframework:spring-core:4.3.8.RELEASE
+|    |    +--- org.springframework:spring-core:4.3.8.RELEASE (*)
 |    |    +--- org.springframework:spring-messaging:4.3.8.RELEASE
 |    |    |    +--- org.springframework:spring-beans:4.3.8.RELEASE (*)
 |    |    |    +--- org.springframework:spring-context:4.3.8.RELEASE (*)
-|    |    |    \--- org.springframework:spring-core:4.3.8.RELEASE
-|    |    \--- org.springframework:spring-tx:4.3.8.RELEASE
-|    |         +--- org.springframework:spring-beans:4.3.8.RELEASE (*)
-|    |         \--- org.springframework:spring-core:4.3.8.RELEASE
+|    |    |    \--- org.springframework:spring-core:4.3.8.RELEASE (*)
+|    |    \--- org.springframework:spring-tx:4.3.8.RELEASE (*)
 |    \--- org.apache.activemq:activemq-broker:5.14.5
 |         +--- org.apache.activemq:activemq-client:5.14.5
 |         |    +--- org.slf4j:slf4j-api:1.7.13 -> 1.7.25
@@ -450,7 +649,7 @@ testCompile - Dependencies for source set 'test'.
 |         |    \--- org.apache.geronimo.specs:geronimo-j2ee-management_1.1_spec:1.0.1
 |         \--- org.apache.activemq:activemq-openwire-legacy:5.14.5
 |              \--- org.apache.activemq:activemq-client:5.14.5 (*)
-+--- org.springframework.boot:spring-boot-starter-web: -> 1.5.3.RELEASE
++--- org.springframework.boot:spring-boot-starter-web:1.5.3.RELEASE
 |    +--- org.springframework.boot:spring-boot-starter:1.5.3.RELEASE (*)
 |    +--- org.springframework.boot:spring-boot-starter-tomcat:1.5.3.RELEASE
 |    |    +--- org.apache.tomcat.embed:tomcat-embed-core:8.5.14
@@ -468,33 +667,87 @@ testCompile - Dependencies for source set 'test'.
 |    |    +--- org.springframework:spring-aop:4.3.8.RELEASE (*)
 |    |    +--- org.springframework:spring-beans:4.3.8.RELEASE (*)
 |    |    +--- org.springframework:spring-context:4.3.8.RELEASE (*)
-|    |    \--- org.springframework:spring-core:4.3.8.RELEASE
+|    |    \--- org.springframework:spring-core:4.3.8.RELEASE (*)
 |    \--- org.springframework:spring-webmvc:4.3.8.RELEASE
 |         +--- org.springframework:spring-aop:4.3.8.RELEASE (*)
 |         +--- org.springframework:spring-beans:4.3.8.RELEASE (*)
 |         +--- org.springframework:spring-context:4.3.8.RELEASE (*)
-|         +--- org.springframework:spring-core:4.3.8.RELEASE
+|         +--- org.springframework:spring-core:4.3.8.RELEASE (*)
 |         +--- org.springframework:spring-expression:4.3.8.RELEASE (*)
 |         \--- org.springframework:spring-web:4.3.8.RELEASE (*)
++--- org.springframework.boot:spring-boot-starter-actuator:1.5.3.RELEASE
+|    +--- org.springframework.boot:spring-boot-starter:1.5.3.RELEASE (*)
+|    \--- org.springframework.boot:spring-boot-actuator:1.5.3.RELEASE
+|         +--- org.springframework.boot:spring-boot:1.5.3.RELEASE (*)
+|         +--- org.springframework.boot:spring-boot-autoconfigure:1.5.3.RELEASE (*)
+|         +--- com.fasterxml.jackson.core:jackson-databind:2.8.8 (*)
+|         +--- org.springframework:spring-core:4.3.8.RELEASE (*)
+|         \--- org.springframework:spring-context:4.3.8.RELEASE (*)
++--- org.apache.activemq:activemq-broker:5.14.5 (*)
++--- org.apache.activemq:activemq-pool:5.14.5
+|    +--- org.slf4j:slf4j-api:1.7.13 -> 1.7.25
+|    +--- org.apache.activemq:activemq-jms-pool:5.14.5
+|    |    +--- org.slf4j:slf4j-api:1.7.13 -> 1.7.25
+|    |    +--- org.apache.geronimo.specs:geronimo-jms_1.1_spec:1.1.1
+|    |    +--- org.apache.geronimo.specs:geronimo-jta_1.0.1B_spec:1.0.1
+|    |    \--- org.apache.commons:commons-pool2:2.4.2
+|    +--- org.apache.activemq:activemq-client:5.14.5 (*)
+|    +--- org.apache.geronimo.specs:geronimo-jta_1.0.1B_spec:1.0.1
+|    \--- org.apache.commons:commons-pool2:2.4.2
 +--- org.jolokia:jolokia-core:1.3.6
 |    \--- com.googlecode.json-simple:json-simple:1.1.1
-+--- org.apache.activemq:activemq-broker: -> 5.14.5 (*)
-\--- com.fasterxml.jackson.core:jackson-databind: -> 2.8.8 (*)
++--- com.google.guava:guava:22.0
+|    +--- com.google.code.findbugs:jsr305:1.3.9
+|    +--- com.google.errorprone:error_prone_annotations:2.0.18
+|    +--- com.google.j2objc:j2objc-annotations:1.1
+|    \--- org.codehaus.mojo:animal-sniffer-annotations:1.14
++--- org.apache.commons:commons-lang3:3.0
++--- com.h2database:h2:1.4.194
++--- commons-io:commons-io:2.5
++--- org.springframework.boot:spring-boot-starter-test:1.5.3.RELEASE
+|    +--- org.springframework.boot:spring-boot-test:1.5.3.RELEASE
+|    |    \--- org.springframework.boot:spring-boot:1.5.3.RELEASE (*)
+|    +--- org.springframework.boot:spring-boot-test-autoconfigure:1.5.3.RELEASE
+|    |    +--- org.springframework.boot:spring-boot-test:1.5.3.RELEASE (*)
+|    |    \--- org.springframework.boot:spring-boot-autoconfigure:1.5.3.RELEASE (*)
+|    +--- com.jayway.jsonpath:json-path:2.2.0
+|    |    +--- net.minidev:json-smart:2.2.1
+|    |    |    \--- net.minidev:accessors-smart:1.1
+|    |    |         \--- org.ow2.asm:asm:5.0.3
+|    |    \--- org.slf4j:slf4j-api:1.7.16 -> 1.7.25
+|    +--- junit:junit:4.12
+|    |    \--- org.hamcrest:hamcrest-core:1.3
+|    +--- org.assertj:assertj-core:2.6.0
+|    +--- org.mockito:mockito-core:1.10.19
+|    |    +--- org.hamcrest:hamcrest-core:1.1 -> 1.3
+|    |    \--- org.objenesis:objenesis:2.1
+|    +--- org.hamcrest:hamcrest-core:1.3
+|    +--- org.hamcrest:hamcrest-library:1.3
+|    |    \--- org.hamcrest:hamcrest-core:1.3
+|    +--- org.skyscreamer:jsonassert:1.4.0
+|    |    \--- com.vaadin.external.google:android-json:0.0.20131108.vaadin1
+|    +--- org.springframework:spring-core:4.3.8.RELEASE (*)
+|    \--- org.springframework:spring-test:4.3.8.RELEASE
+|         \--- org.springframework:spring-core:4.3.8.RELEASE (*)
++--- junit:junit:4.12 (*)
+\--- org.apache.xbean:xbean-spring:4.5
+     \--- commons-logging:commons-logging:1.0.3 -> 1.2
 
 testCompileClasspath - Compile classpath for source set 'test'.
-+--- org.springframework.boot:spring-boot-starter-activemq: -> 1.5.3.RELEASE
++--- org.springframework.boot:spring-boot-starter-jdbc:1.5.3.RELEASE
 |    +--- org.springframework.boot:spring-boot-starter:1.5.3.RELEASE
 |    |    +--- org.springframework.boot:spring-boot:1.5.3.RELEASE
 |    |    |    +--- org.springframework:spring-core:4.3.8.RELEASE
+|    |    |    |    \--- commons-logging:commons-logging:1.2
 |    |    |    \--- org.springframework:spring-context:4.3.8.RELEASE
 |    |    |         +--- org.springframework:spring-aop:4.3.8.RELEASE
 |    |    |         |    +--- org.springframework:spring-beans:4.3.8.RELEASE
-|    |    |         |    |    \--- org.springframework:spring-core:4.3.8.RELEASE
-|    |    |         |    \--- org.springframework:spring-core:4.3.8.RELEASE
+|    |    |         |    |    \--- org.springframework:spring-core:4.3.8.RELEASE (*)
+|    |    |         |    \--- org.springframework:spring-core:4.3.8.RELEASE (*)
 |    |    |         +--- org.springframework:spring-beans:4.3.8.RELEASE (*)
-|    |    |         +--- org.springframework:spring-core:4.3.8.RELEASE
+|    |    |         +--- org.springframework:spring-core:4.3.8.RELEASE (*)
 |    |    |         \--- org.springframework:spring-expression:4.3.8.RELEASE
-|    |    |              \--- org.springframework:spring-core:4.3.8.RELEASE
+|    |    |              \--- org.springframework:spring-core:4.3.8.RELEASE (*)
 |    |    +--- org.springframework.boot:spring-boot-autoconfigure:1.5.3.RELEASE
 |    |    |    \--- org.springframework.boot:spring-boot:1.5.3.RELEASE (*)
 |    |    +--- org.springframework.boot:spring-boot-starter-logging:1.5.3.RELEASE
@@ -507,20 +760,32 @@ testCompileClasspath - Compile classpath for source set 'test'.
 |    |    |    |    \--- org.slf4j:slf4j-api:1.7.25
 |    |    |    \--- org.slf4j:log4j-over-slf4j:1.7.25
 |    |    |         \--- org.slf4j:slf4j-api:1.7.25
-|    |    +--- org.springframework:spring-core:4.3.8.RELEASE
+|    |    +--- org.springframework:spring-core:4.3.8.RELEASE (*)
 |    |    \--- org.yaml:snakeyaml:1.17
+|    +--- org.apache.tomcat:tomcat-jdbc:8.5.14
+|    |    \--- org.apache.tomcat:tomcat-juli:8.5.14
+|    \--- org.springframework:spring-jdbc:4.3.8.RELEASE
+|         +--- org.springframework:spring-beans:4.3.8.RELEASE (*)
+|         +--- org.springframework:spring-core:4.3.8.RELEASE (*)
+|         \--- org.springframework:spring-tx:4.3.8.RELEASE
+|              +--- org.springframework:spring-beans:4.3.8.RELEASE (*)
+|              \--- org.springframework:spring-core:4.3.8.RELEASE (*)
++--- org.springframework.boot:spring-boot-starter-aop:1.5.3.RELEASE
+|    +--- org.springframework.boot:spring-boot-starter:1.5.3.RELEASE (*)
+|    +--- org.springframework:spring-aop:4.3.8.RELEASE (*)
+|    \--- org.aspectj:aspectjweaver:1.8.10
++--- org.springframework.boot:spring-boot-starter-activemq:1.5.3.RELEASE
+|    +--- org.springframework.boot:spring-boot-starter:1.5.3.RELEASE (*)
 |    +--- org.springframework:spring-jms:4.3.8.RELEASE
 |    |    +--- org.springframework:spring-aop:4.3.8.RELEASE (*)
 |    |    +--- org.springframework:spring-beans:4.3.8.RELEASE (*)
 |    |    +--- org.springframework:spring-context:4.3.8.RELEASE (*)
-|    |    +--- org.springframework:spring-core:4.3.8.RELEASE
+|    |    +--- org.springframework:spring-core:4.3.8.RELEASE (*)
 |    |    +--- org.springframework:spring-messaging:4.3.8.RELEASE
 |    |    |    +--- org.springframework:spring-beans:4.3.8.RELEASE (*)
 |    |    |    +--- org.springframework:spring-context:4.3.8.RELEASE (*)
-|    |    |    \--- org.springframework:spring-core:4.3.8.RELEASE
-|    |    \--- org.springframework:spring-tx:4.3.8.RELEASE
-|    |         +--- org.springframework:spring-beans:4.3.8.RELEASE (*)
-|    |         \--- org.springframework:spring-core:4.3.8.RELEASE
+|    |    |    \--- org.springframework:spring-core:4.3.8.RELEASE (*)
+|    |    \--- org.springframework:spring-tx:4.3.8.RELEASE (*)
 |    \--- org.apache.activemq:activemq-broker:5.14.5
 |         +--- org.apache.activemq:activemq-client:5.14.5
 |         |    +--- org.slf4j:slf4j-api:1.7.13 -> 1.7.25
@@ -529,7 +794,7 @@ testCompileClasspath - Compile classpath for source set 'test'.
 |         |    \--- org.apache.geronimo.specs:geronimo-j2ee-management_1.1_spec:1.0.1
 |         \--- org.apache.activemq:activemq-openwire-legacy:5.14.5
 |              \--- org.apache.activemq:activemq-client:5.14.5 (*)
-+--- org.springframework.boot:spring-boot-starter-web: -> 1.5.3.RELEASE
++--- org.springframework.boot:spring-boot-starter-web:1.5.3.RELEASE
 |    +--- org.springframework.boot:spring-boot-starter:1.5.3.RELEASE (*)
 |    +--- org.springframework.boot:spring-boot-starter-tomcat:1.5.3.RELEASE
 |    |    +--- org.apache.tomcat.embed:tomcat-embed-core:8.5.14
@@ -547,33 +812,87 @@ testCompileClasspath - Compile classpath for source set 'test'.
 |    |    +--- org.springframework:spring-aop:4.3.8.RELEASE (*)
 |    |    +--- org.springframework:spring-beans:4.3.8.RELEASE (*)
 |    |    +--- org.springframework:spring-context:4.3.8.RELEASE (*)
-|    |    \--- org.springframework:spring-core:4.3.8.RELEASE
+|    |    \--- org.springframework:spring-core:4.3.8.RELEASE (*)
 |    \--- org.springframework:spring-webmvc:4.3.8.RELEASE
 |         +--- org.springframework:spring-aop:4.3.8.RELEASE (*)
 |         +--- org.springframework:spring-beans:4.3.8.RELEASE (*)
 |         +--- org.springframework:spring-context:4.3.8.RELEASE (*)
-|         +--- org.springframework:spring-core:4.3.8.RELEASE
+|         +--- org.springframework:spring-core:4.3.8.RELEASE (*)
 |         +--- org.springframework:spring-expression:4.3.8.RELEASE (*)
 |         \--- org.springframework:spring-web:4.3.8.RELEASE (*)
++--- org.springframework.boot:spring-boot-starter-actuator:1.5.3.RELEASE
+|    +--- org.springframework.boot:spring-boot-starter:1.5.3.RELEASE (*)
+|    \--- org.springframework.boot:spring-boot-actuator:1.5.3.RELEASE
+|         +--- org.springframework.boot:spring-boot:1.5.3.RELEASE (*)
+|         +--- org.springframework.boot:spring-boot-autoconfigure:1.5.3.RELEASE (*)
+|         +--- com.fasterxml.jackson.core:jackson-databind:2.8.8 (*)
+|         +--- org.springframework:spring-core:4.3.8.RELEASE (*)
+|         \--- org.springframework:spring-context:4.3.8.RELEASE (*)
++--- org.apache.activemq:activemq-broker:5.14.5 (*)
++--- org.apache.activemq:activemq-pool:5.14.5
+|    +--- org.slf4j:slf4j-api:1.7.13 -> 1.7.25
+|    +--- org.apache.activemq:activemq-jms-pool:5.14.5
+|    |    +--- org.slf4j:slf4j-api:1.7.13 -> 1.7.25
+|    |    +--- org.apache.geronimo.specs:geronimo-jms_1.1_spec:1.1.1
+|    |    +--- org.apache.geronimo.specs:geronimo-jta_1.0.1B_spec:1.0.1
+|    |    \--- org.apache.commons:commons-pool2:2.4.2
+|    +--- org.apache.activemq:activemq-client:5.14.5 (*)
+|    +--- org.apache.geronimo.specs:geronimo-jta_1.0.1B_spec:1.0.1
+|    \--- org.apache.commons:commons-pool2:2.4.2
 +--- org.jolokia:jolokia-core:1.3.6
 |    \--- com.googlecode.json-simple:json-simple:1.1.1
-+--- org.apache.activemq:activemq-broker: -> 5.14.5 (*)
-\--- com.fasterxml.jackson.core:jackson-databind: -> 2.8.8 (*)
++--- com.google.guava:guava:22.0
+|    +--- com.google.code.findbugs:jsr305:1.3.9
+|    +--- com.google.errorprone:error_prone_annotations:2.0.18
+|    +--- com.google.j2objc:j2objc-annotations:1.1
+|    \--- org.codehaus.mojo:animal-sniffer-annotations:1.14
++--- org.apache.commons:commons-lang3:3.0
++--- com.h2database:h2:1.4.194
++--- commons-io:commons-io:2.5
++--- org.springframework.boot:spring-boot-starter-test:1.5.3.RELEASE
+|    +--- org.springframework.boot:spring-boot-test:1.5.3.RELEASE
+|    |    \--- org.springframework.boot:spring-boot:1.5.3.RELEASE (*)
+|    +--- org.springframework.boot:spring-boot-test-autoconfigure:1.5.3.RELEASE
+|    |    +--- org.springframework.boot:spring-boot-test:1.5.3.RELEASE (*)
+|    |    \--- org.springframework.boot:spring-boot-autoconfigure:1.5.3.RELEASE (*)
+|    +--- com.jayway.jsonpath:json-path:2.2.0
+|    |    +--- net.minidev:json-smart:2.2.1
+|    |    |    \--- net.minidev:accessors-smart:1.1
+|    |    |         \--- org.ow2.asm:asm:5.0.3
+|    |    \--- org.slf4j:slf4j-api:1.7.16 -> 1.7.25
+|    +--- junit:junit:4.12
+|    |    \--- org.hamcrest:hamcrest-core:1.3
+|    +--- org.assertj:assertj-core:2.6.0
+|    +--- org.mockito:mockito-core:1.10.19
+|    |    +--- org.hamcrest:hamcrest-core:1.1 -> 1.3
+|    |    \--- org.objenesis:objenesis:2.1
+|    +--- org.hamcrest:hamcrest-core:1.3
+|    +--- org.hamcrest:hamcrest-library:1.3
+|    |    \--- org.hamcrest:hamcrest-core:1.3
+|    +--- org.skyscreamer:jsonassert:1.4.0
+|    |    \--- com.vaadin.external.google:android-json:0.0.20131108.vaadin1
+|    +--- org.springframework:spring-core:4.3.8.RELEASE (*)
+|    \--- org.springframework:spring-test:4.3.8.RELEASE
+|         \--- org.springframework:spring-core:4.3.8.RELEASE (*)
++--- junit:junit:4.12 (*)
+\--- org.apache.xbean:xbean-spring:4.5
+     \--- commons-logging:commons-logging:1.0.3 -> 1.2
 
 testCompileOnly - Compile dependencies for source set 'test'.
-+--- org.springframework.boot:spring-boot-starter-activemq: -> 1.5.3.RELEASE
++--- org.springframework.boot:spring-boot-starter-jdbc:1.5.3.RELEASE
 |    +--- org.springframework.boot:spring-boot-starter:1.5.3.RELEASE
 |    |    +--- org.springframework.boot:spring-boot:1.5.3.RELEASE
 |    |    |    +--- org.springframework:spring-core:4.3.8.RELEASE
+|    |    |    |    \--- commons-logging:commons-logging:1.2
 |    |    |    \--- org.springframework:spring-context:4.3.8.RELEASE
 |    |    |         +--- org.springframework:spring-aop:4.3.8.RELEASE
 |    |    |         |    +--- org.springframework:spring-beans:4.3.8.RELEASE
-|    |    |         |    |    \--- org.springframework:spring-core:4.3.8.RELEASE
-|    |    |         |    \--- org.springframework:spring-core:4.3.8.RELEASE
+|    |    |         |    |    \--- org.springframework:spring-core:4.3.8.RELEASE (*)
+|    |    |         |    \--- org.springframework:spring-core:4.3.8.RELEASE (*)
 |    |    |         +--- org.springframework:spring-beans:4.3.8.RELEASE (*)
-|    |    |         +--- org.springframework:spring-core:4.3.8.RELEASE
+|    |    |         +--- org.springframework:spring-core:4.3.8.RELEASE (*)
 |    |    |         \--- org.springframework:spring-expression:4.3.8.RELEASE
-|    |    |              \--- org.springframework:spring-core:4.3.8.RELEASE
+|    |    |              \--- org.springframework:spring-core:4.3.8.RELEASE (*)
 |    |    +--- org.springframework.boot:spring-boot-autoconfigure:1.5.3.RELEASE
 |    |    |    \--- org.springframework.boot:spring-boot:1.5.3.RELEASE (*)
 |    |    +--- org.springframework.boot:spring-boot-starter-logging:1.5.3.RELEASE
@@ -586,20 +905,32 @@ testCompileOnly - Compile dependencies for source set 'test'.
 |    |    |    |    \--- org.slf4j:slf4j-api:1.7.25
 |    |    |    \--- org.slf4j:log4j-over-slf4j:1.7.25
 |    |    |         \--- org.slf4j:slf4j-api:1.7.25
-|    |    +--- org.springframework:spring-core:4.3.8.RELEASE
+|    |    +--- org.springframework:spring-core:4.3.8.RELEASE (*)
 |    |    \--- org.yaml:snakeyaml:1.17
+|    +--- org.apache.tomcat:tomcat-jdbc:8.5.14
+|    |    \--- org.apache.tomcat:tomcat-juli:8.5.14
+|    \--- org.springframework:spring-jdbc:4.3.8.RELEASE
+|         +--- org.springframework:spring-beans:4.3.8.RELEASE (*)
+|         +--- org.springframework:spring-core:4.3.8.RELEASE (*)
+|         \--- org.springframework:spring-tx:4.3.8.RELEASE
+|              +--- org.springframework:spring-beans:4.3.8.RELEASE (*)
+|              \--- org.springframework:spring-core:4.3.8.RELEASE (*)
++--- org.springframework.boot:spring-boot-starter-aop:1.5.3.RELEASE
+|    +--- org.springframework.boot:spring-boot-starter:1.5.3.RELEASE (*)
+|    +--- org.springframework:spring-aop:4.3.8.RELEASE (*)
+|    \--- org.aspectj:aspectjweaver:1.8.10
++--- org.springframework.boot:spring-boot-starter-activemq:1.5.3.RELEASE
+|    +--- org.springframework.boot:spring-boot-starter:1.5.3.RELEASE (*)
 |    +--- org.springframework:spring-jms:4.3.8.RELEASE
 |    |    +--- org.springframework:spring-aop:4.3.8.RELEASE (*)
 |    |    +--- org.springframework:spring-beans:4.3.8.RELEASE (*)
 |    |    +--- org.springframework:spring-context:4.3.8.RELEASE (*)
-|    |    +--- org.springframework:spring-core:4.3.8.RELEASE
+|    |    +--- org.springframework:spring-core:4.3.8.RELEASE (*)
 |    |    +--- org.springframework:spring-messaging:4.3.8.RELEASE
 |    |    |    +--- org.springframework:spring-beans:4.3.8.RELEASE (*)
 |    |    |    +--- org.springframework:spring-context:4.3.8.RELEASE (*)
-|    |    |    \--- org.springframework:spring-core:4.3.8.RELEASE
-|    |    \--- org.springframework:spring-tx:4.3.8.RELEASE
-|    |         +--- org.springframework:spring-beans:4.3.8.RELEASE (*)
-|    |         \--- org.springframework:spring-core:4.3.8.RELEASE
+|    |    |    \--- org.springframework:spring-core:4.3.8.RELEASE (*)
+|    |    \--- org.springframework:spring-tx:4.3.8.RELEASE (*)
 |    \--- org.apache.activemq:activemq-broker:5.14.5
 |         +--- org.apache.activemq:activemq-client:5.14.5
 |         |    +--- org.slf4j:slf4j-api:1.7.13 -> 1.7.25
@@ -608,7 +939,7 @@ testCompileOnly - Compile dependencies for source set 'test'.
 |         |    \--- org.apache.geronimo.specs:geronimo-j2ee-management_1.1_spec:1.0.1
 |         \--- org.apache.activemq:activemq-openwire-legacy:5.14.5
 |              \--- org.apache.activemq:activemq-client:5.14.5 (*)
-+--- org.springframework.boot:spring-boot-starter-web: -> 1.5.3.RELEASE
++--- org.springframework.boot:spring-boot-starter-web:1.5.3.RELEASE
 |    +--- org.springframework.boot:spring-boot-starter:1.5.3.RELEASE (*)
 |    +--- org.springframework.boot:spring-boot-starter-tomcat:1.5.3.RELEASE
 |    |    +--- org.apache.tomcat.embed:tomcat-embed-core:8.5.14
@@ -626,33 +957,87 @@ testCompileOnly - Compile dependencies for source set 'test'.
 |    |    +--- org.springframework:spring-aop:4.3.8.RELEASE (*)
 |    |    +--- org.springframework:spring-beans:4.3.8.RELEASE (*)
 |    |    +--- org.springframework:spring-context:4.3.8.RELEASE (*)
-|    |    \--- org.springframework:spring-core:4.3.8.RELEASE
+|    |    \--- org.springframework:spring-core:4.3.8.RELEASE (*)
 |    \--- org.springframework:spring-webmvc:4.3.8.RELEASE
 |         +--- org.springframework:spring-aop:4.3.8.RELEASE (*)
 |         +--- org.springframework:spring-beans:4.3.8.RELEASE (*)
 |         +--- org.springframework:spring-context:4.3.8.RELEASE (*)
-|         +--- org.springframework:spring-core:4.3.8.RELEASE
+|         +--- org.springframework:spring-core:4.3.8.RELEASE (*)
 |         +--- org.springframework:spring-expression:4.3.8.RELEASE (*)
 |         \--- org.springframework:spring-web:4.3.8.RELEASE (*)
++--- org.springframework.boot:spring-boot-starter-actuator:1.5.3.RELEASE
+|    +--- org.springframework.boot:spring-boot-starter:1.5.3.RELEASE (*)
+|    \--- org.springframework.boot:spring-boot-actuator:1.5.3.RELEASE
+|         +--- org.springframework.boot:spring-boot:1.5.3.RELEASE (*)
+|         +--- org.springframework.boot:spring-boot-autoconfigure:1.5.3.RELEASE (*)
+|         +--- com.fasterxml.jackson.core:jackson-databind:2.8.8 (*)
+|         +--- org.springframework:spring-core:4.3.8.RELEASE (*)
+|         \--- org.springframework:spring-context:4.3.8.RELEASE (*)
++--- org.apache.activemq:activemq-broker:5.14.5 (*)
++--- org.apache.activemq:activemq-pool:5.14.5
+|    +--- org.slf4j:slf4j-api:1.7.13 -> 1.7.25
+|    +--- org.apache.activemq:activemq-jms-pool:5.14.5
+|    |    +--- org.slf4j:slf4j-api:1.7.13 -> 1.7.25
+|    |    +--- org.apache.geronimo.specs:geronimo-jms_1.1_spec:1.1.1
+|    |    +--- org.apache.geronimo.specs:geronimo-jta_1.0.1B_spec:1.0.1
+|    |    \--- org.apache.commons:commons-pool2:2.4.2
+|    +--- org.apache.activemq:activemq-client:5.14.5 (*)
+|    +--- org.apache.geronimo.specs:geronimo-jta_1.0.1B_spec:1.0.1
+|    \--- org.apache.commons:commons-pool2:2.4.2
 +--- org.jolokia:jolokia-core:1.3.6
 |    \--- com.googlecode.json-simple:json-simple:1.1.1
-+--- org.apache.activemq:activemq-broker: -> 5.14.5 (*)
-\--- com.fasterxml.jackson.core:jackson-databind: -> 2.8.8 (*)
++--- com.google.guava:guava:22.0
+|    +--- com.google.code.findbugs:jsr305:1.3.9
+|    +--- com.google.errorprone:error_prone_annotations:2.0.18
+|    +--- com.google.j2objc:j2objc-annotations:1.1
+|    \--- org.codehaus.mojo:animal-sniffer-annotations:1.14
++--- org.apache.commons:commons-lang3:3.0
++--- com.h2database:h2:1.4.194
++--- commons-io:commons-io:2.5
++--- org.springframework.boot:spring-boot-starter-test:1.5.3.RELEASE
+|    +--- org.springframework.boot:spring-boot-test:1.5.3.RELEASE
+|    |    \--- org.springframework.boot:spring-boot:1.5.3.RELEASE (*)
+|    +--- org.springframework.boot:spring-boot-test-autoconfigure:1.5.3.RELEASE
+|    |    +--- org.springframework.boot:spring-boot-test:1.5.3.RELEASE (*)
+|    |    \--- org.springframework.boot:spring-boot-autoconfigure:1.5.3.RELEASE (*)
+|    +--- com.jayway.jsonpath:json-path:2.2.0
+|    |    +--- net.minidev:json-smart:2.2.1
+|    |    |    \--- net.minidev:accessors-smart:1.1
+|    |    |         \--- org.ow2.asm:asm:5.0.3
+|    |    \--- org.slf4j:slf4j-api:1.7.16 -> 1.7.25
+|    +--- junit:junit:4.12
+|    |    \--- org.hamcrest:hamcrest-core:1.3
+|    +--- org.assertj:assertj-core:2.6.0
+|    +--- org.mockito:mockito-core:1.10.19
+|    |    +--- org.hamcrest:hamcrest-core:1.1 -> 1.3
+|    |    \--- org.objenesis:objenesis:2.1
+|    +--- org.hamcrest:hamcrest-core:1.3
+|    +--- org.hamcrest:hamcrest-library:1.3
+|    |    \--- org.hamcrest:hamcrest-core:1.3
+|    +--- org.skyscreamer:jsonassert:1.4.0
+|    |    \--- com.vaadin.external.google:android-json:0.0.20131108.vaadin1
+|    +--- org.springframework:spring-core:4.3.8.RELEASE (*)
+|    \--- org.springframework:spring-test:4.3.8.RELEASE
+|         \--- org.springframework:spring-core:4.3.8.RELEASE (*)
++--- junit:junit:4.12 (*)
+\--- org.apache.xbean:xbean-spring:4.5
+     \--- commons-logging:commons-logging:1.0.3 -> 1.2
 
 testRuntime - Runtime dependencies for source set 'test'.
-+--- org.springframework.boot:spring-boot-starter-activemq: -> 1.5.3.RELEASE
++--- org.springframework.boot:spring-boot-starter-jdbc:1.5.3.RELEASE
 |    +--- org.springframework.boot:spring-boot-starter:1.5.3.RELEASE
 |    |    +--- org.springframework.boot:spring-boot:1.5.3.RELEASE
 |    |    |    +--- org.springframework:spring-core:4.3.8.RELEASE
+|    |    |    |    \--- commons-logging:commons-logging:1.2
 |    |    |    \--- org.springframework:spring-context:4.3.8.RELEASE
 |    |    |         +--- org.springframework:spring-aop:4.3.8.RELEASE
 |    |    |         |    +--- org.springframework:spring-beans:4.3.8.RELEASE
-|    |    |         |    |    \--- org.springframework:spring-core:4.3.8.RELEASE
-|    |    |         |    \--- org.springframework:spring-core:4.3.8.RELEASE
+|    |    |         |    |    \--- org.springframework:spring-core:4.3.8.RELEASE (*)
+|    |    |         |    \--- org.springframework:spring-core:4.3.8.RELEASE (*)
 |    |    |         +--- org.springframework:spring-beans:4.3.8.RELEASE (*)
-|    |    |         +--- org.springframework:spring-core:4.3.8.RELEASE
+|    |    |         +--- org.springframework:spring-core:4.3.8.RELEASE (*)
 |    |    |         \--- org.springframework:spring-expression:4.3.8.RELEASE
-|    |    |              \--- org.springframework:spring-core:4.3.8.RELEASE
+|    |    |              \--- org.springframework:spring-core:4.3.8.RELEASE (*)
 |    |    +--- org.springframework.boot:spring-boot-autoconfigure:1.5.3.RELEASE
 |    |    |    \--- org.springframework.boot:spring-boot:1.5.3.RELEASE (*)
 |    |    +--- org.springframework.boot:spring-boot-starter-logging:1.5.3.RELEASE
@@ -665,20 +1050,32 @@ testRuntime - Runtime dependencies for source set 'test'.
 |    |    |    |    \--- org.slf4j:slf4j-api:1.7.25
 |    |    |    \--- org.slf4j:log4j-over-slf4j:1.7.25
 |    |    |         \--- org.slf4j:slf4j-api:1.7.25
-|    |    +--- org.springframework:spring-core:4.3.8.RELEASE
+|    |    +--- org.springframework:spring-core:4.3.8.RELEASE (*)
 |    |    \--- org.yaml:snakeyaml:1.17
+|    +--- org.apache.tomcat:tomcat-jdbc:8.5.14
+|    |    \--- org.apache.tomcat:tomcat-juli:8.5.14
+|    \--- org.springframework:spring-jdbc:4.3.8.RELEASE
+|         +--- org.springframework:spring-beans:4.3.8.RELEASE (*)
+|         +--- org.springframework:spring-core:4.3.8.RELEASE (*)
+|         \--- org.springframework:spring-tx:4.3.8.RELEASE
+|              +--- org.springframework:spring-beans:4.3.8.RELEASE (*)
+|              \--- org.springframework:spring-core:4.3.8.RELEASE (*)
++--- org.springframework.boot:spring-boot-starter-aop:1.5.3.RELEASE
+|    +--- org.springframework.boot:spring-boot-starter:1.5.3.RELEASE (*)
+|    +--- org.springframework:spring-aop:4.3.8.RELEASE (*)
+|    \--- org.aspectj:aspectjweaver:1.8.10
++--- org.springframework.boot:spring-boot-starter-activemq:1.5.3.RELEASE
+|    +--- org.springframework.boot:spring-boot-starter:1.5.3.RELEASE (*)
 |    +--- org.springframework:spring-jms:4.3.8.RELEASE
 |    |    +--- org.springframework:spring-aop:4.3.8.RELEASE (*)
 |    |    +--- org.springframework:spring-beans:4.3.8.RELEASE (*)
 |    |    +--- org.springframework:spring-context:4.3.8.RELEASE (*)
-|    |    +--- org.springframework:spring-core:4.3.8.RELEASE
+|    |    +--- org.springframework:spring-core:4.3.8.RELEASE (*)
 |    |    +--- org.springframework:spring-messaging:4.3.8.RELEASE
 |    |    |    +--- org.springframework:spring-beans:4.3.8.RELEASE (*)
 |    |    |    +--- org.springframework:spring-context:4.3.8.RELEASE (*)
-|    |    |    \--- org.springframework:spring-core:4.3.8.RELEASE
-|    |    \--- org.springframework:spring-tx:4.3.8.RELEASE
-|    |         +--- org.springframework:spring-beans:4.3.8.RELEASE (*)
-|    |         \--- org.springframework:spring-core:4.3.8.RELEASE
+|    |    |    \--- org.springframework:spring-core:4.3.8.RELEASE (*)
+|    |    \--- org.springframework:spring-tx:4.3.8.RELEASE (*)
 |    \--- org.apache.activemq:activemq-broker:5.14.5
 |         +--- org.apache.activemq:activemq-client:5.14.5
 |         |    +--- org.slf4j:slf4j-api:1.7.13 -> 1.7.25
@@ -687,7 +1084,7 @@ testRuntime - Runtime dependencies for source set 'test'.
 |         |    \--- org.apache.geronimo.specs:geronimo-j2ee-management_1.1_spec:1.0.1
 |         \--- org.apache.activemq:activemq-openwire-legacy:5.14.5
 |              \--- org.apache.activemq:activemq-client:5.14.5 (*)
-+--- org.springframework.boot:spring-boot-starter-web: -> 1.5.3.RELEASE
++--- org.springframework.boot:spring-boot-starter-web:1.5.3.RELEASE
 |    +--- org.springframework.boot:spring-boot-starter:1.5.3.RELEASE (*)
 |    +--- org.springframework.boot:spring-boot-starter-tomcat:1.5.3.RELEASE
 |    |    +--- org.apache.tomcat.embed:tomcat-embed-core:8.5.14
@@ -705,21 +1102,74 @@ testRuntime - Runtime dependencies for source set 'test'.
 |    |    +--- org.springframework:spring-aop:4.3.8.RELEASE (*)
 |    |    +--- org.springframework:spring-beans:4.3.8.RELEASE (*)
 |    |    +--- org.springframework:spring-context:4.3.8.RELEASE (*)
-|    |    \--- org.springframework:spring-core:4.3.8.RELEASE
+|    |    \--- org.springframework:spring-core:4.3.8.RELEASE (*)
 |    \--- org.springframework:spring-webmvc:4.3.8.RELEASE
 |         +--- org.springframework:spring-aop:4.3.8.RELEASE (*)
 |         +--- org.springframework:spring-beans:4.3.8.RELEASE (*)
 |         +--- org.springframework:spring-context:4.3.8.RELEASE (*)
-|         +--- org.springframework:spring-core:4.3.8.RELEASE
+|         +--- org.springframework:spring-core:4.3.8.RELEASE (*)
 |         +--- org.springframework:spring-expression:4.3.8.RELEASE (*)
 |         \--- org.springframework:spring-web:4.3.8.RELEASE (*)
++--- org.springframework.boot:spring-boot-starter-actuator:1.5.3.RELEASE
+|    +--- org.springframework.boot:spring-boot-starter:1.5.3.RELEASE (*)
+|    \--- org.springframework.boot:spring-boot-actuator:1.5.3.RELEASE
+|         +--- org.springframework.boot:spring-boot:1.5.3.RELEASE (*)
+|         +--- org.springframework.boot:spring-boot-autoconfigure:1.5.3.RELEASE (*)
+|         +--- com.fasterxml.jackson.core:jackson-databind:2.8.8 (*)
+|         +--- org.springframework:spring-core:4.3.8.RELEASE (*)
+|         \--- org.springframework:spring-context:4.3.8.RELEASE (*)
++--- org.apache.activemq:activemq-broker:5.14.5 (*)
++--- org.apache.activemq:activemq-pool:5.14.5
+|    +--- org.slf4j:slf4j-api:1.7.13 -> 1.7.25
+|    +--- org.apache.activemq:activemq-jms-pool:5.14.5
+|    |    +--- org.slf4j:slf4j-api:1.7.13 -> 1.7.25
+|    |    +--- org.apache.geronimo.specs:geronimo-jms_1.1_spec:1.1.1
+|    |    +--- org.apache.geronimo.specs:geronimo-jta_1.0.1B_spec:1.0.1
+|    |    \--- org.apache.commons:commons-pool2:2.4.2
+|    +--- org.apache.activemq:activemq-client:5.14.5 (*)
+|    +--- org.apache.geronimo.specs:geronimo-jta_1.0.1B_spec:1.0.1
+|    \--- org.apache.commons:commons-pool2:2.4.2
 +--- org.jolokia:jolokia-core:1.3.6
 |    \--- com.googlecode.json-simple:json-simple:1.1.1
-+--- org.apache.activemq:activemq-broker: -> 5.14.5 (*)
-\--- com.fasterxml.jackson.core:jackson-databind: -> 2.8.8 (*)
++--- com.google.guava:guava:22.0
+|    +--- com.google.code.findbugs:jsr305:1.3.9
+|    +--- com.google.errorprone:error_prone_annotations:2.0.18
+|    +--- com.google.j2objc:j2objc-annotations:1.1
+|    \--- org.codehaus.mojo:animal-sniffer-annotations:1.14
++--- org.apache.commons:commons-lang3:3.0
++--- com.h2database:h2:1.4.194
++--- commons-io:commons-io:2.5
++--- org.springframework.boot:spring-boot-starter-test:1.5.3.RELEASE
+|    +--- org.springframework.boot:spring-boot-test:1.5.3.RELEASE
+|    |    \--- org.springframework.boot:spring-boot:1.5.3.RELEASE (*)
+|    +--- org.springframework.boot:spring-boot-test-autoconfigure:1.5.3.RELEASE
+|    |    +--- org.springframework.boot:spring-boot-test:1.5.3.RELEASE (*)
+|    |    \--- org.springframework.boot:spring-boot-autoconfigure:1.5.3.RELEASE (*)
+|    +--- com.jayway.jsonpath:json-path:2.2.0
+|    |    +--- net.minidev:json-smart:2.2.1
+|    |    |    \--- net.minidev:accessors-smart:1.1
+|    |    |         \--- org.ow2.asm:asm:5.0.3
+|    |    \--- org.slf4j:slf4j-api:1.7.16 -> 1.7.25
+|    +--- junit:junit:4.12
+|    |    \--- org.hamcrest:hamcrest-core:1.3
+|    +--- org.assertj:assertj-core:2.6.0
+|    +--- org.mockito:mockito-core:1.10.19
+|    |    +--- org.hamcrest:hamcrest-core:1.1 -> 1.3
+|    |    \--- org.objenesis:objenesis:2.1
+|    +--- org.hamcrest:hamcrest-core:1.3
+|    +--- org.hamcrest:hamcrest-library:1.3
+|    |    \--- org.hamcrest:hamcrest-core:1.3
+|    +--- org.skyscreamer:jsonassert:1.4.0
+|    |    \--- com.vaadin.external.google:android-json:0.0.20131108.vaadin1
+|    +--- org.springframework:spring-core:4.3.8.RELEASE (*)
+|    \--- org.springframework:spring-test:4.3.8.RELEASE
+|         \--- org.springframework:spring-core:4.3.8.RELEASE (*)
++--- junit:junit:4.12 (*)
+\--- org.apache.xbean:xbean-spring:4.5
+     \--- commons-logging:commons-logging:1.0.3 -> 1.2
 
 (*) - dependencies omitted (listed previously)
 
 BUILD SUCCESSFUL
 
-Total time: 2.36 secs
+Total time: 8.403 secs
