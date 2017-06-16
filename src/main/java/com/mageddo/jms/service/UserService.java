@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.jms.DeliveryMode;
-import javax.jms.Message;
 import java.util.Arrays;
 import java.util.List;
 
@@ -42,7 +41,7 @@ public class UserService {
 	}
 
 	public List<UserEntity> findNotEnqueuedRegistrations(int maxResults) {
-		return userDAO.findUsers(maxResults, UserEntity.Status.PENDING);
+		return userDAO.findNotEnqueuedRegistrations(maxResults);
 	}
 
 	public void markAsEnqueued(List<UserEntity> entities){
