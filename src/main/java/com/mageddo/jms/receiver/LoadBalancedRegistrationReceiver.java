@@ -63,7 +63,7 @@ public class LoadBalancedRegistrationReceiver {
 	@Autowired
 	private JsonConverter jsonConverter;
 
-	@Scheduled(fixedRate = 1000 / 30)
+//	@Scheduled(fixedRate = 1000 / 30)
 	public void registrationRequest(){
 		final UserVO userVO = new UserVO("User " + counter.getAndIncrement());
 		userService.register(userVO);

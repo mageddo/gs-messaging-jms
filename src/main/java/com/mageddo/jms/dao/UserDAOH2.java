@@ -29,8 +29,8 @@ public class UserDAOH2 implements UserDAO {
 	@Override
 	public void create(UserEntity userEntity){
 		jdbcTemplate.update(
-			"INSERT INTO USER (NAM_USER, IND_STATUS, DAT_ENQUEUED) VALUES (?, ?, ?)",
-			userEntity.getName(), userEntity.getStatus().getCode(), userEntity.getEnqueuedDate()
+			"INSERT INTO USER (NAM_USER, IND_STATUS) VALUES (?, ?)",
+			userEntity.getName(), userEntity.getStatus().getCode()
 		);
 	}
 
@@ -55,9 +55,6 @@ public class UserDAOH2 implements UserDAO {
 			@Override
 			public void setValues(PreparedStatement ps, int i) throws SQLException {
 				final UserEntity userEntity = entities.get(i);
-				if(userEntity.getStatus() == Status.QUEUED){
-					logger.info("status=enqueue-again, user={}", userEntity.getId());
-				}
 				ps.setString(1, status.getCode());
 				ps.setInt(2, userEntity.getId());
 			}
@@ -72,7 +69,7 @@ public class UserDAOH2 implements UserDAO {
 	@Override
 	public void enqueue(List<UserEntity> entities) {
 
-		jdbcTemplate.batchUpdate("UPDATE USER SET IND_STATUS=?, DAT_ENQUEUE=? WHERE IDT_USER = ?", new BatchPreparedStatementSetter() {
+		jdbcTemplate.batchUpdate("UPDATE USER SET IND_STATUS=?, DAT_ENQUEUED=? WHERE IDT_USER = ?", new BatchPreparedStatementSetter() {
 			@Override
 			public void setValues(PreparedStatement ps, int i) throws SQLException {
 				final UserEntity userEntity = entities.get(i);
