@@ -19,14 +19,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * Created by elvis on 14/06/17. <br/><br/>
  *
- * This is a sample of do not use the message broker as a storage system, it happen in this case because the message producer
+ * This is a sample of how not to use the message broker as a storage system, it happen in this case because the message producer
  * is faster than the consumers (slow consumers), then our queue manager store will be giant. For this reason we consider:
  *
  * <ul>
- *   <li>Firstly, receive the registration request saving it in database and making noting more (Then it will very fast)</li>
+ *   <li>Firstly, receive the registration request saving it in database and doing nothing more (Then it will very fast)</li>
  *   <li>
  *     Write a job to check how many messages are in the broker to consume, then post more if there are just few. See that
- *     here we can re-send lost messages (not ha broker) and prevent high number of messages stored at our broker for no reason
+ *     here we can re-send lost messages (not High Available broker) and prevent high number of messages stored at our broker for no reason
  *     once time it can not consume they because it is slow, then we can make some metrics at this table because here we have the
  *     real state of the processing (like a task job)
 *    </li>
