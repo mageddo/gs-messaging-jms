@@ -16,13 +16,25 @@ public class CompleteDestination implements MGDestination {
 	private int consumers;
 	private int maxConsumers;
 	private boolean nonBlockingRedelivery;
+	private boolean asyncSend;
+	private boolean persistentDelivery;
 
 	public CompleteDestination(ActiveMQDestination destination, int ttl, int retries, int consumers, int maxConsumers) {
 		this(destination, ttl, retries, consumers, maxConsumers, false);
 	}
 
 	public CompleteDestination(ActiveMQDestination destination, int ttl, int retries, int consumers, int maxConsumers,
-														 boolean nonBlockingRedelivery) {
+													 boolean nonBlockingRedelivery) {
+		this(destination, ttl, retries, consumers, maxConsumers, nonBlockingRedelivery, true);
+	}
+
+	public CompleteDestination(ActiveMQDestination destination, int ttl, int retries, int consumers, int maxConsumers,
+													 boolean nonBlockingRedelivery, boolean asyncSend) {
+		this(destination, ttl, retries, consumers, maxConsumers, nonBlockingRedelivery, asyncSend, true);
+	}
+
+	public CompleteDestination(ActiveMQDestination destination, int ttl, int retries, int consumers, int maxConsumers,
+														 boolean nonBlockingRedelivery, boolean asyncSend, boolean persistentDelivery) {
 
 		this.destination = destination;
 		this.name = destination.getPhysicalName();
@@ -31,6 +43,8 @@ public class CompleteDestination implements MGDestination {
 		this.consumers = consumers;
 		this.maxConsumers = maxConsumers;
 		this.nonBlockingRedelivery = nonBlockingRedelivery;
+		this.asyncSend = asyncSend;
+		this.persistentDelivery = persistentDelivery;
 
 		setFactory(destination.getPhysicalName());
 		setDLQ(new ActiveMQQueue("DLQ." + getName()));
@@ -87,5 +101,17 @@ public class CompleteDestination implements MGDestination {
 
 	protected void setDLQ(ActiveMQQueue dlq) {
 		this.dlq = dlq;
+	}
+
+	public boolean isAsyncSend() {
+		return asyncSend;
+	}
+
+	public void setAsyncSend(boolean asyncSend) {
+		this.asyncSend = asyncSend;
+	}
+
+	public boolean isPersistentDelivery() {
+		return persistentDelivery;
 	}
 }

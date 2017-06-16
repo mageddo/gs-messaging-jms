@@ -10,7 +10,7 @@ import java.util.List;
 public interface UserDAO {
 	void create(UserEntity userEntity);
 
-	List<UserEntity> findUsers(int maxResults);
+	List<UserEntity> findUsers(int maxResults, UserEntity.Status status);
 
 	void changeStatus(List<UserEntity> entities, UserEntity.Status queued);
 }

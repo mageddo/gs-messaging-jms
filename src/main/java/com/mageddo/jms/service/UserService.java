@@ -13,6 +13,8 @@ import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.jms.DeliveryMode;
+import javax.jms.Message;
 import java.util.Arrays;
 import java.util.List;
 
@@ -40,7 +42,7 @@ public class UserService {
 	}
 
 	public List<UserEntity> findNotEnqueuedRegistrations(int maxResults) {
-		return userDAO.findUsers(maxResults);
+		return userDAO.findUsers(maxResults, UserEntity.Status.PENDING);
 	}
 
 	public void markAsEnqueued(List<UserEntity> entities){
@@ -71,7 +73,10 @@ public class UserService {
 
 		final List<UserEntity> users = this.findNotEnqueuedRegistrations(MAX_QUEUE_SIZE - queueSize);
 		for (UserEntity userEntity : users) {
-			jmsTemplate.convertAndSend(destination, userEntity);
+			jmsTemplate.convertAndSend(destination, userEntity, msg -> {
+				msg.setJMSDeliveryMode(DeliveryMode.NON_PERSISTENT);
+				return msg;
+			});
 		}
 		this.markAsEnqueued(users);
 		logger.info("status=success, time={}, enqueued={}", stopWatch.getTime(), users.size());

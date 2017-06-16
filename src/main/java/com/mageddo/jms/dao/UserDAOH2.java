@@ -25,13 +25,14 @@ public class UserDAOH2 implements UserDAO {
 	}
 
 	@Override
-	public List<UserEntity> findUsers(int maxResults) {
+	public List<UserEntity> findUsers(int maxResults, UserEntity.Status status) {
 
 		final StringBuilder sql = new StringBuilder();
 		sql.append("SELECT * FROM USER \n");
+		sql.append("WHERE STATUS = ? \n");
 		sql.append("LIMIT 0, ? \n");
 
-		return jdbcTemplate.query(sql.toString(), UserEntity.mapper(), maxResults);
+		return jdbcTemplate.query(sql.toString(), UserEntity.mapper(), status.getCode(), maxResults);
 
 	}
 

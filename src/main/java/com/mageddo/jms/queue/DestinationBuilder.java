@@ -102,7 +102,8 @@ public final class DestinationBuilder {
 	public CompleteDestination registrationQueue() {
 		return new CompleteDestination(
 			queue(DestinationConstants.REGISTRATION),
-			60000, 3, 1, 1, true
+			60000, 3, 35, 40,
+			true, true, false
 		);
 	}
 }

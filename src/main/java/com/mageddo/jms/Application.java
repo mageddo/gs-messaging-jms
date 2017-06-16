@@ -26,11 +26,9 @@ import org.springframework.cache.Cache;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.concurrent.ConcurrentMapCache;
 import org.springframework.context.annotation.*;
-import org.springframework.core.env.Environment;
 import org.springframework.jms.annotation.EnableJms;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.support.converter.MessageConverter;
-import org.springframework.jms.support.converter.MessageType;
 import org.springframework.jmx.export.MBeanExporter;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.SchedulingConfigurer;
@@ -92,7 +90,7 @@ public class Application implements SchedulingConfigurer {
 			ConfigurableBeanFactory beanFactory, DefaultJmsListenerContainerFactoryConfigurer configurer
 	) {
 		final CompleteDestination destination = destinationEnum.getCompleteDestination();
-		connectionFactory = QueueUtils.configureNoBlockRedelivery(connectionFactory, destination);
+		connectionFactory = QueueUtils.configureConnectionFactory(connectionFactory, destination);
 		final MageddoMessageListenerContainerFactory factory = QueueUtils.createDefaultFactory(
 			connectionFactory, destination
 		);

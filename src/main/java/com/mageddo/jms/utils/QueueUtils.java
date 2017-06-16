@@ -102,12 +102,11 @@ public class QueueUtils {
 		return destination;
 	}
 
-	public static ActiveMQConnectionFactory configureNoBlockRedelivery(ActiveMQConnectionFactory connectionFactory,
+	public static ActiveMQConnectionFactory configureConnectionFactory(ActiveMQConnectionFactory connectionFactory,
 																																		 CompleteDestination destination) {
-		if(destination.isNonBlockingRedelivery()){
-			connectionFactory = connectionFactory.copy();
-			connectionFactory.setNonBlockingRedelivery(true);
-		}
+		connectionFactory = connectionFactory.copy();
+		connectionFactory.setNonBlockingRedelivery(destination.isNonBlockingRedelivery());
+		connectionFactory.setUseAsyncSend(destination.isAsyncSend());
 		return connectionFactory;
 	}
 
