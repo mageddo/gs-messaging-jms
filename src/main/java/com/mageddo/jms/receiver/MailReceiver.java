@@ -23,7 +23,7 @@ public class MailReceiver {
 	@Autowired
 	private MailService mailService;
 
-	@Scheduled(fixedDelay = Long.MAX_VALUE)
+//	@Scheduled(fixedDelay = Long.MAX_VALUE)
 	public void postMail() {
 		final StopWatch stopWatch = new StopWatch();
 		stopWatch.start();

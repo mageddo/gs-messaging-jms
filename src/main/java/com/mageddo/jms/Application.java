@@ -24,6 +24,7 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.jms.DefaultJmsListenerContainerFactoryConfigurer;
 import org.springframework.boot.autoconfigure.jms.activemq.ActiveMQProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -49,13 +50,13 @@ import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-@EnableScheduling
 @EnableCaching
 @EnableTransactionManagement
 @EnableJms
 @EnableAspectJAutoProxy
 @EnableAutoConfiguration
 @EnableMBeanExport
+@Import(Application.Scheduling.class)
 
 @SpringBootApplication
 @Configuration
@@ -189,6 +190,10 @@ public class Application implements SchedulingConfigurer {
 		);
 	}
 
+
+	@ConditionalOnProperty(prefix = "spring", name = "schedule.enable", matchIfMissing = false, havingValue = "true")
+	@EnableScheduling
+	public static class Scheduling {}
 
 	public static void main(String[] args) throws Exception {
 		SpringApplication.run(Application.class, args);

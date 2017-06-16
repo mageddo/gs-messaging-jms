@@ -38,8 +38,8 @@ public class MailService {
 	 */
 	public void sendMail(String message){
 		jmsTemplate.convertAndSend(DestinationEnum.MAIL.getDestination(), message, msg -> {
-			msg.setJMSExpiration(180 * 1000);
-			msg.setJMSDeliveryMode(DeliveryMode.NON_PERSISTENT);
+			msg.setJMSExpiration(5 * 1000);
+//			msg.setJMSDeliveryMode(DeliveryMode.NON_PERSISTENT);
 			return msg;
 		});
 	}
