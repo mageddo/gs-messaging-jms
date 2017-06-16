@@ -22,7 +22,7 @@ public final class DestinationBuilder {
 
 		final CompleteDestination dest = new CompleteDestination(
 			queue(DestinationConstants.MAIL),
-			3000, 2, 1, 1
+			15000, 2, 1, 1
 		);
 		// https://issues.apache.org/jira/browse/AMQ-1853
 		dest.setNonBlockingRedelivery(true);

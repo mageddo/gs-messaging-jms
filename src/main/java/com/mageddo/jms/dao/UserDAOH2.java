@@ -21,6 +21,7 @@ import java.util.List;
 @Repository
 public class UserDAOH2 implements UserDAO {
 
+	public static final Long TIME_TO_PROCESS_MINUTES = 5L;
 	private Logger logger = LoggerFactory.getLogger(getClass());
 
 	@Autowired
@@ -39,11 +40,12 @@ public class UserDAOH2 implements UserDAO {
 
 		final StringBuilder sql = new StringBuilder();
 		sql.append("SELECT * FROM USER  \n");
-		sql.append("WHERE IND_STATUS = ? OR (IND_STATUS = ? AND TIMESTAMPDIFF('MINUTE', DAT_ENQUEUED, CURRENT_TIMESTAMP()) > 5) \n");
+		sql.append("WHERE IND_STATUS = ? OR (IND_STATUS = ? AND TIMESTAMPDIFF('MINUTE', DAT_ENQUEUED, CURRENT_TIMESTAMP()) > ?) \n");
 		sql.append("LIMIT 0, ?");
 
 		return jdbcTemplate.query(
-			sql.toString(), UserEntity.mapper(), Status.PENDING.getCode(), Status.QUEUED.getCode(), maxResults
+			sql.toString(), UserEntity.mapper(), Status.PENDING.getCode(),
+			Status.QUEUED.getCode(), maxResults, TIME_TO_PROCESS_MINUTES
 		);
 
 	}

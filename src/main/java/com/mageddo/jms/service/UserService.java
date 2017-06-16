@@ -1,6 +1,7 @@
 package com.mageddo.jms.service;
 
 import com.mageddo.jms.dao.UserDAO;
+import com.mageddo.jms.dao.UserDAOH2;
 import com.mageddo.jms.entity.UserEntity;
 import com.mageddo.jms.queue.DestinationEnum;
 import com.mageddo.jms.vo.UserVO;
@@ -9,6 +10,7 @@ import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jms.core.JmsMessagingTemplate;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -69,13 +71,14 @@ public class UserService {
 			logger.info("status=queue-full, queue={}", destination.getPhysicalName());
 			return ;
 		}
+		final JmsTemplate template = new JmsTemplate(jmsTemplate.getConnectionFactory());
+		// message have the double of time to be processed (or wait in DLQ) until a new message be sent again
+		template.setTimeToLive(UserDAOH2.TIME_TO_PROCESS_MINUTES * 2 * 60 * 1000);
+		template.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
 
 		final List<UserEntity> users = this.findNotEnqueuedRegistrations(MAX_QUEUE_SIZE - queueSize);
 		for (UserEntity userEntity : users) {
-			jmsTemplate.convertAndSend(destination, userEntity, msg -> {
-				msg.setJMSDeliveryMode(DeliveryMode.NON_PERSISTENT);
-				return msg;
-			});
+			jmsTemplate.convertAndSend(destination, userEntity);
 		}
 		this.markAsEnqueued(users);
 		logger.info("status=success, time={}, enqueued={}", stopWatch.getTime(), users.size());

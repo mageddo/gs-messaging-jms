@@ -137,8 +137,8 @@ public class Application implements SchedulingConfigurer {
 	@Primary
 	@Bean
 	public JmsTemplate jmsTemplate(PooledConnectionFactory connectionFactory, MessageConverter messageConverter){
-		final JmsTemplate jmsTemplate = new FlexibleJmsTemplate(connectionFactory);
-		jmsTemplate.setExplicitQosEnabled(true);
+		final JmsTemplate jmsTemplate = new JmsTemplate(connectionFactory);
+//		jmsTemplate.setExplicitQosEnabled(true);
 		jmsTemplate.setSessionAcknowledgeMode(Session.AUTO_ACKNOWLEDGE);
 		jmsTemplate.setSessionTransacted(true);
 		jmsTemplate.setMessageConverter(messageConverter);

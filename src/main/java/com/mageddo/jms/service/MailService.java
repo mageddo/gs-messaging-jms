@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.jms.DeliveryMode;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -32,7 +33,11 @@ public class MailService {
 	private AtomicLong id = new AtomicLong(0);
 
 	public void sendMail(String message){
-		jmsTemplate.convertAndSend(DestinationEnum.MAIL.getDestination(), message);
+		jmsTemplate.convertAndSend(DestinationEnum.MAIL.getDestination(), message, msg -> {
+//			msg.setJMSExpiration(180 * 1000);
+//			msg.setJMSDeliveryMode(DeliveryMode.NON_PERSISTENT);
+			return msg;
+		});
 	}
 
 	public void sendMockMail(int qtd){
