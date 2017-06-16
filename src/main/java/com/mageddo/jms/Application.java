@@ -13,6 +13,10 @@ import com.mageddo.jms.queue.converter.DefaultMessageConverter;
 import com.mageddo.jms.service.DestinationParameterService;
 import com.mageddo.jms.utils.QueueUtils;
 import org.apache.activemq.ActiveMQConnectionFactory;
+import org.apache.activemq.broker.BrokerFactory;
+import org.apache.activemq.broker.BrokerService;
+import org.apache.activemq.broker.TransportConnector;
+import org.apache.activemq.jndi.ActiveMQInitialContextFactory;
 import org.apache.activemq.pool.PooledConnectionFactory;
 import org.apache.tomcat.jdbc.pool.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +43,7 @@ import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.PostConstruct;
 import javax.jms.Session;
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executors;
@@ -137,8 +142,8 @@ public class Application implements SchedulingConfigurer {
 	@Primary
 	@Bean
 	public JmsTemplate jmsTemplate(PooledConnectionFactory connectionFactory, MessageConverter messageConverter){
-		final JmsTemplate jmsTemplate = new JmsTemplate(connectionFactory);
-//		jmsTemplate.setExplicitQosEnabled(true);
+		final JmsTemplate jmsTemplate = new FlexibleJmsTemplate(connectionFactory);
+		jmsTemplate.setExplicitQosEnabled(true);
 		jmsTemplate.setSessionAcknowledgeMode(Session.AUTO_ACKNOWLEDGE);
 		jmsTemplate.setSessionTransacted(true);
 		jmsTemplate.setMessageConverter(messageConverter);
@@ -185,7 +190,7 @@ public class Application implements SchedulingConfigurer {
 	}
 
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 		SpringApplication.run(Application.class, args);
 	}
 

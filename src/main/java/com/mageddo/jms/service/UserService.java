@@ -71,14 +71,17 @@ public class UserService {
 			logger.info("status=queue-full, queue={}", destination.getPhysicalName());
 			return ;
 		}
-		final JmsTemplate template = new JmsTemplate(jmsTemplate.getConnectionFactory());
-		// message have the double of time to be processed (or wait in DLQ) until a new message be sent again
-		template.setTimeToLive(UserDAOH2.TIME_TO_PROCESS_MINUTES * 2 * 60 * 1000);
-		template.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
 
 		final List<UserEntity> users = this.findNotEnqueuedRegistrations(MAX_QUEUE_SIZE - queueSize);
 		for (UserEntity userEntity : users) {
-			jmsTemplate.convertAndSend(destination, userEntity);
+			jmsTemplate.convertAndSend(destination, userEntity, msg -> {
+
+				msg.setJMSDeliveryMode(DeliveryMode.NON_PERSISTENT);
+				// message have the double of time to be processed (or wait in DLQ) until a new message be sent again
+				msg.setJMSExpiration(UserDAOH2.TIME_TO_PROCESS_MINUTES * 2 * 60 * 1000);
+				return msg;
+
+			});
 		}
 		this.markAsEnqueued(users);
 		logger.info("status=success, time={}, enqueued={}", stopWatch.getTime(), users.size());

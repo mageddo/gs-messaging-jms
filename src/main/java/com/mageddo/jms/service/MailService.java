@@ -32,9 +32,13 @@ public class MailService {
 
 	private AtomicLong id = new AtomicLong(0);
 
+	/**
+	 * When message go to DLQ it's TTL is set to zero, then it will never expire in DLQ
+	 * @param message
+	 */
 	public void sendMail(String message){
 		jmsTemplate.convertAndSend(DestinationEnum.MAIL.getDestination(), message, msg -> {
-//			msg.setJMSExpiration(180 * 1000);
+			msg.setJMSExpiration(180 * 1000);
 //			msg.setJMSDeliveryMode(DeliveryMode.NON_PERSISTENT);
 			return msg;
 		});
