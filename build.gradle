@@ -46,6 +46,7 @@ dependencies {
 	compile ("commons-io:commons-io:2.5")
 
 
+	testCompile("org.springframework.boot:spring-boot-starter-test:${springBootVersion}")
 	testCompile("junit:junit:4.12")
 	testCompile("org.mockito:mockito-all:1.10.19")
 
