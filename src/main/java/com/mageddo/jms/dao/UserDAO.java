@@ -13,4 +13,6 @@ public interface UserDAO {
 	List<UserEntity> findNotEnqueuedRegistrations(int maxResults);
 
 	void changeStatus(List<UserEntity> entities, UserEntity.Status queued);
+
+	void enqueue(List<UserEntity> entities);
 }

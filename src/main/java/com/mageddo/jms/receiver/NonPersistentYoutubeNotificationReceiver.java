@@ -66,7 +66,7 @@ public class NonPersistentYoutubeNotificationReceiver {
 	@Autowired
 	private JmsTemplate jmsTemplate;
 
-	@Scheduled(fixedDelay = Long.MAX_VALUE)
+//	@Scheduled(fixedDelay = Long.MAX_VALUE)
 	@Transactional
 	public void doNotify() throws JsonProcessingException, MessageNotWriteableException {
 		for(int i=0; i < 50_000; i++){

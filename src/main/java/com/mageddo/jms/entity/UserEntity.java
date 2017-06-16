@@ -1,7 +1,8 @@
 package com.mageddo.jms.entity;
 
-import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.core.RowMapper;
+
+import java.util.Date;
 
 /**
  * Created by elvis on 15/06/17.
@@ -11,6 +12,7 @@ public class UserEntity {
 	private Integer id;
 	private String name;
 	private Status status;
+	private Date enqueuedDate;
 
 	public UserEntity() {
 	}
@@ -44,12 +46,21 @@ public class UserEntity {
 		this.id = id;
 	}
 
+	public Date getEnqueuedDate() {
+		return enqueuedDate;
+	}
+
+	public void setEnqueuedDate(Date enqueuedDate) {
+		this.enqueuedDate = enqueuedDate;
+	}
+
 	public static RowMapper<UserEntity> mapper() {
 		return (rs, rowNum) -> {
 			final UserEntity userEntity = new UserEntity();
-			userEntity.setId(rs.getInt("ID"));
-			userEntity.setName(rs.getString("NAME"));
-			userEntity.setStatus(Status.fromCode(rs.getString("STATUS")));
+			userEntity.setId(rs.getInt("IDT_USER"));
+			userEntity.setName(rs.getString("NAM_USER"));
+			userEntity.setStatus(Status.fromCode(rs.getString("IND_STATUS")));
+			userEntity.setEnqueuedDate(rs.getTimestamp("DAT_ENQUEUED"));
 			return userEntity;
 		};
 	}

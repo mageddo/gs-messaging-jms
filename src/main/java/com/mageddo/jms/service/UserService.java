@@ -45,7 +45,7 @@ public class UserService {
 	}
 
 	public void markAsEnqueued(List<UserEntity> entities){
-		userDAO.changeStatus(entities, UserEntity.Status.QUEUED);
+		userDAO.enqueue(entities);
 	}
 
 	public void completeRegistration(UserEntity userEntity) {
