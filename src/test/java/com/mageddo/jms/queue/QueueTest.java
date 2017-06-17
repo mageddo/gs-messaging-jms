@@ -3,7 +3,10 @@ package com.mageddo.jms.queue;
 import com.mageddo.jms.ApplicationTest;
 import com.mageddo.jms.utils.QueueUtils;
 import org.apache.activemq.ActiveMQConnectionFactory;
+import org.apache.activemq.ScheduledMessage;
 import org.apache.activemq.command.ActiveMQQueue;
+import org.apache.activemq.command.ActiveMQTextMessage;
+import org.apache.commons.lang3.time.StopWatch;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -16,11 +19,15 @@ import org.springframework.jms.core.JmsTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.jms.DeliveryMode;
+import javax.jms.JMSException;
 import javax.jms.Message;
+import javax.jms.MessageNotWriteableException;
 
 import static org.springframework.transaction.TransactionDefinition.PROPAGATION_REQUIRES_NEW;
 
@@ -131,17 +138,14 @@ public class QueueTest {
 	}
 
 	@Test
+	@Transactional(propagation = Propagation.NOT_SUPPORTED)
 	public void unsucessfullMessageNeedToBeInDLQ() throws InterruptedException {
 
 
 		final CompleteDestination destination = QueueTest.QUEUE_C;
 		QueueUtils.configureRedelivery(cf, destination);
 
-
-		new TransactionTemplate(txManager, new DefaultTransactionDefinition(PROPAGATION_REQUIRES_NEW)).execute(st -> {
-			jmsTemplate.convertAndSend(destination.getDestination(), "queueC");
-			return null;
-		});
+		jmsTemplate.convertAndSend(destination.getDestination(), "queueC");
 
 		jmsTemplate.setReceiveTimeout(1000);
 
@@ -163,5 +167,6 @@ public class QueueTest {
 		// the messages must be in DLQ
 		Assert.assertNotNull(jmsTemplate.receive(destination.getDLQ()));
 	}
+
 
 }
