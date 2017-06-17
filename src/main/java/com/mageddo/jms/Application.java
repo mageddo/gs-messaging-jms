@@ -65,11 +65,6 @@ public class Application implements SchedulingConfigurer {
 		return jmsTemplate;
 	}
 
-	@Override
-	public void configureTasks(ScheduledTaskRegistrar taskRegistrar) {
-		taskRegistrar.setScheduler(Executors.newScheduledThreadPool(50));
-	}
-
 	@Bean
 	public MBeanExporter jdbcPoolJMX(DataSource dataSource){
 		final MBeanExporter beanExporter = new MBeanExporter();
@@ -107,6 +102,11 @@ public class Application implements SchedulingConfigurer {
 	@ConditionalOnProperty(prefix = "spring", name = "schedule.enable", matchIfMissing = false, havingValue = "true")
 	@EnableScheduling
 	static class Scheduling {}
+
+	@Override
+	public void configureTasks(ScheduledTaskRegistrar taskRegistrar) {
+		taskRegistrar.setScheduler(Executors.newScheduledThreadPool(50));
+	}
 
 	public static void main(String[] args) throws Exception {
 		SpringApplication.run(Application.class, args);
