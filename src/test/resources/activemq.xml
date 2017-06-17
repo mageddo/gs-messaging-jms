@@ -8,16 +8,6 @@
 				http://activemq.apache.org/schema/core/activemq-core-5.4.0.xsd
 		">
 
-	<!-- Allows us to use system properties as variables in this configuration file -->
-	<bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-		<property name="locations">
-			<value>classpath:credentials.properties</value>
-		</property>
-	</bean>
-
-	<!--
-			The <broker> element is used to configure the ActiveMQ broker.
-	-->
 	<broker xmlns="http://activemq.apache.org/schema/core" brokerName="broker1" persistent="false" dataDirectory="/tmp">
 
 		<destinationPolicy>
@@ -84,17 +74,6 @@
 		<managementContext>
 			<managementContext createConnector="true"/>
 		</managementContext>
-
-		<!--
-				Configure message persistence for the broker. The default persistence
-				mechanism is the KahaDB store (identified by the kahaDB tag).
-				For more information, see:
-
-				http://activemq.apache.org/persistence.html
-		-->
-		<!--<persistenceAdapter>-->
-			<!--<kahaDB directory="/tmp/kahadb"/>-->
-		<!--</persistenceAdapter>-->
 
 		<!--
 			The systemUsage controls the maximum amount of space the broker will

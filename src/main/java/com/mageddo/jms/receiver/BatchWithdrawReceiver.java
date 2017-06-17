@@ -68,7 +68,7 @@ public class BatchWithdrawReceiver {
 
 		cf = QueueUtils.configureConnectionFactory(cf, queue.getCompleteDestination());
 //		cf.setDispatchAsync(false);
-		configureRedelivery(cf, queue);
+		configureRedelivery(cf, queue.getCompleteDestination());
 		final DefaultMessageListenerContainer container = createContainer(
 			cf, queue.getCompleteDestination(), new BatchMessageListenerContainer(1000)
 		);
@@ -88,7 +88,7 @@ public class BatchWithdrawReceiver {
 
 		cf = QueueUtils.configureConnectionFactory(cf, queue.getCompleteDestination());
 
-		configureRedelivery(cf, queue);
+		configureRedelivery(cf, queue.getCompleteDestination());
 		final DefaultMessageListenerContainer container = createContainer(
 			cf, queue.getCompleteDestination(), new DefaultMessageListenerContainer()
 		);

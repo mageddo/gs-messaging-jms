@@ -42,11 +42,11 @@ public class QueueUtils {
 		return destination.getFactory() + "Factory";
 	}
 
-	public static RedeliveryPolicy configureRedelivery(ActiveMQConnectionFactory connectionFactory, DestinationEnum destinationEnum){
-		final RedeliveryPolicy rp = createRedeliveryPolicy(destinationEnum.getCompleteDestination(), destinationEnum.getDlq());
+	public static RedeliveryPolicy configureRedelivery(ActiveMQConnectionFactory connectionFactory, CompleteDestination dest){
+		final RedeliveryPolicy rp = createRedeliveryPolicy(dest, dest.getDLQ());
 		connectionFactory
 			.getRedeliveryPolicyMap()
-				.put(destinationEnum.getDestination(), rp);
+				.put(dest.getDestination(), rp);
 		return rp;
 	}
 

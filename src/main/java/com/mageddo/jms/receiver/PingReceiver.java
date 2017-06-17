@@ -58,14 +58,13 @@ public class PingReceiver {
 
 
 	@Bean(name = DestinationConstants.FACTORY_PING + "Container", initMethod = "start", destroyMethod = "stop")
-	public DefaultMessageListenerContainer container(ActiveMQConnectionFactory cf,
-																																		 PingReceiver receiver){
+	public DefaultMessageListenerContainer container(ActiveMQConnectionFactory cf, PingReceiver receiver){
 
 		final DestinationEnum queue = DestinationEnum.PING;
 		final DefaultMessageListenerContainer container = createContainer(cf, queue.getCompleteDestination());
 		container.setDestination(queue.getDestination());
 
-		configureRedelivery(cf, queue);
+		configureRedelivery(cf, queue.getCompleteDestination());
 
 		final MessageListenerAdapter listenerAdapter = new MessageListenerAdapter(receiver);
 		listenerAdapter.setDefaultListenerMethod("consume");

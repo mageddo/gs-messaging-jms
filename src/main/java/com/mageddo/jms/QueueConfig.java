@@ -62,7 +62,7 @@ public class QueueConfig {
 		factory.setMessageConverter(messageConverter);
 
 //		factory.setTransactionManager(txManager); // use too much database sessions
-		QueueUtils.configureRedelivery(connectionFactory, destinationEnum);
+		QueueUtils.configureRedelivery(connectionFactory, destinationEnum.getCompleteDestination());
 //		configurer.configure(factory, cf); // dont use because it will override custom settings to global spring settings
 		beanFactory.registerSingleton(QueueUtils.getContainerName(destination), factory.getContainer());
 		beanFactory.registerSingleton(factory.getBeanName(), factory);

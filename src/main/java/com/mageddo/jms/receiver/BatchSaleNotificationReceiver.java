@@ -63,7 +63,7 @@ public class BatchSaleNotificationReceiver implements BatchMessageListener {
 	public DefaultMessageListenerContainer container(ActiveMQConnectionFactory cf, BatchSaleNotificationReceiver receiver){
 
 		final DestinationEnum queue = DestinationEnum.SALE;
-		final RedeliveryPolicy redeliveryPolicy = configureRedelivery(cf, queue);
+		final RedeliveryPolicy redeliveryPolicy = configureRedelivery(cf, queue.getCompleteDestination());
 		final DefaultMessageListenerContainer container = createContainer(
 			cf, queue.getCompleteDestination(), new BatchListMessageListenerContainer(1, redeliveryPolicy)
 		);
