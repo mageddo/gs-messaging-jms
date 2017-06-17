@@ -2,13 +2,14 @@ package com.mageddo.jms;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.ImportResource;
 
 /**
  * Created by elvis on 16/06/17.
  */
 @Configuration
 @Import(Application.class)
-//@ImportResource("classpath:activemq.xml")
+@ImportResource("classpath:activemq.xml")
 public class ApplicationTest {
 
 }

@@ -9,6 +9,8 @@ import org.apache.activemq.command.ActiveMQQueue;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootContextLoader;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -51,9 +53,12 @@ public class MailQueueTest {
 	private static final CompleteDestination QUEUE_B = new CompleteDestination(new ActiveMQQueue("PNP.queueB"));
 
 	private static final String QUEUE_C_NAME = "queueC";
-	public static final CompleteDestination QUEUE_C = new CompleteDestination(
+
+	private static final CompleteDestination QUEUE_C = new CompleteDestination(
 		new ActiveMQQueue(QUEUE_C_NAME), 300, 3, 1,1
 	);
+
+	private final Logger logger = LoggerFactory.getLogger(getClass());
 
 	@Autowired
 	private JmsTemplate jmsTemplate;
@@ -134,7 +139,9 @@ public class MailQueueTest {
 					final Message receive = jmsTemplate.receive(destination.getDestination());
 					throw new UnsupportedOperationException(receive.toString());
 				});
-			} catch (UnsupportedOperationException e){e.printStackTrace();}
+			} catch (UnsupportedOperationException e){
+				logger.info("msg={}", e.getMessage());
+			}
 		}
 
 		// the messages its not at queue anymore
