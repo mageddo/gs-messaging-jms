@@ -8,7 +8,7 @@
 				http://activemq.apache.org/schema/core/activemq-core-5.4.0.xsd
 		">
 
-	<broker xmlns="http://activemq.apache.org/schema/core" brokerName="broker1" persistent="false" dataDirectory="/tmp">
+	<broker xmlns="http://activemq.apache.org/schema/core" brokerName="localhost" persistent="false" >
 
 		<destinationPolicy>
 			<policyMap>
@@ -101,9 +101,7 @@
 				http://activemq.apache.org/configuring-transports.html
 		-->
 		<transportConnectors>
-			<!-- DOS protection, limit concurrent connections to 1000 and frame size to 100MB -->
-			<!--<transportConnector name="openwire" uri="tcp://0.0.0.0:61616?maximumConnections=1000&amp;wireFormat.maxFrameSize=104857600"/>-->
-			<transportConnector name="vm" uri="vm://broker1"/>
+			<transportConnector name="vm" uri="vm://localhost"/>
 		</transportConnectors>
 
 		<!-- destroy the spring context on shutdown to stop jetty -->

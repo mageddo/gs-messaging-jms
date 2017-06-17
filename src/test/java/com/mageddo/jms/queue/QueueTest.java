@@ -1,8 +1,6 @@
 package com.mageddo.jms.queue;
 
 import com.mageddo.jms.ApplicationTest;
-import com.mageddo.jms.CustomLoader;
-import com.mageddo.jms.queue.config.MageddoMessageListenerContainerFactory;
 import com.mageddo.jms.utils.QueueUtils;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.command.ActiveMQQueue;
@@ -12,23 +10,17 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootContextLoader;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Bean;
-import org.springframework.jms.annotation.JmsListener;
-import org.springframework.jms.config.DefaultJmsListenerContainerFactory;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.jms.core.JmsTemplate;
-import org.springframework.stereotype.Component;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import javax.jms.JMSException;
+import javax.jms.DeliveryMode;
 import javax.jms.Message;
-import javax.jms.TextMessage;
 
 import static org.springframework.transaction.TransactionDefinition.PROPAGATION_REQUIRES_NEW;
 
@@ -36,15 +28,11 @@ import static org.springframework.transaction.TransactionDefinition.PROPAGATION_
  * Created by elvis on 16/06/17.
  */
 
-@SpringBootTest
+@SpringBootTest(webEnvironment = WebEnvironment.DEFINED_PORT)
 @RunWith(SpringRunner.class)
-@ContextConfiguration(classes = {ApplicationTest.class}, loader = CustomLoader.class)
-public class MailQueueTest {
+@ContextConfiguration(classes = {ApplicationTest.class})
+public class QueueTest {
 
-	/**
-	 * This is a common queue, by default messages posted to commons queues with TTL, have you messages discard when it
-	 * expires
-	 */
 	private static final CompleteDestination QUEUE_A = new CompleteDestination(new ActiveMQQueue("queueA"));
 
 	/**
@@ -58,6 +46,8 @@ public class MailQueueTest {
 		new ActiveMQQueue(QUEUE_C_NAME), 300, 3, 1,1
 	);
 
+	private static final CompleteDestination QUEUE_D = new CompleteDestination(new ActiveMQQueue("queueD"));
+
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 
 	@Autowired
@@ -70,19 +60,42 @@ public class MailQueueTest {
 	private ActiveMQConnectionFactory cf;
 
 	@Test
-	public void discardMessageWhenExpires() throws InterruptedException {
+	public void persistentMessageSendToDLQWhenExpires() throws InterruptedException {
+
 		final int ttl = 3000;
 		jmsTemplate.convertAndSend(QUEUE_A.getDestination(), "1", msg -> {
 			msg.setJMSExpiration(ttl);
 			return msg;
 		});
+
 		Thread.sleep(ttl + 1000);
 		jmsTemplate.setReceiveTimeout(1000);
 
-		// not in DLQ
-		Assert.assertNull(jmsTemplate.receive(QUEUE_A.getDLQ()));
 		// not in queue
 		Assert.assertNull(jmsTemplate.receive(QUEUE_A.getDestination()));
+
+		// not in DLQ
+		Assert.assertNotNull(jmsTemplate.receive(QUEUE_A.getDLQ()));
+	}
+
+	@Test
+	public void nonPersistentMessageDiscardWhenExpires() throws InterruptedException {
+
+		final int ttl = 3000;
+		jmsTemplate.convertAndSend(QUEUE_D.getDestination(), "1", msg -> {
+			msg.setJMSExpiration(ttl);
+			msg.setJMSDeliveryMode(DeliveryMode.NON_PERSISTENT);
+			return msg;
+		});
+
+		Thread.sleep(ttl + 1000);
+		jmsTemplate.setReceiveTimeout(1000);
+
+		// not in queue
+		Assert.assertNull(jmsTemplate.receive(QUEUE_D.getDestination()));
+
+		// not in DLQ
+		Assert.assertNull(jmsTemplate.receive(QUEUE_D.getDLQ()));
 	}
 
 	@Test
@@ -121,7 +134,7 @@ public class MailQueueTest {
 	public void unsucessfullMessageNeedToBeInDLQ() throws InterruptedException {
 
 
-		final CompleteDestination destination = MailQueueTest.QUEUE_C;
+		final CompleteDestination destination = QueueTest.QUEUE_C;
 		QueueUtils.configureRedelivery(cf, destination);
 
 
