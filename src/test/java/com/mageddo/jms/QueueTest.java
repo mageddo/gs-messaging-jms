@@ -42,7 +42,7 @@ public class QueueTest {
 		Assert.assertNull(jmsTemplate.receive(QUEUE_A));
 
 		// but in DLQ
-		Assert.assertNull(jmsTemplate.receive("DLQ." + QUEUE_A));
+		Assert.assertNotNull(jmsTemplate.receive("DLQ." + QUEUE_A));
 	}
 
 }
