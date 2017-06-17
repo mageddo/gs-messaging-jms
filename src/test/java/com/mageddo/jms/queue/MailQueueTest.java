@@ -19,10 +19,16 @@ import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.support.DefaultTransactionDefinition;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.TextMessage;
+
+import static org.springframework.transaction.TransactionDefinition.PROPAGATION_REQUIRES_NEW;
 
 /**
  * Created by elvis on 16/06/17.
@@ -51,6 +57,12 @@ public class MailQueueTest {
 
 	@Autowired
 	private JmsTemplate jmsTemplate;
+
+	@Autowired
+	private PlatformTransactionManager txManager;
+
+	@Autowired
+	private ActiveMQConnectionFactory cf;
 
 	@Test
 	public void discardMessageWhenExpires() throws InterruptedException {
@@ -103,22 +115,33 @@ public class MailQueueTest {
 	@Test
 	public void unsucessfullMessageNeedToBeInDLQ() throws InterruptedException {
 
-		jmsTemplate.convertAndSend(QUEUE_C.getDestination(), "queueC");
-		Thread.sleep(1500);
+
+		final CompleteDestination destination = MailQueueTest.QUEUE_C;
+		QueueUtils.configureRedelivery(cf, destination);
+
+
+		new TransactionTemplate(txManager, new DefaultTransactionDefinition(PROPAGATION_REQUIRES_NEW)).execute(st -> {
+			jmsTemplate.convertAndSend(destination.getDestination(), "queueC");
+			return null;
+		});
+
 		jmsTemplate.setReceiveTimeout(1000);
 
+		for(int i=0; i < QUEUE_C.getRetries() + 1; i++) {
+
+			try{
+				new TransactionTemplate(txManager, new DefaultTransactionDefinition(PROPAGATION_REQUIRES_NEW)).execute(st -> {
+					final Message receive = jmsTemplate.receive(destination.getDestination());
+					throw new UnsupportedOperationException(receive.toString());
+				});
+			} catch (UnsupportedOperationException e){e.printStackTrace();}
+		}
+
 		// the messages its not at queue anymore
-		Assert.assertNull(jmsTemplate.receive(QUEUE_C.getDestination()));
+		Assert.assertNull(jmsTemplate.receive(destination.getDestination()));
 
 		// the messages must be in DLQ
-		Assert.assertNotNull(jmsTemplate.receive(QUEUE_C.getDLQ()));
+		Assert.assertNotNull(jmsTemplate.receive(destination.getDLQ()));
 	}
-
-	@JmsListener(destination = MailQueueTest.QUEUE_C_NAME, containerFactory = "queueCFactory")
-	public void queueAConsumer(TextMessage message) throws JMSException {
-		throw new RuntimeException(message.getText());
-	}
-
-
 
 }
