@@ -39,6 +39,12 @@ public class QueueConnectionConfig {
 		return cf;
 	}
 
+	@Bean
+	@ConfigurationProperties(prefix = "spring.activemq")
+	public ActiveMQProperties activeMQProperties(){
+		return new ActiveMQProperties();
+	}
+
 	private String determineBrokerUrl(ActiveMQProperties properties) {
 		if (properties.getBrokerUrl() != null) {
 			return properties.getBrokerUrl();

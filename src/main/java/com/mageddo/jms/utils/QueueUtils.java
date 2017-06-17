@@ -63,9 +63,7 @@ public class QueueUtils {
 
 		final DefaultMessageListenerContainer container = new DefaultMessageListenerContainer();
 		container.setBeanName(destination.getName());
-		final MageddoMessageListenerContainerFactory factory = new MageddoMessageListenerContainerFactory(container,
-			destination.getFactory()
-		);
+		final MageddoMessageListenerContainerFactory factory = new MageddoMessageListenerContainerFactory(container);
 
 		createContainer(connectionFactory, destination, container);
 		return factory;
@@ -111,6 +109,10 @@ public class QueueUtils {
 
 	public static ActiveMQConnectionFactory configureConnectionFactory(ActiveMQConnectionFactory connectionFactory,
 																																		 CompleteDestination destination) {
+		// setup redelivery before copy to replicate this rules
+		configureRedelivery(connectionFactory, destination);
+
+		// making a copy of the connection because the settings below only are relevant to his consumer
 		connectionFactory = connectionFactory.copy();
 		connectionFactory.setNonBlockingRedelivery(destination.isNonBlockingRedelivery());
 		connectionFactory.setUseAsyncSend(destination.isAsyncSend());

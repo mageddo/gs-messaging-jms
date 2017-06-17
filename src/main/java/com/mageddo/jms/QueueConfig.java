@@ -27,9 +27,6 @@ public class QueueConfig {
 	private ConfigurableBeanFactory beanFactory;
 
 	@Autowired
-	private DefaultJmsListenerContainerFactoryConfigurer configurer;
-
-	@Autowired
 	private DestinationParameterService destinationParameterService;
 
 	@Autowired
@@ -41,7 +38,7 @@ public class QueueConfig {
 		for (final DestinationEnum destinationEnum : DestinationEnum.values()) {
 
 			if(destinationEnum.isAutoDeclare()){
-				declareQueue(destinationEnum, activeMQConnectionFactory, beanFactory, configurer);
+				declareQueue(destinationEnum, activeMQConnectionFactory, beanFactory);
 			}
 			destinationParameterService.createDestinationParameterIfNotExists(destinationEnum.getCompleteDestination());
 
@@ -52,8 +49,7 @@ public class QueueConfig {
 	private MageddoMessageListenerContainerFactory declareQueue(
 		DestinationEnum destinationEnum,
 		ActiveMQConnectionFactory connectionFactory,
-		ConfigurableBeanFactory beanFactory, DefaultJmsListenerContainerFactoryConfigurer configurer
-	) {
+		ConfigurableBeanFactory beanFactory) {
 		final CompleteDestination destination = destinationEnum.getCompleteDestination();
 		connectionFactory = QueueUtils.configureConnectionFactory(connectionFactory, destination);
 		final MageddoMessageListenerContainerFactory factory = QueueUtils.createDefaultFactory(
@@ -62,10 +58,9 @@ public class QueueConfig {
 		factory.setMessageConverter(messageConverter);
 
 //		factory.setTransactionManager(txManager); // use too much database sessions
-		QueueUtils.configureRedelivery(connectionFactory, destinationEnum.getCompleteDestination());
 //		configurer.configure(factory, cf); // dont use because it will override custom settings to global spring settings
-		beanFactory.registerSingleton(QueueUtils.getContainerName(destination), factory.getContainer());
-		beanFactory.registerSingleton(factory.getBeanName(), factory);
+		beanFactory.registerSingleton(destination.getContainer(), factory.getContainer());
+		beanFactory.registerSingleton(destination.getFactory(), factory);
 		return factory;
 	}
 }
