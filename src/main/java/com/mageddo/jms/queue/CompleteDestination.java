@@ -1,5 +1,6 @@
 package com.mageddo.jms.queue;
 
+import com.mageddo.jms.utils.QueueUtils;
 import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.command.ActiveMQQueue;
 
@@ -12,7 +13,7 @@ public class CompleteDestination implements MGDestination {
 
 	private final ActiveMQDestination destination;
 	private ActiveMQQueue dlq;
-	private String name, factory;
+	private String id, name, factory, container;
 	private int ttl;
 	private int retries;
 	private int consumers;
@@ -52,7 +53,8 @@ public class CompleteDestination implements MGDestination {
 		this.asyncSend = asyncSend;
 		this.deliveryMode = deliveryMode;
 
-		setFactory(destination.getPhysicalName());
+		setFactory();
+		setContainer();
 		setDLQ(new ActiveMQQueue("DLQ." + getName()));
 	}
 
@@ -101,8 +103,8 @@ public class CompleteDestination implements MGDestination {
 		this.nonBlockingRedelivery = nonBlockingRedelivery;
 	}
 
-	protected void setFactory(String factory) {
-		this.factory = factory;
+	public String getContainer() {
+		return container;
 	}
 
 	protected void setDLQ(ActiveMQQueue dlq) {
@@ -119,5 +121,24 @@ public class CompleteDestination implements MGDestination {
 
 	public int getDeliveryMode() {
 		return deliveryMode;
+	}
+
+	@Override
+	public String getId() {
+		return id;
+	}
+
+	protected void setId(String id) {
+		this.id = id;
+		setFactory();
+		setContainer();
+	}
+
+	private void setFactory() {
+		this.factory = QueueUtils.getFactoryName(this);
+	}
+
+	private void setContainer() {
+		this.container = QueueUtils.getContainerName(this);
 	}
 }

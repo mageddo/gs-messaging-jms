@@ -34,12 +34,20 @@ public class QueueUtils {
 		return rp;
 	}
 
-	public static String getContainerName(CompleteDestination completeDestination){
-		return completeDestination.getFactory() + "Container";
+	public static String getContainerName(CompleteDestination destination){
+		return getPrefixId(destination) + "Container";
 	}
 
 	public static String getFactoryName(CompleteDestination destination) {
-		return destination.getFactory() + "Factory";
+		return getPrefixId(destination) + "Factory";
+	}
+
+	private static String getPrefixId(CompleteDestination destination) {
+		String prefix = destination.getId();
+		if(prefix == null){
+			prefix = destination.getName();
+		}
+		return prefix;
 	}
 
 	public static RedeliveryPolicy configureRedelivery(ActiveMQConnectionFactory connectionFactory, CompleteDestination dest){
@@ -56,7 +64,7 @@ public class QueueUtils {
 		final DefaultMessageListenerContainer container = new DefaultMessageListenerContainer();
 		container.setBeanName(destination.getName());
 		final MageddoMessageListenerContainerFactory factory = new MageddoMessageListenerContainerFactory(container,
-			QueueUtils.getFactoryName(destination)
+			destination.getFactory()
 		);
 
 		createContainer(connectionFactory, destination, container);

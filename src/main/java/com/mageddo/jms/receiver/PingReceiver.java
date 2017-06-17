@@ -57,7 +57,7 @@ public class PingReceiver {
 	}
 
 
-	@Bean(name = DestinationConstants.FACTORY_PING + "Container", initMethod = "start", destroyMethod = "stop")
+	@Bean(name = "#{queue.get('PING').getContainer()}", initMethod = "start", destroyMethod = "stop")
 	public DefaultMessageListenerContainer container(ActiveMQConnectionFactory cf, PingReceiver receiver){
 
 		final DestinationEnum queue = DestinationEnum.PING;

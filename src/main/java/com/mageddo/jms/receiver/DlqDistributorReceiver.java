@@ -29,7 +29,7 @@ public class DlqDistributorReceiver {
 	@Autowired
 	private JmsTemplate jmsTemplate;
 
-	@JmsListener(destination = DestinationConstants.DEFAULT_DLQ, containerFactory = DestinationConstants.DEFAULT_DLQ + "Factory")
+	@JmsListener(destination = DestinationConstants.DEFAULT_DLQ, containerFactory = "#{queue.get('DEFAULT_DLQ').getFactory()}")
 	@Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
 	public void consume(ActiveMQMessage message) throws Exception {
 

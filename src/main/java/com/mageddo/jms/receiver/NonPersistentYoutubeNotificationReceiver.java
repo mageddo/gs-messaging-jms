@@ -82,7 +82,7 @@ public class NonPersistentYoutubeNotificationReceiver {
 		}
 	}
 
-	@JmsListener(destination = YOUTUBE_NOTIFICATION, containerFactory = YOUTUBE_NOTIFICATION + "Factory")
+	@JmsListener(destination = YOUTUBE_NOTIFICATION, containerFactory = "#{queue.get('YOUTUBE_NOTIFICATION').getFactory()}")
 	public void consume(final Message msg) throws JMSException {
 
 		if(!started.getAndSet(true)){

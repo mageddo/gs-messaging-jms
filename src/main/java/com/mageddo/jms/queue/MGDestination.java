@@ -2,6 +2,7 @@ package com.mageddo.jms.queue;
 
 public interface MGDestination {
 
+	String getId();
 	String getName();
 	int getTTL();
 	int getRetries();

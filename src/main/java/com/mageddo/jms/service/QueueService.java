@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.mageddo.jms.entity.DestinationParameterEntity;
 import com.mageddo.jms.queue.ActiveMQAdmin;
+import com.mageddo.jms.queue.CompleteDestination;
 import com.mageddo.jms.queue.DestinationEnum;
 import com.mageddo.jms.queue.vo.QueueDetailsVO;
 import com.mageddo.jms.utils.QueueUtils;
@@ -30,9 +31,11 @@ import java.util.List;
  * Created by elvis on 22/05/17.
  */
 
-@Service
+@Service(QueueService.LOCAL_JNDI)
 @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
 public class QueueService {
+
+	public static final String LOCAL_JNDI = "queue";
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -283,6 +286,10 @@ public class QueueService {
 			logger.error("msg={}", e.getMessage(), e);
 			return null;
 		}
+	}
+
+	public CompleteDestination get(String name){
+		return DestinationEnum.valueOf(name).getCompleteDestination();
 	}
 
 }

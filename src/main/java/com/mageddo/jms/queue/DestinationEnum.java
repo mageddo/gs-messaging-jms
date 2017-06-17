@@ -41,6 +41,7 @@ public enum DestinationEnum {
 
 	DestinationEnum(CompleteDestination destination, boolean autoDeclare) {
 		this.destination = destination;
+		this.destination.setId(this.name());
 		this.autoDeclare = autoDeclare;
 	}
 

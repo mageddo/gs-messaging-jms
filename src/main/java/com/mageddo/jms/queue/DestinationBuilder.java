@@ -54,7 +54,6 @@ public final class DestinationBuilder {
 		final CompleteDestination dest = new CompleteDestination(
 			queue(DestinationConstants.COLOR), 10000, 2, 1, 2
 		);
-		dest.setFactory(DestinationConstants.FACTORY_RED_COLOR);
 		return dest;
 
 	}
@@ -65,7 +64,6 @@ public final class DestinationBuilder {
 			queue(DestinationConstants.PING + "?consumer.dispatchAsync=false"), // http://activemq.apache.org/consumer-dispatch-async.html
 			120000, 2, 1, 2
 		);
-		dest.setFactory(DestinationConstants.FACTORY_PING);
 		return dest;
 
 	}

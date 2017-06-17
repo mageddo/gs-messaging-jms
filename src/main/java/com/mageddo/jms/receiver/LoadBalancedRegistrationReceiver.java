@@ -74,7 +74,7 @@ public class LoadBalancedRegistrationReceiver {
 		userService.enqueuePendingRegistrations();
 	}
 
-	@JmsListener(destination = DestinationConstants.REGISTRATION, containerFactory = DestinationConstants.REGISTRATION + "Factory")
+	@JmsListener(destination = DestinationConstants.REGISTRATION, containerFactory = "#{queue.get('REGISTRATION').getFactory()}")
 	public void consume(Message message) throws InterruptedException, JMSException {
 		final UserEntity userEntity = jsonConverter.readValue(message, UserEntity.class);
 		userService.completeRegistration(userEntity);

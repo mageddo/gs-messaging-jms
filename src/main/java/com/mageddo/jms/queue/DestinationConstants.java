@@ -10,8 +10,6 @@ public class DestinationConstants {
 	public static final String PING = "Ping";
 	public static final String DEFAULT_DLQ = "ActiveMQ.DLQ";
 
-	public static final String FACTORY_RED_COLOR = "RedColor";
-	public static final String FACTORY_PING = "Ping";
 	public static final String SALE = "Sale";
 	public static final String WITHDRAW = "Withdraw";
 	public static final String REGISTRATION = "Registration";

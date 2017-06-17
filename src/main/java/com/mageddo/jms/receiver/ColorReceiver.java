@@ -58,7 +58,7 @@ public class ColorReceiver {
 	 */
 	@JmsListener(
 		destination = DestinationConstants.COLOR,
-		containerFactory = DestinationConstants.COLOR + "Factory",
+		containerFactory = "#{queue.get('COLOR').getFactory()}",
 		selector = "color <> 'RED'"
 	)
 	public void genericReceiveMessage(ActiveMQTextMessage color) throws InterruptedException, JMSException {
@@ -70,7 +70,7 @@ public class ColorReceiver {
 
 	@JmsListener(
 		destination = DestinationConstants.COLOR,
-		containerFactory = DestinationConstants.FACTORY_RED_COLOR + "Factory",
+		containerFactory = "#{queue.get('RED_COLOR').getFactory()}",
 		selector = "color='RED'"
 	)
 	public void receiveMessage(ActiveMQTextMessage message) throws InterruptedException, JMSException {

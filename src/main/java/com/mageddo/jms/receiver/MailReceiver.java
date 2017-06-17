@@ -34,7 +34,7 @@ public class MailReceiver {
 
 	int counter = 0;
 
-	@JmsListener(destination = DestinationConstants.MAIL, containerFactory = DestinationConstants.MAIL + "Factory")
+	@JmsListener(destination = DestinationConstants.MAIL, containerFactory = "#{queue.get('MAIL').getFactory()}")
 	public void consume(TextMessage email) throws InterruptedException, JMSException {
 
 		mailService.insert(email.getText());

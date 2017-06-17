@@ -9,6 +9,8 @@ import com.mageddo.jms.queue.config.FlexibleJmsTemplate;
 import com.mageddo.jms.queue.converter.DefaultMessageConverter;
 import org.apache.activemq.pool.PooledConnectionFactory;
 import org.apache.tomcat.jdbc.pool.DataSource;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -21,6 +23,9 @@ import org.springframework.cache.Cache;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.concurrent.ConcurrentMapCache;
 import org.springframework.context.annotation.*;
+import org.springframework.expression.EvaluationContext;
+import org.springframework.expression.ExpressionParser;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.jms.annotation.EnableJms;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.support.converter.MessageConverter;
@@ -49,6 +54,36 @@ import java.util.concurrent.TimeUnit;
 @Configuration
 public class Application implements SchedulingConfigurer {
 
+//	@Autowired
+//	private StandardEvaluationContext context;
+
+//	@Value("#reverseString('Elvis')")
+	@Value("#{test1}")
+	private Object bean1;
+
+	@Value("#{test1.get('name')}")
+	private Object reverseNameToString;
+
+	@Bean
+	public Map<String, Object> test1(){
+		final HashMap<String, Object> map = new HashMap<>();
+		map.put("name", "Elvis");
+		return map;
+	}
+
+	public void construct() throws NoSuchMethodException {
+//		context.registerFunction(
+//			"reverseString",
+//			Application.class.getDeclaredMethod("reverseString", new Class[] { String.class })
+//		);
+	}
+
+	public static String reverseString(String input) {
+		StringBuilder backwards = new StringBuilder();
+		for (int i = 0; i < input.length(); i++)
+			backwards.append(input.charAt(input.length() - 1 - i));
+		return backwards.toString();
+	}
 
 	//	@Autowired
 //	ActiveMQConnectionFactory activeMQConnectionFactory;
@@ -177,12 +212,9 @@ public class Application implements SchedulingConfigurer {
 		);
 	}
 
-
 	@ConditionalOnProperty(prefix = "spring", name = "schedule.enable", matchIfMissing = false, havingValue = "true")
 	@EnableScheduling
 	static class Scheduling {}
-
-
 
 	public static void main(String[] args) throws Exception {
 		SpringApplication.run(Application.class, args);
