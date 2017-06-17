@@ -7,9 +7,9 @@ import org.springframework.context.annotation.ImportResource;
 /**
  * Created by elvis on 16/06/17.
  */
-@Configuration
 @Import(Application.class)
 @ImportResource("classpath:activemq.xml")
+@Configuration
 public class ApplicationTest {
 
 }
