@@ -30,8 +30,6 @@ dependencies {
 
 	testCompile("org.springframework.boot:spring-boot-starter-test:${springBootVersion}")
 	testCompile group: 'org.apache.activemq', name: 'activemq-spring', version: "${activeMQVersion}"
-	testCompile group: 'org.apache.xbean', name: 'xbean-spring', version: '4.5'
-	testCompile group: 'org.apache.activemq', name: 'activemq-spring', version: "${activeMQVersion}"
 	testCompile("junit:junit:4.12")
 
 }
