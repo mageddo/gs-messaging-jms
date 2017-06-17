@@ -24,7 +24,7 @@ import java.util.regex.Pattern;
 @Component
 public class DlqDistributorReceiver {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(DlqDistributorReceiver.class);
+	private final Logger logger = LoggerFactory.getLogger(getClass());
 
 	@Autowired
 	private JmsTemplate jmsTemplate;
@@ -35,20 +35,20 @@ public class DlqDistributorReceiver {
 
 		try {
 			final ActiveMQQueue dlqQueue = getDLQ(message);
-			LOGGER.debug("status=movingDLQ, dlq={}, msgId={}, cause={}", dlqQueue.getPhysicalName(),
+			logger.debug("status=movingDLQ, dlq={}, msgId={}, cause={}", dlqQueue.getPhysicalName(),
 				message.getJMSMessageID(), message.getProperty("dlqDeliveryFailureCause"));
 			jmsTemplate.convertAndSend(dlqQueue, message);
 		} catch (Throwable e) {
-			LOGGER.error("errorMsg={}, msg={}", e.getMessage(), message.getJMSMessageID(), e);
+			logger.error("errorMsg={}, msg={}", e.getMessage(), message.getJMSMessageID(), e);
 			throw e;
 		}
 
 	}
 
 	private ActiveMQQueue getDLQ(ActiveMQMessage message) throws JMSException {
-		final DestinationEnum dlq = DestinationEnum.fromDestinationName(message.getOriginalDestination().getPhysicalName());
-		if(dlq != null){
-			return dlq.getDlq();
+		final DestinationEnum queue = DestinationEnum.fromDestinationName(message.getOriginalDestination().getPhysicalName());
+		if(queue != null){
+			return queue.getDlq();
 		}
 		return getDLQByFailureCause(message);
 	}
@@ -60,7 +60,7 @@ public class DlqDistributorReceiver {
 		if (matcher.find()) {
 			dlqQueue = new ActiveMQQueue(matcher.group(1));
 		} else {
-			dlqQueue = new ActiveMQQueue("dlq.general");
+			dlqQueue = new ActiveMQQueue("DLQ.general");
 		}
 		dlqQueue.setDLQ();
 		return dlqQueue;
