@@ -11,7 +11,7 @@ import org.springframework.jms.annotation.EnableJms;
  */
 
 @EnableJms
-@ImportResource("classpath:activemq.xml")
+//@ImportResource("classpath:activemq.xml")
 @SpringBootApplication
 @EnableAutoConfiguration
 @Configuration
